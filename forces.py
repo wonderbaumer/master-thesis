@@ -8,6 +8,9 @@ import numpy as np
 m_s = 1.98847e30  #mass of sun, in kg
 s_s = 1361 #solar constant, in Wm^-2
 q_pr = 1 #radiation pressure coefficient, unitless
+r0 = 149597871e3 #initial radial dist in m, equals 1 AU
+r_par = 5e-7 #radius particle, m
+m_par = 1.3e-15 #mass particle, kg
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -43,9 +46,49 @@ def pressure_radial(x , y , r0 , r_par):
     
     return pressure_force_rad
 
-
-#def acc_beta() 
+"""function that calculates beta, ratio between pressure radiation force
+and gravity"""
+def beta(x , y , r0 , r_par):
+    """input: x (float), cartesian x coordinate for position
+              y (float), cartesian y coordinate for pos
+              r0 (float), initial distance between par and Sun
+              r_par (float), radius of particle
+        
+       returns: b (float), ratio between rad and g force"""
     
+    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
+    g_abs = np.sqrt(gx**2 + gy**2) #absolute value gravity
+    
+    Frad = pressure_radial(x, y, r0, r_par)
+    arad = Frad / m_par #radiation acc
+    
+    b = arad / g_abs #ratio radiation pressure acc to gravity
+    
+    return b
 
+"""function that calculates total acceleration given radiation pressure force
+and gravitational force only"""
+def tot_acc(x , y , r0 , r_par):
+    """input: x (float), cartesian x coordinate for position
+              y (float), cartesian y coordinate for pos
+              r0 (float), initial distance between par and Sun
+              r_par (float), radius of particle
+              
+        returns: ax , ay (array), lists of new acceleration in x and y dir"""
+        
+    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
+    
+    b = beta(x , y , r0 , r_par)
+    
+    ax = gx * (1 - b) #acc in x dir
+    ay = gy * (1 - b) #acc in y dir
+    
+    
+    
+    return ax , ay
+   
+
+
+    
     
     
