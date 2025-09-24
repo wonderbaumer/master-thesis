@@ -28,7 +28,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot):
     
     leapfroged_values = [] #initializing list for the calculated values
     
-    ax , ay = acc_func(x , y , r0 , r_par) #unpacking acceleration x and y vals 
+    ax , ay = acc_func(x , y , r_par) #unpacking acceleration x and y vals 
     
     while t < t_tot:
         vx_half = vx + dt / 2 * ax #half step calcs for vx
@@ -37,7 +37,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot):
         x = x + dt * vx_half #updating pos x
         y = y + dt * vy_half #updating pos y
         
-        ax , ay = acc_func(x , y , r0 , r_par) #updating acc vals
+        ax , ay = acc_func(x , y , r_par) #updating acc vals
         
         vx = vx_half + dt / 2 * ax #updating vx
         vy = vy_half + dt / 2 * ay #updating vy
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     y_pos = pos_and_vel[: , 1] #y pos from leapfrog
     
-    print(beta(x_pos , y_pos , r0, r_par))
+    print(init_cartesian)
     
     
     

@@ -4,6 +4,7 @@ from forces import *
 from polar_to_cart import polar_to_cartesian
 from leapfrog import leapfrog_algorithm
 from energy import tot_energy
+from scipy_solver import *
 
 """plotting the x and y position of the particle"""
 def pos_plot(x , y):
@@ -12,9 +13,10 @@ def pos_plot(x , y):
               
         returns: none   """
         
-    plt.plot(x , y , label="x and y pos")
-    plt.xlabel("x distance (m)")
-    plt.ylabel("y distance (m)")
+    plt.plot(x / au , y / au , label="x and y pos")
+    plt.axis("equal")
+    plt.xlabel("x distance (AU)")
+    plt.ylabel("y distance (AU)")
     plt.title("Particle position as function of time")
     plt.legend()
 
@@ -41,31 +43,39 @@ if __name__ == "__main__":
     
     theta0 = 0 #initial angle in rad, initial position along horizontal
     v0r = 0 #initial radial vel in m/s
-    v0theta = 29.78e3 #initial angular vel in m/s
+    v0theta = 26141 #initial angular vel in m/s
     
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     
     dt = 3.16e3 #timestep in s
-    t_tot = 3.16e9 #total time in s
+    t0 = 0 #initial time in s
+    t_tot = 3.16e8 #total time in s
+    t_span = (t0 , t_tot) #tuple of start and end time
+
+    pos_scipy = particle_motion(pos_vel , t_span , init_cartesian[0])
     
-    pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot) #leapfroging using initial cond
+    #pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot) #leapfroging using initial cond
     
-    x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
-    y_pos = pos_and_vel[: , 1] #y pos from leapfrog
+    #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
+    #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
    
-    vx = pos_and_vel[: , 2] #vx pos from leapfrog
-    vy = pos_and_vel[: , 3] #vy pos from leapfrog
+    #vx = pos_and_vel[: , 2] #vx pos from leapfrog
+    #vy = pos_and_vel[: , 3] #vy pos from leapfrog
     
-    v = np.sqrt(vx**2 + vy**2) #speed 
+    x_scipy = pos_scipy.y[0]
+    y_scipy = pos_scipy.y[1]
     
-    m = 5.236 * 10**(-7) #mass particle, kg
+    vx_scipy = pos_scipy.y[2]
+    vy_scipy = pos_scipy.y[3]
     
-    energy = tot_energy(x_pos , y_pos , vx , vy) #finding energies
+    #v = np.sqrt(vx**2 + vy**2) #speed 
     
-    energy_plot(t_tot , energy) #plotting energies
+    #energy = tot_energy(x_scipy , y_scipy , vx_scipy , vy_scipy) #finding energies
     
-    #pos_plot(x_pos , y_pos)
+    #energy_plot(t_tot , energy) #plotting energies
+    
+    pos_plot(x_scipy , y_scipy)
     
     
     

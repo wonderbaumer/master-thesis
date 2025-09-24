@@ -8,9 +8,10 @@ import numpy as np
 m_s = 1.98847e30  #mass of sun, in kg
 s_s = 1361 #solar constant, in Wm^-2
 q_pr = 1 #radiation pressure coefficient, unitless
-r0 = 149597871e3 #initial radial dist in m, equals 1 AU
-r_par = 5e-7 #radius particle, m
-m_par = 1.3e-15 #mass particle, kg
+au = 149597871e3 #one astronomical unit, AU, in m
+r0 = 1.0 * au #initial radial dist in units of AU
+r_par = 1e-6 #radius particle, m
+m_par = 1.047e-14 #mass particle, kg
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -30,28 +31,26 @@ def gravity(x , y):
 
 """function that calculates the radial part of the radiation pressure
 force from the solar wind hitting the particle"""
-def pressure_radial(x , y , r0 , r_par):
+def pressure_radial(x , y , r_par):
     """input: x (float), cartesian x coordinate for position
               y (float), cartesian y coordinate for pos
-              r0 (float), initial distance between par and Sun
               r_par (float), radius of particle
         returns: pressure_force_rad (float), radiation pressure force, rad comp"""
         
-    r = np.sqrt(x**2 + y**2)
-    A = np.pi * r_par**2
+    r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun
+    A = np.pi * r_par**2 #cross section area of particle
     
-    s = s_s * (r0 / r)**2
+    s = s_s * (au / r)**2 #radiation flux density at distance r from Sun
     
-    pressure_force_rad = s * A * q_pr / c
+    pressure_force_rad = s * A * q_pr / c #formula pressure radiation force
     
     return pressure_force_rad
 
 """function that calculates beta, ratio between pressure radiation force
 and gravity"""
-def beta(x , y , r0 , r_par):
+def beta(x , y , r_par):
     """input: x (float), cartesian x coordinate for position
               y (float), cartesian y coordinate for pos
-              r0 (float), initial distance between par and Sun
               r_par (float), radius of particle
         
        returns: b (float), ratio between rad and g force"""
@@ -59,7 +58,7 @@ def beta(x , y , r0 , r_par):
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
     g_abs = np.sqrt(gx**2 + gy**2) #absolute value gravity
     
-    Frad = pressure_radial(x, y, r0, r_par)
+    Frad = pressure_radial(x , y , r_par)
     arad = Frad / m_par #radiation acc
     
     b = arad / g_abs #ratio radiation pressure acc to gravity
@@ -68,17 +67,16 @@ def beta(x , y , r0 , r_par):
 
 """function that calculates total acceleration given radiation pressure force
 and gravitational force only"""
-def tot_acc(x , y , r0 , r_par):
+def tot_acc(x , y , r_par):
     """input: x (float), cartesian x coordinate for position
               y (float), cartesian y coordinate for pos
-              r0 (float), initial distance between par and Sun
               r_par (float), radius of particle
               
         returns: ax , ay (array), lists of new acceleration in x and y dir"""
         
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
     
-    b = beta(x , y , r0 , r_par)
+    b = beta(x , y , r_par)
     
     ax = gx * (1 - b) #acc in x dir
     ay = gy * (1 - b) #acc in y dir
