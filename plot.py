@@ -43,7 +43,7 @@ if __name__ == "__main__":
     
     theta0 = 0 #initial angle in rad, initial position along horizontal
     v0r = 0 #initial radial vel in m/s
-    v0theta = 26141 #initial angular vel in m/s
+    v0theta = 29780 #initial angular vel in m/s
     
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
@@ -55,13 +55,13 @@ if __name__ == "__main__":
 
     pos_scipy = particle_motion(pos_vel , t_span , init_cartesian[0])
     
-    #pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot) #leapfroging using initial cond
+    pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot) #leapfroging using initial cond
     
-    #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
-    #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
+    x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
+    y_pos = pos_and_vel[: , 1] #y pos from leapfrog
    
-    #vx = pos_and_vel[: , 2] #vx pos from leapfrog
-    #vy = pos_and_vel[: , 3] #vy pos from leapfrog
+    vx = pos_and_vel[: , 2] #vx pos from leapfrog
+    vy = pos_and_vel[: , 3] #vy pos from leapfrog
     
     x_scipy = pos_scipy.y[0]
     y_scipy = pos_scipy.y[1]
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     
     #energy_plot(t_tot , energy) #plotting energies
     
-    pos_plot(x_scipy , y_scipy)
+    pos_plot(x_pos , y_pos)
     
     
     

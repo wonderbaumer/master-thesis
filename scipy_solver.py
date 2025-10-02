@@ -29,7 +29,7 @@ def particle_motion(fun , t_span , y0):
               
        returns: sol (array_like), x ,y ,vx and vy at time t"""
     
-    sol = solve_ivp(fun , t_span , y0 , method = "DOP853" , args=(r_par,) ,
+    sol = solve_ivp(fun , t_span , y0 , method = "RK45" , args=(r_par,) ,
                     rtol=1e-9 , atol=1e-12)
     
     return sol
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     
     t0 = 0 #initial time in s
-    t_tot = 3.16e10 #total time in s
+    t_tot = 3.16e8 #total time in s
     t_span = (t0 , t_tot) #tuple of start and end time
 
     pos_and_vel = particle_motion(pos_vel , t_span , init_cartesian[0])

@@ -66,7 +66,7 @@ if __name__ == "__main__":
     x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     y_pos = pos_and_vel[: , 1] #y pos from leapfrog
     
-    print(init_cartesian)
+    print(beta(x_pos, y_pos, r_par))
     
     
     

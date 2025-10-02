@@ -1,5 +1,8 @@
 from scipy.constants import *
 import numpy as np
+from polar_to_cart import polar_to_cartesian
+from cst_table import *
+from constants import *
 
 """scipy constants used:
     G: gravitational constant: 6.6743e-11 m^3kg^-1s^-2
@@ -10,8 +13,13 @@ s_s = 1361 #solar constant, in Wm^-2
 q_pr = 1 #radiation pressure coefficient, unitless
 au = 149597871e3 #one astronomical unit, AU, in m
 r0 = 1.0 * au #initial radial dist in units of AU
-r_par = 1e-6 #radius particle, m
-m_par = 1.047e-14 #mass particle, kg
+
+rad0 = np.linspace(500e-9 , 10e-6 , 10)
+r_par = rad0
+particles = [particle_scaled(r , beta_0) for r in rad0] #particle attributes
+m_par = np.array([p.mass() for p in particles]) #mass array
+
+#m_par = 1.30899694e-15 #mass particle, kg
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -86,7 +94,19 @@ def tot_acc(x , y , r_par):
     return ax , ay
    
 
-
+if __name__ == "__main__":
+    theta0 = 0 #initial angle in rad, initial position along horizontal
+    v0r = 0 #initial radial vel in m/s
+    v0theta = 29.78e3 #initial angular vel in m/s
+    
+    init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
+    init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
+    x = init_cartesian[0][0]
+    y = init_cartesian[0][1]
+    
+    
+    
+    print(m_par , beta(x, y, r_par))
     
     
     
