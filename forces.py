@@ -14,12 +14,13 @@ q_pr = 1 #radiation pressure coefficient, unitless
 au = 149597871e3 #one astronomical unit, AU, in m
 r0 = 1.0 * au #initial radial dist in units of AU
 
-rad0 = np.linspace(500e-9 , 10e-6 , 10)
-r_par = rad0
-particles = [particle_scaled(r , beta_0) for r in rad0] #particle attributes
-m_par = np.array([p.mass() for p in particles]) #mass array
+#rad0 = np.linspace(500e-9 , 10e-6 , 10)
+#r_par = rad0
+r_par = 500e-9
+#particles = [particle_scaled(r , beta_0) for r in rad0] #particle attributes
+#m_par = np.array([p.mass() for p in particles]) #mass array
 
-#m_par = 1.30899694e-15 #mass particle, kg
+m_par = 1.30899694e-15 #mass particle, kg
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -75,21 +76,17 @@ def beta(x , y , r_par):
 
 """function that calculates total acceleration given radiation pressure force
 and gravitational force only"""
-def tot_acc(x , y , r_par):
+def tot_acc(x , y , beta):
     """input: x (float), cartesian x coordinate for position
               y (float), cartesian y coordinate for pos
-              r_par (float), radius of particle
+              beta (float), Fr/Fg
               
         returns: ax , ay (array), lists of new acceleration in x and y dir"""
         
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
     
-    b = beta(x , y , r_par)
-    
-    ax = gx * (1 - b) #acc in x dir
-    ay = gy * (1 - b) #acc in y dir
-    
-    
+    ax = gx * (1 - beta) #acc in x dir
+    ay = gy * (1 - beta) #acc in y dir
     
     return ax , ay
    
@@ -104,9 +101,6 @@ if __name__ == "__main__":
     x = init_cartesian[0][0]
     y = init_cartesian[0][1]
     
-    
-    
-    print(m_par , beta(x, y, r_par))
     
     
     

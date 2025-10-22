@@ -12,7 +12,7 @@ yr = 60 * 60 * 24 * 365
 beta_const = S_s * q_pr * np.pi * au**2 / (G * m_s * c) #beta const
 beta_0 = 0.45931933916320633 #initial mass and radius in cst table
 
-period_cst = 2 * np.pi * np.sqrt(r0**3 / (G * m_s))
+period_cst = np.sqrt(r0**3 / (G * m_s))
 
 N_sw = 3e6 #m^-3, density slow solar wind
 v_sw = 800e3 #ms^-1, velocity slow solar wind
@@ -30,4 +30,4 @@ m_O = 16.00
 
 mA = (m_Mg + m_Si + 4 * m_O) / 7 * u
 
-mass_cst = -fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) #mass constant
+mass_cst = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) #mass constant
