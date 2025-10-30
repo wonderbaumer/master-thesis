@@ -29,6 +29,7 @@ def particle_motion(fun , t_span , y0):
               
        returns: sol (array_like), x ,y ,vx and vy at time t"""
     
+    
     sol = solve_ivp(fun , t_span , y0 , method = "RK45" , args=(r_par,) ,
                     rtol=1e-9 , atol=1e-12)
     

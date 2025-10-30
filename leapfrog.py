@@ -1,6 +1,7 @@
 import numpy as np
 from polar_to_cart import polar_to_cartesian
 from forces import *
+from b_plotting import *
 
 """simple leapfrog algorithm function that uses initial values and
     acceleration from considered forces to calculate position, velocity
@@ -28,7 +29,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot):
     
     leapfroged_values = [] #initializing list for the calculated values
     
-    ax , ay = acc_func(x , y , r_par) #unpacking acceleration x and y vals 
+    ax , ay = acc_func(x , y , r_par = 500e-9) #unpacking acceleration x and y vals 
     
     while t < t_tot:
         vx_half = vx + dt / 2 * ax #half step calcs for vx
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     y_pos = pos_and_vel[: , 1] #y pos from leapfrog
     
-    print(beta(x_pos, y_pos, r_par))
+    print(x_pos / au , y_pos / au)
     
     
     

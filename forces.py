@@ -6,20 +6,12 @@ from constants import *
 
 """scipy constants used:
     G: gravitational constant: 6.6743e-11 m^3kg^-1s^-2
-    c: speed of light in vacuum: 299792458 ms^-1"""
+    c: speed of light in vacuum: 299792458 ms^-1
+    
+    r_par, m_par calculated on paper, necessary for calcs in this py, but not
+    in class py"""
 
-m_s = 1.98847e30  #mass of sun, in kg
-s_s = 1361 #solar constant, in Wm^-2
-q_pr = 1 #radiation pressure coefficient, unitless
-au = 149597871e3 #one astronomical unit, AU, in m
-r0 = 1.0 * au #initial radial dist in units of AU
-
-#rad0 = np.linspace(500e-9 , 10e-6 , 10)
-#r_par = rad0
 r_par = 500e-9
-#particles = [particle_scaled(r , beta_0) for r in rad0] #particle attributes
-#m_par = np.array([p.mass() for p in particles]) #mass array
-
 m_par = 1.30899694e-15 #mass particle, kg
 
 """calculates acceleration of the particle in x and y direction
@@ -49,7 +41,7 @@ def pressure_radial(x , y , r_par):
     r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun
     A = np.pi * r_par**2 #cross section area of particle
     
-    s = s_s * (au / r)**2 #radiation flux density at distance r from Sun
+    s = S_s * (au / r)**2 #radiation flux density at distance r from Sun
     
     pressure_force_rad = s * A * q_pr / c #formula pressure radiation force
     
@@ -92,10 +84,6 @@ def tot_acc(x , y , beta):
    
 
 if __name__ == "__main__":
-    theta0 = 0 #initial angle in rad, initial position along horizontal
-    v0r = 0 #initial radial vel in m/s
-    v0theta = 29.78e3 #initial angular vel in m/s
-    
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     x = init_cartesian[0][0]

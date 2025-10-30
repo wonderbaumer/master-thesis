@@ -4,13 +4,17 @@ import numpy as np
 rho = 2500 #kgm^-3
 S_s = 1361 #solar constant, in Wm^-2
 au = 149597871e3 #one astronomical unit, AU, in m
-r0 = 1.0 * au #initial radial dist in units of AU
 q_pr = 1 #radiation pressure coefficient, unitless
 m_s = 1.98847e30  #mass of sun, in kg
 yr = 60 * 60 * 24 * 365
 
 beta_const = S_s * q_pr * np.pi * au**2 / (G * m_s * c) #beta const
 beta_0 = 0.45931933916320633 #initial mass and radius in cst table
+
+"""init cond"""
+r0 = 1.0 * au #initial radial dist in units of AU
+theta0 = 0 #initial angle in rad, initial position along horizontal
+v0r = 0 #initial radial vel in m/s
 
 period_cst = np.sqrt(r0**3 / (G * m_s))
 
