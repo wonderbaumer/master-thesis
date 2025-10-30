@@ -8,8 +8,11 @@ q_pr = 1 #radiation pressure coefficient, unitless
 m_s = 1.98847e30  #mass of sun, in kg
 yr = 60 * 60 * 24 * 365
 
+m_par = 1.30899694e-15 #mass particle, kg
+
 beta_const = S_s * q_pr * np.pi * au**2 / (G * m_s * c) #beta const
 beta_0 = 0.45931933916320633 #initial mass and radius in cst table
+betahat_0 = 1 #initial betahat, when beta=beta_0
 
 """init cond"""
 r0 = 1.0 * au #initial radial dist in units of AU
@@ -26,7 +29,7 @@ YH = 0.05 #sputtering yield hydrogen
 YHe = 0.02 #sputtering yield helium
 Ytot = YH + YHe #total sputtering yield
 
-u = 1.66e-24 #1 atomic mass unit in g
+u = 1.66e-27 #1 atomic mass unit in kg
 
 m_Mg = 24.31 #atomic mass
 m_Si = 28.08 
