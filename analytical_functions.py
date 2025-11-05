@@ -9,8 +9,8 @@ def betahat(t , eps):
         
        returns: betahat_sum (float), sum of all order terms """
        
-    order_0 =  1 / betahat_0 
-    order_1 = eps * t / (3 * betahat_0**2)
+    order_0 =  1 / beta_0 
+    order_1 = eps * t  / (3* beta_0**2)
     
     betahat_sum = order_0 + order_1
     

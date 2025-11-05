@@ -1,7 +1,7 @@
 import numpy as np
 from polar_to_cart import polar_to_cartesian
 from forces import *
-from b_plotting import *
+from analytical_functions import *
 from constants import * 
 
 """simple leapfrog algorithm function that uses initial values and
@@ -64,7 +64,7 @@ def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
         
     b_vals = np.array(b_vals)   
     leapfroged_values = np.array(leapfroged_values)  #list to array
-    return leapfroged_values
+    return b_vals
     
 
 if __name__ == "__main__":  

@@ -3,7 +3,7 @@ import numpy as np
 from forces import *
 from polar_to_cart import polar_to_cartesian
 from leapfrog import leapfrog_algorithm
-from energy import tot_energy
+#from energy import tot_energy
 from scipy_solver import *
 from constants import *
 
@@ -29,7 +29,9 @@ def betahat_plot(betahat , t):
               t (float), time beta hat has been calculated from
               
        returns: none"""
-       
+    fig = plt.figure()
+    ax = fig.add_subplot(1 , 0)
+    plt.get_yaxis().get_major_formatter().set_useOffset(False)   
     time = np.linspace(0 , t / yr , len(betahat)) 
     plt.plot(time , betahat)
     
@@ -73,9 +75,8 @@ if __name__ == "__main__":
     #pos_scipy = particle_motion(pos_vel , t_span , init_cartesian[0])
     
     betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
-    betahat = betas / beta_0
     
-    #betahat_plot(betahat , t_tot)
+    betahat_plot(betas , t_tot)
     
     #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
