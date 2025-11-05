@@ -64,7 +64,7 @@ def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
         
     b_vals = np.array(b_vals)   
     leapfroged_values = np.array(leapfroged_values)  #list to array
-    return b_vals
+    return leapfroged_values
     
 
 if __name__ == "__main__":  
@@ -79,11 +79,14 @@ if __name__ == "__main__":
     dt = 3.16e5 #timestep in s
     t_tot = 3.16e10 #total time in s
     
-    #pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
-    #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
-    #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
+    pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
+    x_pos = pos_and_vel[: , 0]
+    y_pos = pos_and_vel[: , 1]
+    x_acc = pos_and_vel[: , 4] #x pos from leapfrog 
+    y_acc = pos_and_vel[: , 5] #y pos from leapfrog
     
-    betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot)
+    print(x_acc , y_acc)
+    #betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot)
     
     
     

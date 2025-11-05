@@ -35,7 +35,7 @@ if __name__ == "__main__":
     t0 = 0 #initial time in s
     #t_tot = 3.16e10 #total time in s
     
-    t_max = np.linspace(t0 , 1000 , 1000)
+    t_max = np.linspace(t0 , 1 , 100)
     epsilon = 0.019
     
     y = betahat(t_max , epsilon)

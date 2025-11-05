@@ -65,9 +65,9 @@ if __name__ == "__main__":
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     
-    dt = 3.16e5 #timestep in s
+    dt = 3.16e2 #timestep in s
     t0 = 0 #initial time in s
-    t_tot = 3.16e10 #total time in s
+    t_tot = yr #total time in s
     t_span = (t0 , t_tot) #tuple of start and end time
 
     #pos_scipy = particle_motion(pos_vel , t_span , init_cartesian[0])
@@ -75,8 +75,7 @@ if __name__ == "__main__":
     betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
     betahat = betas / beta_0
     
-    
-    betahat_plot(betahat , t_tot)
+    #betahat_plot(betahat , t_tot)
     
     #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
