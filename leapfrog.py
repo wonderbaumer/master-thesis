@@ -1,14 +1,15 @@
 import numpy as np
 from polar_to_cart import polar_to_cartesian
 from forces import *
-from analytical_functions import *
+#from analytical_functions import *
 from constants import * 
+import matplotlib.pyplot as plt
 
 """simple leapfrog algorithm function that uses initial values and
     acceleration from considered forces to calculate position, velocity
     and acceleration of the particle at any given time, in x and y 
     direction"""
-def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
+def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
     """input: initial_vals (array), array containing initial values in
               position x and y and velocity x and y direction
               
@@ -26,7 +27,7 @@ def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
     
     t = 0 #initial time
     
-    x , y , vx , vy = initial_vals[0] #unpack values from nested array
+    x , y , vx , vy = initial_vals #unpack values from nested array
     
     m = m_par
     
@@ -40,12 +41,13 @@ def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
         vx_half = vx + dt / 2 * ax #half step calcs for vx
         vy_half = vy + dt / 2 * ay #half step calcs for vy
         
-        dmdt = massloss(m)
-        m_mid = m + 0.5 * dt * dmdt
-        
-        """correcting for numerical instabilities in mass cals"""
-        dm_mid = massloss(m_mid)
-        m += dm_mid * dt
+        if massloss is not None:
+            dmdt = massloss(m)
+            m_mid = m + 0.5 * dt * dmdt
+            
+            """correcting for numerical instabilities in mass cals"""
+            dm_mid = massloss(m_mid)
+            m += dm_mid * dt
     
         x = x + dt * vx_half #updating pos x
         y = y + dt * vy_half #updating pos y
@@ -58,13 +60,12 @@ def leapfrog_algorithm(initial_vals , acc_func , massloss , dt , t_tot):
         vx = vx_half + dt / 2 * ax #updating vx
         vy = vy_half + dt / 2 * ay #updating vy
         
-        leapfroged_values.append([x , y , vx , vy , ax , ay]) #adding vals to list
+        leapfroged_values.append([x , y , vx , vy , ax , ay , b]) #adding vals to list
         
         t += dt #update time
         
-    b_vals = np.array(b_vals)   
     leapfroged_values = np.array(leapfroged_values)  #list to array
-    return b_vals
+    return leapfroged_values
     
 
 if __name__ == "__main__":  
@@ -76,19 +77,19 @@ if __name__ == "__main__":
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     
-    dt = 3.16e5 #timestep in s
-    t_tot = 3.16e10 #total time in s
+    dt = 3.16e3 #timestep in s
+    t_tot = 3.16e8 #total time in s
     
-    pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
+    pos_and_vel = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot , sputtering) #leapfroging using initial cond
     x_pos = pos_and_vel[: , 0]
     y_pos = pos_and_vel[: , 1]
     x_acc = pos_and_vel[: , 4] #x pos from leapfrog 
     y_acc = pos_and_vel[: , 5] #y pos from leapfrog
+    beta = pos_and_vel[: , 6]
     
-    print(x_acc , y_acc)
-    #betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot)
-    
-    
+    print(x_acc)
+
+
     
     
     

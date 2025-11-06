@@ -11,8 +11,6 @@ from constants import *
     r_par, m_par calculated on paper, necessary for calcs in this py, but not
     in class py"""
 
-r_par_init = 500e-9
-
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
     only"""
@@ -112,10 +110,12 @@ def tot_acc(x , y , m):
    
 
 if __name__ == "__main__":
+    v0theta = 22085 #initial angular vel in m/s
     init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
     init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
     x = init_cartesian[0][0]
     y = init_cartesian[0][1]
+    
     
     
     

@@ -26,5 +26,6 @@ def polar_to_cartesian(polar_coord):
     
         cartesian_vals.append([x , y , vx , vy]) #adding cartesian coords to list
     cartesian_vals = np.array(cartesian_vals) #list into array
+    cartesian_vals = cartesian_vals[0]
     return cartesian_vals
     

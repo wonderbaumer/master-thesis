@@ -6,6 +6,7 @@ from leapfrog import leapfrog_algorithm
 #from energy import tot_energy
 from scipy_solver import *
 from constants import *
+from analytical_functions import *
 
 """plotting the x and y position of the particle"""
 def pos_plot(x , y):
@@ -24,21 +25,23 @@ def pos_plot(x , y):
     plt.show()
 
 """plotting numerically calculated beta hat"""
-def betahat_plot(betahat , t):
+def b_plot(b_num , b_analytical , t):
     """input: betahat (float), beta hat calculated numerically
               t (float), time beta hat has been calculated from
               
        returns: none"""
-    fig = plt.figure()
-    ax = fig.add_subplot(1 , 0)
-    plt.get_yaxis().get_major_formatter().set_useOffset(False)   
-    time = np.linspace(0 , t / yr , len(betahat)) 
-    plt.plot(time , betahat)
+    fig , ax = plt.subplots()
+       
+    #time = np.linspace(0 , t / yr , len(b_num)) 
+    ax.plot(t , b_num , label = "numerical")
+    #ax.plot(t , b_analytical , label = "analytical")
     
-    plt.xlabel("Time (yr)")
-    plt.ylabel("beta hat(t)")
-    plt.title("Beta hat numerical")
-    plt.legend()
+    ax.set_xlabel("Time (yr)")
+    ax.set_ylabel("beta hat(t)")
+    ax.set_title("Beta hat")
+    ax.legend()
+    
+    ax.get_yaxis().get_major_formatter().set_useOffset(False)
     plt.show()
 
 def energy_plot(t , energy):
@@ -71,12 +74,20 @@ if __name__ == "__main__":
     t0 = 0 #initial time in s
     t_tot = yr #total time in s
     t_span = (t0 , t_tot) #tuple of start and end time
+    
 
     #pos_scipy = particle_motion(pos_vel , t_span , init_cartesian[0])
     
-    betas = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
+    b_num = leapfrog_algorithm(init_cartesian , tot_acc , sputtering , dt , t_tot) #leapfroging using initial cond
+    bhat_num = b_num / beta_0
     
-    betahat_plot(betas , t_tot)
+    t_max = np.linspace(t0 , t_tot / yr , len(bhat_num))
+    
+    epsilon = 0.019
+    
+    bhat_analytical = betahat(t_max , epsilon)
+    
+    b_plot(bhat_num , bhat_analytical , t_max)
     
     #x_pos = pos_and_vel[: , 0] #x pos from leapfrog 
     #y_pos = pos_and_vel[: , 1] #y pos from leapfrog
