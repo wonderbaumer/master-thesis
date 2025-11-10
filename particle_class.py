@@ -131,7 +131,7 @@ class particle():
         
         if self.solver == "LEAPFROG":
             pos_and_vel = leapfrog_algorithm(initial_vals , self.acceleration
-                    , sputtering , dt , t_tot) #leapfroging using initial cond
+                     , dt , t_tot , sputtering) #leapfroging using initial cond
         
         else:
             pos_and_vel = particle_motion(self.ode_vars , t_span , 
@@ -141,7 +141,10 @@ class particle():
 
 sim_time = (3.16e5 , 3.16e10)    
 
-p = particle(init_polar , sim_time , "RK45")
+p = particle(init_polar , sim_time , "LEAPFROG")
+init_cartesian = p.init_conds_cart()
+sol = p.beta(init_cartesian[0] , init_cartesian[1] , m_par)
+solv = p.pos_vel_calcs()
 
 
        

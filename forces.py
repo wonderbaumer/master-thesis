@@ -101,7 +101,6 @@ def tot_acc(x , y , m):
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
     
     b = pressure_acc / np.sqrt(gx**2 + gy**2)
-
     
     ax = gx * (1 - b) #acc in x dir
     ay = gy * (1 - b) #acc in y dir
