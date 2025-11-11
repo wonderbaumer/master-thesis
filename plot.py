@@ -3,13 +3,13 @@ import numpy as np
 from forces import *
 from polar_to_cart import polar_to_cartesian
 from leapfrog import *
-#from energy import tot_energy
+from energy import tot_energy
 from scipy_solver import *
 from constants import *
 from analytical_functions import *
 
 """plotting the x and y position of the particle"""
-def pos_plot(x_num , y_num , x_analytical = None , y_analytical = None):
+def pos_plot(x_num1 , y_num1 , x_num2 = None , y_num2 = None , x_analytical = None , y_analytical = None):
     """input: x_num (float), x position from only numerical solver
               y_num (float), y position from only numerical solver
               x_analytical (float), x pos from analytical expression
@@ -71,19 +71,7 @@ def energy_plot(t , energy):
     plt.legend()
     plt.show()
 
-#x_num , y_num = orbit_n[: , 0] , orbit_n[: , 1] 
-#x_analytical , y_analytical = orbit_a0[: , 0] , orbit_a0[: , 1] 
-   
-#pos_plot(x_num , y_num )
-
-betahatt = orbit_n / beta_0
-
-time = np.linspace(0 , 1.1 * T / T , len(orbit_n))
-
-
-b_a = betahat(time)
-
-b_plot(betahatt , b_a , time)
+if __name__ == "__main__":
   
     
     

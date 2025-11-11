@@ -3,11 +3,8 @@ from forces import gravity
 from polar_to_cart import polar_to_cartesian
 from leapfrog import leapfrog_algorithm
 from scipy.constants import *
-
-"""scipy constants used:
-    G: gravitational constant: 6.6743e-11 m^3kg^-1s^-2"""
-
-m_s = 1.98847e30  #mass of sun, in kg
+from constants import *
+from particle_class import *
 
 """function that calculates the total energy of the particle in orbit,
 uses cartesian coordinates, kinetic energy per unit mass"""

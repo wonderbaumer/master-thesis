@@ -141,13 +141,14 @@ class particle():
 
 sim_time = (3.16e5 , 3.16e10)    
 
-p = particle(init_polar , sim_time , "LEAPFROG")
-init_cartesian = p.init_conds_cart()
-sol = p.beta(init_cartesian[0] , init_cartesian[1] , m_par)
-solv = p.pos_vel_calcs()
+p_l = particle(init_polar , sim_time)
+init_cartesian_l = p_l.init_conds_cart()
+sol_l = p_l.beta(init_cartesian_l[0] , init_cartesian_l[1] , m_par)
+solv_l = p_l.pos_vel_calcs()
+
+np.save("hoppefrosk.npy" , solv_l)
 
 
-       
     
     
     
