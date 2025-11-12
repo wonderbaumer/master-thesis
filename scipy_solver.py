@@ -52,7 +52,7 @@ if __name__ == "__main__":
     t0 = 0 #initial time in s
     t_tot = 3.16e10 #total time in s
     t_span = (t0 , t_tot) #tuple of start and end time
-    t_eval = np.linspace(t0 , t_tot , 100000)
+    t_eval = np.linspace(t0 , t_tot , 50000)
 
     pos_and_vel = particle_motion(pos_vel , t_span , init_cartesian , "DOP853" , t_eval)
 

@@ -14,6 +14,7 @@ m_s = 1.98847e30  #mass of sun, in kg
 m_par = 1.30899694e-15 #mass particle, kg
 r_par_init = 500e-9
 beta_0 = 0.45931933916320633 #initial mass and radius in cst table
+vtheta_0 = 2.19013101e+04
 
 r0 = 1.0 * au #initial radial dist in units of AU
 theta0 = 0 #initial angle in rad, initial position along horizontal

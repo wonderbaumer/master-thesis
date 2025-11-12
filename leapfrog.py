@@ -34,7 +34,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None , 
     m = m_par
     b = beta(x , y , m)
     b_vals.append(b)
-    
+
     if scaled:
         x , y  = x / X , y / X
         vx , vy =  vx / V , vy / V
@@ -85,25 +85,34 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None , 
     b_vals = np.array(b_vals)
     
     
-    return b_vals
+    return leapfroged_values , b_vals
     
 
-v0theta = 22085 #initial angular vel in m/s
+if __name__ == "__main__":
+    v0theta = 2.19013101e+04 #initial angular vel in m/s
 
-init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
-init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
+    init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
+    init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
 
-dt = 3.16e3 #timestep in s
-t_tot = 1.1 * T #total time in s
+    dt = 3.16e5 #timestep in s
+    t_tot = 5*3.16e10#total time in s
 
-scaled_dt = dt / T
-scaled_ttot = t_tot / T
+    scaled_dt = dt / T
+    scaled_ttot = t_tot / T
 
-#orbit_a0 = leapfrog_algorithm(init_cartesian , acceleration , scaled_dt , scaled_ttot 
-                              #, scaled = True)
-orbit_n = leapfrog_algorithm(init_cartesian, tot_acc , dt , t_tot , sputtering)
+    #orbit_a0 = leapfrog_algorithm(init_cartesian , acceleration , scaled_dt , scaled_ttot 
+                                #, scaled = True)
+    orbit_n , _ = leapfrog_algorithm(init_cartesian, tot_acc , dt , t_tot , sputtering)
+    x = orbit_n[: , 0]
+    y = orbit_n[: , 1]
+    vx = orbit_n[: , 2]
+    vy = orbit_n[: , 3]
+    ax = orbit_n[: , 4]
+    ay = orbit_n[: , 5]
+    print(len(ay))
+    print(np.sqrt(x**2+y**2) / au)
 
-    
+  
     
     
     

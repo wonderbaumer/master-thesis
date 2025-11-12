@@ -127,7 +127,7 @@ class particle():
         dt , t_tot = self.sim_time
         
         t_span = (0 , t_tot)
-        t_eval = np.linspace(0 , 3.16e10 , 100000) #forcing timesteps scipy solver
+        t_eval = np.linspace(0 , 3.16e10 , 500000) #forcing timesteps scipy solver
         
         if self.solver == "LEAPFROG":
             pos_and_vel = leapfrog_algorithm(initial_vals , self.acceleration
@@ -139,14 +139,29 @@ class particle():
         
         return pos_and_vel
 
-sim_time = (3.16e5 , 3.16e10)    
+sim_time = (3.16e5 , 5*3.16e10)   
 
-p_l = particle(init_polar , sim_time)
-init_cartesian_l = p_l.init_conds_cart()
-sol_l = p_l.beta(init_cartesian_l[0] , init_cartesian_l[1] , m_par)
-solv_l = p_l.pos_vel_calcs()
+if __name__ == "__main__":
+    """leapfrog sims"""
+    p_l = particle(init_polar , sim_time)
+    vtheta = p_l.initial_vel()
+    init_cartesian_l = p_l.init_conds_cart()
+    sol_l = p_l.beta(init_cartesian_l[0] , init_cartesian_l[1] , m_par)
+    solv_l , b_l = p_l.pos_vel_calcs()
+    x , y , vx , vy , ax , ay = solv_l[: , 0] , solv_l[: , 1] , solv_l[: , 2] , solv_l[: , 3] , solv_l[: , 4] , solv_l[: , 5]
+    
+    #np.savez("leapfrog_numerical.npz" , x = x , y = y , vx = vx , vy = vy , ax = ax , ay = ay)
+    
 
-np.save("hoppefrosk.npy" , solv_l)
+    """runge kutta sims
+    p_r = particle(init_polar , sim_time , "RK45")
+    init_cartesian_r = p_r.init_conds_cart()
+    sol_r = p_r.beta(init_cartesian_r[0] , init_cartesian_r[1] , m_par)
+    solv_l = p_r.pos_vel_calcs()
+    x , y , vx , vy , m = solv_l.y
+    np.savez("rk45_numerical.npz" , x = x , y = y , vx = vx , vy = vy)
+    """
+
 
 
     
