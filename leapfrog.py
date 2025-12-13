@@ -1,136 +1,73 @@
 import numpy as np
-from polar_to_cart import polar_to_cartesian
-from forces import *
-from analytical_functions import *
-from constants import * 
-import matplotlib.pyplot as plt
+from forces import * 
+from config import *
 
-"""simple leapfrog algorithm function that uses initial values and
-    acceleration from considered forces to calculate position, velocity
-    and acceleration of the particle at any given time, in x and y 
+"""simple leapfrog algorithm that uses initial values and acceleration from considered forces to 
+    calculate position, velocity and acceleration of the particle at any given time, in x and y 
     direction"""
-def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None , scaled = False):
-    """input: initial_vals (array), array containing initial values in
-              position x and y and velocity x and y direction
+def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
+    """input: initial_vals (array), array containing cartesian initial position and velocity, x and y
               
-              acc_func (function), function calculating acceleration in
+              acc_func (function), function calculating total acceleration in
               cartesian coordinates based on considered forces, x and y
               direction
               
-              dt (float), timestep value
+              dt (float), timestep value in s
               
-              t_tot (float), total simulation time
+              t_tot (float), total simulation time in s
         
-        returns: leapfroged_values (array), array containing position 
-        and velocity values, in x and y direction
+        returns: leapfroged_values , b_vals (array), array containing position, velocity, time and 
+        mass, array containing beta values
         """
+    
     x , y , vx , vy = initial_vals #unpack values from nested array
     
     leapfroged_values = [] #initializing list for the calculated values
-    b_vals = []
+    
     
     t = 0 #initial time
-    
-    m = m_par
-    b = beta(x , y , m)
-    b_vals.append(b)
+    m = m_par #initial mass
+    b = beta(x , y , m) #initial beta 
+    b_vals = [b] #initializing list of beta values
 
-    if scaled:
-        x , y  = x / X , y / X
-        vx , vy =  vx / V , vy / V
+    ax , ay = acc_func(x , y , m) #unpacking acceleration x and y vals 
 
-        ax , ay = acc_func(x , y , t)
-        
-    else:
-        ax , ay = acc_func(x , y , m) #unpacking acceleration x and y vals 
-        
+    vx_half = vx + 0.5 * dt * ax #half-stepping x velocity
+    vy_half = vy + 0.5 * dt * ay #half-stepping y velocity
+
+    #half-stepping mass calcs if massloss is considered
+    if massloss is not None:
+        m_half = m + 0.5 * dt * massloss(m) 
+
     while t < t_tot:
-        vx_half = vx + dt / 2 * ax #half step calcs for vx
-        vy_half = vy + dt / 2 * ay #half step calcs for vy
-        
+        x += dt * vx_half #pos x calcs
+        y += dt * vy_half #pos y calcs
+
+        #updating mass if massloss is considered
         if massloss is not None:
-            dmdt = massloss(m)
-            m_mid = m + 0.5 * dt * dmdt
+            m = m_half + 0.5 * dt * massloss(m_half)  #mass calcs
+            m_half += dt * massloss(m_half) #updating mass
+
+        b_vals.append(beta(x, y, m)) #beta calcs
             
-            """correcting for numerical instabilities in mass cals"""
-            dm_mid = massloss(m_mid)
-            m += dm_mid * dt
-            
-            b = beta(x , y , m)
-            b_vals.append(b)
-           
-        x = x + dt * vx_half #updating pos x
-        y = y + dt * vy_half #updating pos y
+        ax , ay = acc_func(x , y , m) #acceleration calcs
         
-        if scaled:
-            xhat , yhat = x / X , y / X
-            vxhat , vyhat = vx / V , vy / V
-            ax , ay = acc_func(x , y , t)
-            
-        else:
-            ax , ay = acc_func(x , y , m)
-        
-        vx = vx_half + dt / 2 * ax #updating vx
-        vy = vy_half + dt / 2 * ay #updating vy
-            
-        leapfroged_values.append([x , y , vx , vy , ax , ay]) #adding vals to list
+        vx_half += dt * ax #updating vx_half
+        vy_half += dt * ay #updating vy_half
+
+        vx = vx_half - 0.5 * dt * ax #updating vx
+        vy = vy_half - 0.5 * dt * ay #updating vy
+
+        leapfroged_values.append([x , y , vx , vy , m , t]) #putting values into list
         
         t += dt #update time
-      
-    if scaled:
-        leapfroged_values = [(X * xi , X * yi , V * vx , V * vy) for xi , yi ,
-                             vx , vy , axi , ayi in leapfroged_values]
         
-    leapfroged_values = np.array(leapfroged_values)  #list to array
-    b_vals = np.array(b_vals)
-    
+    leapfroged_values = np.array(leapfroged_values)  #leapfrog values list to array
+    b_vals = np.array(b_vals[:-1]) #beta values list to array, drop final value for same length
     
     return leapfroged_values , b_vals
     
-
 if __name__ == "__main__":
-    v0theta = 2.19013101e+04 #initial angular vel in m/s
-
-    init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
-    init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
-
-    dt = 3.16e5 #timestep in s
-    t_tot = 5*3.16e10#total time in s
-
-    scaled_dt = dt / T
-    scaled_ttot = t_tot / T
-
-    #orbit_a0 = leapfrog_algorithm(init_cartesian , acceleration , scaled_dt , scaled_ttot 
-                                #, scaled = True)
-    orbit_n , _ = leapfrog_algorithm(init_cartesian, tot_acc , dt , t_tot , sputtering)
-    x = orbit_n[: , 0]
-    y = orbit_n[: , 1]
-    vx = orbit_n[: , 2]
-    vy = orbit_n[: , 3]
-    ax = orbit_n[: , 4]
-    ay = orbit_n[: , 5]
-    print(len(ay))
-    print(np.sqrt(x**2+y**2) / au)
-
-  
-    
-    
-    
-    
-
-
-    
-    
-    
-    
-    
-   
-    
-    
-    
-    
-
-
-        
-    
-    
+    dt , t_tot = t4   
+    lf_vals , b_vals = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot)
+    x , y , vx , vy , m = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4]

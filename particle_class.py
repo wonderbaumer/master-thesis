@@ -1,10 +1,14 @@
-from forces import *
-from polar_to_cart import polar_to_cartesian
 import numpy as np
+import sys
+sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
+from forces import *
+from polar_to_cart import *
 from scipy.constants import *
-from leapfrog import leapfrog_algorithm
-import matplotlib.pyplot as plt
+from config import *
+from leapfrog import *
 from scipy_solver import *
+
+sim_label = {t1 : "t1" , t2 : "t2" , t3 : "t3" , t4 : "t4"} #for filenames
 
 """class calculating and plotting the particle's orbit and energy, 
 includes forces, mass loss processes, user-specified solver"""
@@ -20,24 +24,37 @@ class particle():
         
        solver (string), user-specified solver for trajectory. 
                         Default:LEAPFROG, else RK45, RK23 or DOP853
-                        
-       beta (int), optional. Default:none and Fr and Fg calculated, 
-                   else beta=0 and only Fg included in trajectory calcs
                    
-      mass (float), user-specified initial mass of particle [kg]
+       m (float), optional: default: m_par, user can specify different mass than "standard" used in sims
+
+       massloss (boolean), optional. default:true as massloss considered, false if not
                    
+       methods: 
        
+       initial_vel(), use initial radial distance and specified mass to calculate initial angular velocity,
+       adds it to the initial values array, returns the total initial values
+       
+       init_conds_cart(), converting initial values to cartesian coordinates, returns cartesian coordinates
+       
+       beta(x , y , m), calculates ratio between pressure radiation and gravitational force, based on position
+                        and mass, returns the beta value
+       
+       acceleration(x , y , m), calculates total acceleration of particle based on position and mass,
+                                returns acceleration value
         
-       properties: """
+       ode_vars(t , init), provides parameters for scipy ivp solver in form vx, vy, ax, ay, dm
+       
+       pos_vel_calcs(), numerical solution for particle parameters based on input of solver type and 
+                        if massloss or not"""
     
-    def __init__(self , init_cond , sim_time , solver = "LEAPFROG" , beta = None 
-                 , m = m_par):
+    def __init__(self , init_cond , sim_time , solver = "LEAPFROG" , m = m_par , massloss = True):
         
         self.m = m
         self.init_cond = init_cond
-        self.beta_user = beta 
         self.solver = solver
         self.sim_time = sim_time
+        self.massloss = massloss
+        self.sim_label = sim_label[sim_time]
     
     """calculates necessary initial angular velocity for a particle at a 
     specified distance from larger object, for the particle to stay in orbit"""
@@ -45,11 +62,7 @@ class particle():
         
         r0 , theta0 , vr0 = self.init_cond
         
-        if beta is not None:
-            vtheta0 = np.sqrt(G * m_s * (1 - beta_0) / r0)
-        
-        else:
-            vtheta0 = np.sqrt(G * m_s / r0)
+        vtheta0 = np.sqrt(G * m_s * (1 - beta0) / r0)
         
         """calculates and returns full set of polar initial conditions in 
         sequence radial distance, angular distance, radial velocity, angular
@@ -88,31 +101,25 @@ class particle():
                   y (float), y position
            
             returns: a (tuple), acceleration in x and y direction """
-         
-        beta_val = self.beta_user if self.beta_user is not None else self.beta(x , y , m)
             
-        if beta_val == 0:
-            a = gravity(x , y) #Only Fg
-            
-        else:
-            a = tot_acc(x , y , m) #Fg and Fr
+        a = tot_acc(x , y , m) #Fg and Fr
         
         return a
     
     """function that calculates velocity and acceleration as function of
     time, for scipy solvers"""
     def ode_vars(self , t , init):
-        """input: t (float), time
+        """input: t (float), time in seconds
                   init (list), initial values for position and velocity
                   m (float), mass in kg
                   
-          returns: ode_variables (list), dx,dy,ddx,ddy"""
+          returns: ode_variables (list), dx, dy, ddx, ddy"""
         
-        x , y_pos , vx , vy , m = init
-        dm = sputtering(m)
-        ax , ay = self.acceleration(x , y_pos , m)
+        x , y_pos , vx , vy , m = init #initial value unpacking
+        dm = sputtering(m) if self.massloss else 0.0 #define mass change per time parameter, 0 if no massloss
+        ax , ay = self.acceleration(x , y_pos , m) #acceleration, ax, ay unpacking
         
-        ode_variables = [vx , vy , ax , ay , dm]
+        ode_variables = [vx , vy , ax , ay , dm] #values on form vx, vy, ax, ay, dm
         
         return ode_variables
     
@@ -121,49 +128,48 @@ class particle():
         
         m = self.m #mass
         
-        initial_vals = self.init_conds_cart() #initial values
-        y0 = np.append(initial_vals , m)
+        initial_vals = self.init_conds_cart() #initial values for leapfrog
+        y0 = np.append(initial_vals , m) #initial values for scipy ivp solver
         
-        dt , t_tot = self.sim_time
+        dt , t_tot = self.sim_time #dt and t_tot unpacking
         
-        t_span = (0 , t_tot)
-        t_eval = np.linspace(0 , 3.16e10 , 500000) #forcing timesteps scipy solver
+        t_span = (0 , t_tot) #time for simulations
+        t_eval = np.arange(0 , t_tot , dt) #setting number of timesteps scipy solver
         
-        if self.solver == "LEAPFROG":
+        if self.solver == "LEAPFROG" and self.massloss == True:
             pos_and_vel = leapfrog_algorithm(initial_vals , self.acceleration
                      , dt , t_tot , sputtering) #leapfroging using initial cond
-        
+            
+        elif self.solver == "LEAPFROG" and self.massloss == False:
+            pos_and_vel = leapfrog_algorithm(initial_vals , self.acceleration
+                     , dt , t_tot ) #leapfroging using initial cond
         else:
             pos_and_vel = particle_motion(self.ode_vars , t_span , 
-                                          y0 , self.solver , t_eval)
-        
-        return pos_and_vel
+                                          y0 , self.solver , t_eval) #specified scipy solver
+            
+            x , y , vx , vy , m = pos_and_vel.y[0 , :] , pos_and_vel.y[1 , :] , pos_and_vel.y[2 , :] , pos_and_vel.y[3 , :] , pos_and_vel.y[4 , :]
+            b_vals = np.array([self.beta(x[i] , y[i] , m[i]) for i in range(len(x))]) #beta calcs
+            pos_and_vel = [x , y , vx , vy , m , b_vals] #new array of values
 
-sim_time = (3.16e5 , 5*3.16e10)   
+        return pos_and_vel
+    
+    def save_to_file(self):
+        vals = self.pos_vel_calcs()
+
+        if self.solver == "LEAPFROG":
+            pos , b_vals = vals
+            x , y , vx , vy , m = pos[: , 0] , pos[: , 1] , pos[: , 2] , pos[: , 3] , pos[: , 4]
+            np.savez(f"C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+
+        else:
+           x , y , vx , vy , m , b_vals = vals
+           np.savez(f"C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
 if __name__ == "__main__":
-    """leapfrog sims"""
-    p_l = particle(init_polar , sim_time)
-    vtheta = p_l.initial_vel()
-    init_cartesian_l = p_l.init_conds_cart()
-    sol_l = p_l.beta(init_cartesian_l[0] , init_cartesian_l[1] , m_par)
-    solv_l , b_l = p_l.pos_vel_calcs()
-    x , y , vx , vy , ax , ay = solv_l[: , 0] , solv_l[: , 1] , solv_l[: , 2] , solv_l[: , 3] , solv_l[: , 4] , solv_l[: , 5]
+
+    p = particle(init_polar , t4 , "RK45")
+    #p_rk = p.save_to_file()
     
-    #np.savez("leapfrog_numerical.npz" , x = x , y = y , vx = vx , vy = vy , ax = ax , ay = ay)
-    
-
-    """runge kutta sims
-    p_r = particle(init_polar , sim_time , "RK45")
-    init_cartesian_r = p_r.init_conds_cart()
-    sol_r = p_r.beta(init_cartesian_r[0] , init_cartesian_r[1] , m_par)
-    solv_l = p_r.pos_vel_calcs()
-    x , y , vx , vy , m = solv_l.y
-    np.savez("rk45_numerical.npz" , x = x , y = y , vx = vx , vy = vy)
-    """
-
-
-
     
     
     

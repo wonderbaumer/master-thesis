@@ -1,15 +1,16 @@
 from scipy.constants import *
 import numpy as np
+import sys
+sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
 from polar_to_cart import polar_to_cartesian
-from cst_table import *
 from constants import *
+from config import *
 
 """scipy constants used:
     G: gravitational constant: 6.6743e-11 m^3kg^-1s^-2
     c: speed of light in vacuum: 299792458 ms^-1
     
-    r_par, m_par calculated on paper, necessary for calcs in this py, but not
-    in class py"""
+    r_par, m_par are hand-calculated"""
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -29,7 +30,7 @@ def gravity(x , y):
 
 """calculates mass change from sputtering"""
 def sputtering(m):
-    """input: m (float), mass
+    """input: m (float), mass in kg
         
        return: dmdt (float), mass change as function of time"""
        
@@ -42,47 +43,48 @@ def sputtering(m):
 
 """calculates radius of particle based on mass"""
 def radius(m):
-    """input: m (float), mass of particle
+    """input: m (float), mass of particle in kg
        
-       returns: r (float), radius of particle"""
+       returns: r (float), radius of particle in m"""
        
-    r = (3 * m / (4 * rho * np.pi))**(1 / 3)
+    r = (3 * m / (4 * rho * np.pi))**(1 / 3) #radius based on perfect sphere assumptions, in m
     
     return r
 
-"""function that calculates the radial part of the radiation pressure
+"""function that calculates the radial component of the radiation pressure
 force from the solar wind hitting the particle"""
 def pressure_radial(x , y , m):
-    """input: x (float), cartesian x coordinate for position
-              y (float), cartesian y coordinate for pos
-              r_par (float), radius of particle
-        returns: pressure_force_rad (float), radiation pressure force, rad comp"""
+    """input: x (float), cartesian x coordinate for position in m
+              y (float), cartesian y coordinate for pos in m
+              m (float), mass of particle, in kg
+
+        returns: pressure_force_rad (float), radiation pressure force in N, rad comp"""
         
-    r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun
-    r_par = radius(m)   
+    r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun in m
+    r_par = radius(m) #radius of the particle in m
     
-    A = np.pi * r_par**2 #cross section area of particle
+    A = np.pi * r_par**2 #cross section area of particle in m^2
     
-    s = S_s * (au / r)**2 #radiation flux density at distance r from Sun
+    s = S_s * (au / r)**2 #radiation flux density at distance r from Sun, in Wm^-2
     
-    pressure_force_rad = s * A * q_pr / c #formula pressure radiation force
+    pressure_force_rad = s * A * q_pr / c #formula pressure radiation force, in N
     
     return pressure_force_rad
 
 """function that calculates beta, ratio between pressure radiation force
 and gravity"""
 def beta(x , y , m):
-    """input: x (float), cartesian x coordinate for position
-              y (float), cartesian y coordinate for pos
-              r_par (float), radius of particle
+    """input: x (float), cartesian x coordinate for position in m
+              y (float), cartesian y coordinate for pos in m
+              m (float), mass of particle in kg
         
-       returns: b (float), ratio between rad and g force"""
+       returns: b (float), ratio between rad and grav force"""
     
-    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
+    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir in ms^-2
     g_abs = np.sqrt(gx**2 + gy**2) #absolute value gravity
     
-    Frad = pressure_radial(x , y , m)
-    arad = Frad / m #radiation acc
+    Frad = pressure_radial(x , y , m) #in N
+    arad = Frad / m #radiation acc in ms^-2
     
     b = arad / g_abs #ratio radiation pressure acc to gravity
     
@@ -91,29 +93,28 @@ def beta(x , y , m):
 """function that calculates total acceleration given radiation pressure force
 and gravitational force only"""
 def tot_acc(x , y , m):
-    """input: x (float), cartesian x coordinate for position
-              y (float), cartesian y coordinate for pos
-              beta (float), Fr/Fg
+    """input: x (float), cartesian x coordinate for position in m
+              y (float), cartesian y coordinate for pos in m
+              m (float), mass of particle in kg
               
-        returns: ax , ay (array), lists of new acceleration in x and y dir"""
+        returns: ax , ay (array), calculated acceleration in x and y dir, in ms^-2"""
         
-    pressure_acc = pressure_radial(x , y , m) / m
-    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir
+    pressure_acc = pressure_radial(x , y , m) / m #acceleration due to pressure radiation, in ms^-2
+    gx , gy = gravity(x , y) #gravitational acceleration in x and y dir, in ms^-2
     
-    b = pressure_acc / np.sqrt(gx**2 + gy**2)
+    b = pressure_acc / np.sqrt(gx**2 + gy**2) #beta calcs
     
-    ax = gx * (1 - b) #acc in x dir
-    ay = gy * (1 - b) #acc in y dir
+    ax = gx * (1 - b) #acc in x dir in ms^-2
+    ay = gy * (1 - b) #acc in y dir in ms^-2
     
     return ax , ay
-   
 
-if __name__ == "__main__":
-    v0theta = 22085 #initial angular vel in m/s
-    init_polar = np.array([r0 , theta0 , v0r , v0theta]) #initial values array
-    init_cartesian = polar_to_cartesian(init_polar) #initial values to cartesian
-    x = init_cartesian[0][0]
-    y = init_cartesian[0][1]
+
+
+
+
+
+
     
     
     
