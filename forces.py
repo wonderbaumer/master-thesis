@@ -2,7 +2,6 @@ from scipy.constants import *
 import numpy as np
 import sys
 sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
-from polar_to_cart import polar_to_cartesian
 from constants import *
 from config import *
 
@@ -16,9 +15,9 @@ from config import *
     based on gravitational force between the particle and the sun
     only"""
 def gravity(x , y):
-    """input: x (float), position in x direction
+    """input: x (float), position in x direction in m
     
-              y (float), position in y direction
+              y (float), position in y direction in m
               
        returns: acc_x, acc_y (float), acceleration in x and y direction"""
        
@@ -71,14 +70,14 @@ def pressure_radial(x , y , m):
     
     return pressure_force_rad
 
-"""function that calculates beta, ratio between pressure radiation force
+"""function that calculates beta, the ratio between pressure radiation force
 and gravity"""
 def beta(x , y , m):
     """input: x (float), cartesian x coordinate for position in m
               y (float), cartesian y coordinate for pos in m
               m (float), mass of particle in kg
         
-       returns: b (float), ratio between rad and grav force"""
+       returns: b (float), ratio between radiation and gravitation force"""
     
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir in ms^-2
     g_abs = np.sqrt(gx**2 + gy**2) #absolute value gravity
@@ -108,15 +107,3 @@ def tot_acc(x , y , m):
     ay = gy * (1 - b) #acc in y dir in ms^-2
     
     return ax , ay
-
-
-
-
-
-
-
-    
-    
-    
-    
-    

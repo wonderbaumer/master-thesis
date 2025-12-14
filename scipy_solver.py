@@ -38,9 +38,3 @@ def particle_motion(fun , t_span , y0 , method , t_eval):
                     t_eval = t_eval , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
     
     return sol
-
-
-    
-    
-    
-   

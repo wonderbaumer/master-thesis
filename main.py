@@ -10,8 +10,8 @@ def main(comp_type , time , solver = None , filename1 = None , filename2 = None)
     """input: comp_type (string), eps_beta, theta, r , betahat , energy
               time (tuple), consiting of dt, t_tot, t4 for 500 orbits
               solver (string), default: None, can be LEAPFROG or RK45
-              filename1 (string), name of npz file to open and unpack, numerical solver results
-              filename2 (string), other numerical solver results file"""
+              filename1 (string), default: None, name of npz file to open and unpack, numerical solver results
+              filename2 (string), default: None, other numerical solver results file"""
 
     """if filename1 is given, open the file, else run the particle class to produce a file"""
     if filename1 is not None:
@@ -58,8 +58,10 @@ def main(comp_type , time , solver = None , filename1 = None , filename2 = None)
         energy_plot(time , solver1 , solver2)
 
 if __name__ == "__main__":
+    """Example of running code"""
     comp_type = "betahat"
     time = t4
-    filename1 = "C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/rk45_500orbits_massloss.npz"
+    """file path needs to be specified by user"""
+    filename1 = "C:/Users/Cecilie.Bamer/Documents/Files/rk45_500orbits_massloss.npz" 
 
     main(comp_type , time , filename1 = filename1)

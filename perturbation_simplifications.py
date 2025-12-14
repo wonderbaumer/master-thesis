@@ -2,7 +2,6 @@ import sys
 sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
 from constants import *
 import sympy as sp
-from sympy import Eq, dsolve
 from config import *
 
 "___defining the hatted variables___"
@@ -75,4 +74,3 @@ angeq_first_order = (angeq_lhs - angeq_rhs).expand().coeff(epsilon , 1) #first o
 
 omegadot_0 = sp.solve(angeq_zeroth_order , omegadot_0) #zeroth order, omegadot0
 omegadot_1 = sp.solve(angeq_first_order , omegadot_1) #zeroth order, omegadot1
-

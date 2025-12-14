@@ -7,6 +7,7 @@ from config import *
     direction"""
 def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
     """input: initial_vals (array), array containing cartesian initial position and velocity, x and y
+              in m.
               
               acc_func (function), function calculating total acceleration in
               cartesian coordinates based on considered forces, x and y
@@ -16,8 +17,8 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
               
               t_tot (float), total simulation time in s
         
-        returns: leapfroged_values , b_vals (array), array containing position, velocity, time and 
-        mass, array containing beta values
+        returns: leapfroged_values (array) , b_vals (array), array containing position, velocity, time 
+        and mass, array containing beta values
         """
     
     x , y , vx , vy = initial_vals #unpack values from nested array

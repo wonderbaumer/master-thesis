@@ -6,14 +6,14 @@ from config import *
 """function that calculates the total energy of the particle in orbit,
 uses cartesian coordinates"""
 def tot_energy(x , y , vx , vy , m , beta = beta0):
-    """input: x (float), x position
-              y (float), y position
-              vx (float), x velocity
-              vy (float), y velocity
-              m (float), mass of particle
+    """input: x (float), x position in m
+              y (float), y position in m
+              vx (float), x velocity in ms^-1
+              vy (float), y velocity in ms^-1
+              m (float), mass of particle in kg
               beta (float), default: beta0 if massloss not considered, else user-specified
               
-        returns: kinetic_energy, pot_energy (tuple), energies
+        returns: kinetic_energy, pot_energy (tuple), the energies of the particle
         """
         
     v = np.sqrt(vx**2 + vy**2) #speed
@@ -25,7 +25,3 @@ def tot_energy(x , y , vx , vy , m , beta = beta0):
     pot_energy = -G * m_s * m * (1 - beta) / r #potential energy
     
     return kinetic_energy , pot_energy
-
-
-    
-    

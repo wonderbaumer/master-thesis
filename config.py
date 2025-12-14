@@ -5,7 +5,7 @@ from polar_to_cart import *
 m_par = 1.30899694e-15 #mass particle in kg
 r_par_init = 500e-9 #radius particle in m
 beta0 = 0.45931933916320633 #initial mass and radius from initial pressure radiation/gravity
-vtheta0 = 2.19013101e+04 #initial angular vel in m/s, only used for testing purposes
+vtheta0 = 2.19013101e+04 #initial angular vel in ms^-1, only used for testing purposes
 
 r0 = 1.0 * au #initial radial dist in units of AU
 theta0 = 0 #initial angular position in rad
@@ -58,4 +58,3 @@ t3 = (dt3 , t_tot3)
 dt4 = 3.16e3
 t_tot4 = 500 * orb_period
 t4 = (dt4 , t_tot4)
-

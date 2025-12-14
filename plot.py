@@ -9,7 +9,7 @@ from analytical_functions import *
 from energy import *
 from forces import *
 
-"""plotting params to make font sizes equal to font size in latex document"""
+"""plotting params to adjust font sizes"""
 plt.rcParams.update({
     "font.size": 14,
     "axes.labelsize": 14,
@@ -45,7 +45,7 @@ def ang_comps(solver1 , t , solver2 = None , theta_per = None):
               
         returns: none   """
     
-    x1 , y1 , vx1 , vy1 , m1 , b1 = solver1 #unpacking solver1
+    x1 , y1 , _ , _ , _ , _ = solver1 #unpacking solver1
     theta1 = np.atan2(y1 , x1) #angle based on x and y
     theta1 = np.unwrap(theta1) #avoiding discontinuities in theta
 
@@ -54,7 +54,7 @@ def ang_comps(solver1 , t , solver2 = None , theta_per = None):
 
     """comparing theta as approximated by RK45 and Leapfrog solver"""
     if solver2 is not None:
-        x2 , y2 , vx2 , vy2 , m2 , b2 = solver2 #solver2 unpacking
+        x2 , y2 , _ , _ , _ , _ = solver2 #solver2 unpacking
         theta2 = np.atan2(y2 , x2) #angle from x and y
         theta2 = np.unwrap(theta2) #removing discontinuities
         
@@ -85,7 +85,7 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
 
         returns: none"""
     
-    x1 , y1 , vx1 , vy1 , m1 , b1 = solver1 #solver1 unpacking
+    x1 , y1 , _ , _ , _ , _ = solver1 #solver1 unpacking
     r1 = np.sqrt(x1**2 + y1**2) #r calcs based on x and y
 
     dt , t_tot = t #t unpacking
@@ -93,15 +93,14 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
 
     """comparing RK45 and Leapfrog approximations for r"""
     if solver2 is not None:
-        x2 , y2 , vx2 , vy2 , m2 , b2 = solver2 #unpacking solver2
+        x2 , y2 , _ , _ , _ , _ = solver2 #unpacking solver2
         r2 = np.sqrt(x2**2 + y2**2) #r calcs from x and y
 
         plt.plot(t / yr , r1 / au , color = "blue", label = "RK45 solution")
         plt.plot(t / yr , r2 / au , color = "red" , linestyle = "--" , label = "Leapfrog solution")
         plt.title("Radial distance, RK45 and Leapfrog comparisons")
 
-    """comparing RK45 sol for r with r from perturbation expression"""
-    if r_per is not None:
+    else: #comparing RK45 sol for r with r from perturbation expression
         plt.plot(t / yr , r1 / au , color = "blue" , label = "RK45 solution")
         plt.plot(t / yr , r_per , color = "red" , label = "Perturbed r")
         plt.title("Radial distance, numerical vs perturbed")
@@ -128,7 +127,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     dt , t_tot = t #unpacking t
     t = np.arange(0 , t_tot , dt) / yr #time array scaled to 1 year
 
-    x , y , vx , vy , m , b = solver
+    _ , _ , _ , _ , _ , b = solver
     b = b / beta0 #RK45 beta hat
     b_per = b_per[: , 2] #first and second order beta hat perturbed expression
     b_analytical = b_analytical[: , 2] #first and second order beta hat analytical expression
@@ -145,8 +144,8 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
     if fw_err == True:
-        fw_err_RK45_per = np.abs(solver - b_per) / np.abs(solver)
-        fw_err_RK45_analytical = np.abs(solver - b_analytical) / np.abs(solver)
+        fw_err_RK45_per = np.abs(b - b_per) / np.abs(b)
+        fw_err_RK45_analytical = np.abs(b - b_analytical) / np.abs(b)
         plt.plot(t , fw_err_RK45_per , color = "blue" , label = "Rel fw error perturbed vs RK45")
         plt.plot(t , fw_err_RK45_analytical , color = "red" , linestyle = "--" , label = "Rel fw error analytical vs RK45")
         plt.xlabel("Time (yrs)")
@@ -219,19 +218,3 @@ if __name__ == "__main__":
     b_analytical = betahat_analytical(t_hat)
     
     b_plot(solver1 , b_per , b_analytical , t4 , fw_err = True)
-
-    
-    
-    
-    
-   
-    
-    
-    
-    
-
-
-    
-    
-
-    

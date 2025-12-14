@@ -60,7 +60,7 @@ class particle():
     specified distance from larger object, for the particle to stay in orbit"""
     def initial_vel(self):
         
-        r0 , theta0 , vr0 = self.init_cond
+        r0 , _ , _ = self.init_cond
         
         vtheta0 = np.sqrt(G * m_s * (1 - beta0) / r0)
         
@@ -147,7 +147,8 @@ class particle():
             pos_and_vel = particle_motion(self.ode_vars , t_span , 
                                           y0 , self.solver , t_eval) #specified scipy solver
             
-            x , y , vx , vy , m = pos_and_vel.y[0 , :] , pos_and_vel.y[1 , :] , pos_and_vel.y[2 , :] , pos_and_vel.y[3 , :] , pos_and_vel.y[4 , :]
+            x, y, vx, vy, m = pos_and_vel.y[:5]
+            
             b_vals = np.array([self.beta(x[i] , y[i] , m[i]) for i in range(len(x))]) #beta calcs
             pos_and_vel = [x , y , vx , vy , m , b_vals] #new array of values
 
@@ -158,7 +159,7 @@ class particle():
 
         if self.solver == "LEAPFROG":
             pos , b_vals = vals
-            x , y , vx , vy , m = pos[: , 0] , pos[: , 1] , pos[: , 2] , pos[: , 3] , pos[: , 4]
+            x , y , vx , vy , m = pos.T
             np.savez(f"C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
         else:
@@ -169,9 +170,4 @@ if __name__ == "__main__":
 
     p = particle(init_polar , t4 , "RK45")
     #p_rk = p.save_to_file()
-    
-    
-    
-    
-    
-        
+   
