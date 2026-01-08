@@ -50,3 +50,6 @@ The main file will calculate orbital parameters numerically, using Leapfrog or R
 Comp_type also has to be specified by user, it can be "r", "theta", "eps_beta", "betahat" or "energy" where each will call different plotting functions from plot.py. 
 Note: only some plotting functions are compatible with comparing two numerical solvers.
 Note: currently, up to first order in epsilon are plotted in default for perturbed expressions, if you want to compare numerical sol without massloss to perturbed expression, set the realistic case of time 1 orbit, t1, and plot only zeroth order of perturbed expressions.
+
+## Bugs
+Time in plotting functions scaled to 1 year, not the original orbital period T, which is closer to 1.36 yr
