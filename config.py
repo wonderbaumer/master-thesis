@@ -38,6 +38,8 @@ def eps(m = m_par):
     return eps
 
 orb_period = T * 2 * np.pi #orbital period in s
+orb_per_yr = orb_period / yr #orbital period in years
+
 """time combinations used"""
 #1 orbit
 dt1 = 3.16e1
@@ -58,3 +60,6 @@ t3 = (dt3 , t_tot3)
 dt4 = 3.16e3
 t_tot4 = 500 * orb_period
 t4 = (dt4 , t_tot4)
+
+if __name__ == "__main__":
+    print(orb_period / yr)

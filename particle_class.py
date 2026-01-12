@@ -10,6 +10,7 @@ from scipy_solver import *
 
 sim_label = {t1 : "t1" , t2 : "t2" , t3 : "t3" , t4 : "t4"} #for filenames
 
+
 """class calculating and plotting the particle's orbit and energy, 
 includes forces, mass loss processes, user-specified solver"""
 class particle():
@@ -142,8 +143,9 @@ class particle():
             
         elif self.solver == "LEAPFROG" and self.massloss == False:
             pos_and_vel = leapfrog_algorithm(initial_vals , self.acceleration
-                     , dt , t_tot ) #leapfroging using initial cond
-        else:
+                     , dt , t_tot) #leapfroging using initial cond
+            
+        else: #hvorfor kan ikke dette settes til massloss false?
             pos_and_vel = particle_motion(self.ode_vars , t_span , 
                                           y0 , self.solver , t_eval) #specified scipy solver
             
@@ -160,14 +162,14 @@ class particle():
         if self.solver == "LEAPFROG":
             pos , b_vals = vals
             x , y , vx , vy , m = pos.T
-            np.savez(f"C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+            np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
         else:
            x , y , vx , vy , m , b_vals = vals
-           np.savez(f"C:/Users/Cecilie.Bamer/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+           np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
 if __name__ == "__main__":
-
+    
     p = particle(init_polar , t4 , "RK45")
-    #p_rk = p.save_to_file()
+    p_rk = p.save_to_file()
    

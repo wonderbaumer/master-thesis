@@ -16,6 +16,8 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
               dt (float), timestep value in s
               
               t_tot (float), total simulation time in s
+
+              massloss (str), default: None, else method of massloss must be defined 
         
         returns: leapfroged_values (array) , b_vals (array), array containing position, velocity, time 
         and mass, array containing beta values
@@ -59,7 +61,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
         vx = vx_half - 0.5 * dt * ax #updating vx
         vy = vy_half - 0.5 * dt * ay #updating vy
 
-        leapfroged_values.append([x , y , vx , vy , m , t]) #putting values into list
+        leapfroged_values.append([x , y , vx , vy , m]) #putting values into list
         
         t += dt #update time
         
