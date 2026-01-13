@@ -72,5 +72,7 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
     
 if __name__ == "__main__":
     dt , t_tot = t4   
-    lf_vals , b_vals = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot)
+    lf_vals , b_vals = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot , sputtering)
     x , y , vx , vy , m = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4]
+
+    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t4_masslossTrue_noclass" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

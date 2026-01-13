@@ -12,7 +12,7 @@ m_s = 1.98847e30  #mass of sun, in kg
 
 "__beta calcs__"
 beta_const = S_s * q_pr * np.pi * au**2 / (G * m_s * c) #beta const
-betahat_0 = 1 #initial betahat, when beta=beta_0
+betahat_0 = 1 #initial betahat, when beta=B
 
 "__sputtering__"
 N_sw = 3e6 #m^-3, density slow solar wind

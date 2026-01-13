@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
 from forces import *
 from polar_to_cart import *
 from scipy.constants import *
@@ -8,7 +6,7 @@ from config import *
 from leapfrog import *
 from scipy_solver import *
 
-sim_label = {t1 : "t1" , t2 : "t2" , t3 : "t3" , t4 : "t4"} #for filenames
+sim_label = {t1 : "t1" , t2 : "t2" , t3 : "t3" , t4 : "t4" , t5 : "t5"} #for filenames
 
 
 """class calculating and plotting the particle's orbit and energy, 
@@ -162,11 +160,11 @@ class particle():
         if self.solver == "LEAPFROG":
             pos , b_vals = vals
             x , y , vx , vy , m = pos.T
-            np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+            np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_new{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
         else:
            x , y , vx , vy , m , b_vals = vals
-           np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+           np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/{self.solver}_new{self.sim_label}_massloss{self.massloss}.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
 
 if __name__ == "__main__":
     

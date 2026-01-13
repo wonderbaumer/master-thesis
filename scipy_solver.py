@@ -1,7 +1,5 @@
 from scipy.integrate import solve_ivp
 import numpy as np
-import sys
-sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
 from forces import *
 
 
@@ -38,3 +36,21 @@ def particle_motion(fun , t_span , y0 , method , t_eval):
                     t_eval = t_eval , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
     
     return sol
+
+if __name__ == "__main__":
+    dt , t_tot = t4
+    t = np.arange(0 , t_tot , dt)
+    y0 = np.append(init_cartesian , m_par)
+
+    sol = particle_motion(pos_vel , (0 , t_tot) , y0 , "RK45" , t)
+    x = sol.y[0]   # array of x positions
+    y = sol.y[1]  # array of y positions
+    vx = sol.y[2]  # array of x velocities
+    vy = sol.y[3]  # array of y velocities
+    m = sol.y[4]   # array of mass
+    b = beta(x , y , m)
+
+    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t4_massloss_yrs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+
+    r_r = np.sqrt(x**2 + y**2)
+    

@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
 from constants import *
 from polar_to_cart import *
 from config import *
@@ -11,8 +9,8 @@ def betahat_analytical(t):
 
        returns: bvals (array), contains all orders as well as their sum"""
        
-    order_0 = betahat_0 * np.ones_like(t) #zeroth order
-    order_1 = eps() * t * betahat_0**2 / 3 #first order
+    order_0 = np.ones_like(t) #zeroth order
+    order_1 = eps() * t / 3 #first order
     tot = order_0 + order_1 #both orders
 
     bvals = np.column_stack((order_0 , order_1 , tot)) 
@@ -38,7 +36,7 @@ def radial_position(t):
     """input: t (array), time (scaled) to calculate for
 
        returns: r (array), radial position up to first order in epsilon"""
-
+    #print(-eps()*(beta0 * np.sin(t) / (3 * (1 - beta0))), eps()*( beta0 * t /(3 * (1 - beta0))))
     r0 = rhat0 #zeroth order
     r1 = -beta0 * np.sin(t) / (3 * (1 - beta0)) + beta0 * t /(3 * (1 - beta0)) #first order
 
@@ -51,10 +49,9 @@ def angular_position(t):
     """input: t (array), time (scaled) to calculate for
 
        returns: theta (array), angular position up to first order in epsilon"""
-    
-    theta0 = vtheta0scaled * t #zeroth order
+    #print(-beta0 * t**2 / (3 * (1 - beta0))*eps(), -eps()*2 * beta0 * np.cos(t) / (3 * (1 - beta0)),t)
+    theta0 = t #zeroth order
     theta1 = -beta0 * t**2 / (3 * (1 - beta0))  - 2 * beta0 * np.cos(t) / (3 * (1 - beta0)) #first order
-    
     theta = theta0 + eps() * theta1 #total expansion
 
     return theta
@@ -72,3 +69,11 @@ def analytical_orbit(t):
 
     return x , y
  
+if __name__ == "__main__":
+    dt , t_tot = t4
+    that = np.arange(0 , t_tot , dt) / T
+
+    #angular_position(that)
+    radial_position(that)
+
+    #print(angular_position(that))
