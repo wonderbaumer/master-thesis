@@ -49,8 +49,8 @@ def ang_comps(x1 , y1 , t , solver2 = None , theta_per = None):
     theta1 = np.atan2(y1 , x1) #angle based on x and y
     theta1 = np.unwrap(theta1) #avoiding discontinuities in theta
     
-    #dt , t_tot = t #unpacking time params
-    #t = np.arange(0 , t_tot , dt) / T  #t hat
+    dt , t_tot = t #unpacking time params
+    t = np.arange(0 , t_tot , dt) / T  #t hat
 
     """comparing theta as approximated by RK45 and Leapfrog solver"""
     if solver2 is not None:
@@ -65,15 +65,18 @@ def ang_comps(x1 , y1 , t , solver2 = None , theta_per = None):
     """comparing theta calculated by RK45 to theta from perturbation expression"""
     if theta_per is not None:
         theta_per = np.unwrap(theta_per) #removing discontinuities
-        #plt.plot(t , theta1 , color = "blue", label = "RK4(5)")
-        #plt.plot(t , theta_per, color = "red" , linestyle = "--" , label = "Perturbed solution")
-        rel_fw_err = (np.abs(theta1[1:]-theta_per[1:]))
+        plt.plot(t , theta1 , color = "blue", label = "RK4(5)")
+        plt.plot(t , theta_per, color = "red" , linestyle = "--" , label = "Perturbed solution")
+        #rel_fw_err = ((np.abs(theta1[1:]-theta_per[1:])) / np.abs(theta1[1:]))
         #print(rel_fw_err)
-        plt.plot(t[1:] , rel_fw_err)
+        #plt.plot(t[1:] , rel_fw_err)
+        #plt.title(r"Forward error, RK4(5) and perturbed $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$, RK4(5) vs perturbed solution")
 
     plt.xlabel("Number of orbits")
     plt.ylabel(r"$\hat{\theta}$")
+    #plt.yscale("log")
+    #plt.ylabel("Forward error")
 
     plt.legend()
     plt.show()
@@ -89,14 +92,14 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
         returns: none"""
     
     x1 , y1 , _ , _ , _ , _ = [solver1[k] for k in ("x","y","vx","vy","m","b")] #solver1 unpacking
-    r1 = np.sqrt(x1**2 + y1**2) / R #r hat
+    r1 = np.sqrt(x1**2 + y1**2) #/ R #r hat
     dt , t_tot = t #t unpacking
     t = np.arange(0 , t_tot , dt) / T #t hat
     
     """comparing RK45 and Leapfrog approximations for r"""
     if solver2 is not None:
         x2 , y2 , _ , _ , _ , _ = [solver2[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver2
-        r2 = np.sqrt(x2**2 + y2**2) / R #r hat
+        r2 = np.sqrt(x2**2 + y2**2) #/ R #r hat
 
         plt.plot(t , r1 , color = "blue", label = "RK4(5)")
         plt.plot(t , r2 , color = "red" , linestyle = "--" , label = "Leapfrog")
@@ -108,11 +111,13 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
         fw_err = (np.abs(r1-r_per) / np.abs(r1))
         plt.plot(t , fw_err)
         plt.title(r"$\hat{r}$, numerical vs perturbed")
+        #plt.title(r"RK4(5) and perturbed $\hat{r}$")
         
     plt.xlabel("Number of orbits")
-    plt.ylabel(r"$\hat{r}$")
+    #plt.ylabel(r"$\hat{r}$")
+    plt.ylabel("Forward error")
     
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 
@@ -226,7 +231,7 @@ def energy_plot(t_arr , solver1 , solver2):
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/RK45_newt4_masslossTrue_T.npz")
+    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/rk45_t7_masslossTrue_scaledeqs.npz")
     x_r = rk["x"]
     y_r = rk["y"]
     vx_r = rk["vx"]
@@ -236,7 +241,7 @@ if __name__ == "__main__":
 
     r_r = np.sqrt(x_r**2 + y_r**2) / R
 
-    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/LEAPFROG_newt4_masslossTrue_T.npz")
+    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/LEAPFROG_t4_masslossTrue_T.npz")
     x_l = lf["x"]
     y_l = lf["y"]
     vx_l = lf["vx"]
@@ -246,9 +251,9 @@ if __name__ == "__main__":
 
     r_l = np.sqrt(x_l**2 + y_l**2) / R
     
-    dt4 , t_tot4 = t4
+    dt , t_tot = t7
 
-    that = np.arange(0 , t_tot4 , dt4) / T
+    that = np.arange(0 , t_tot , dt) / T
 
     bper = betahat_pert(that)
     banalytical = betahat_analytical(that)
@@ -256,11 +261,11 @@ if __name__ == "__main__":
     theta_pert = angular_position(that)
     rper = radial_position(that)
 
-    #b_plot(rk , bper , banalytical , t4 , fw_err = True)
-    rad_comps(rk , t4 , solver2 = None , r_per = rper)
-    #energy_plot(t4 , rk , lf)
-    ang_comps(x_r , y_r , that , solver2 = None , theta_per = theta_pert)
-
+    #b_plot(rk , bper , banalytical , t6 , fw_err = True)
+    #rad_comps(rk , t7 , solver2 = None , r_per = rper)
+    #energy_plot(t7 , rk , lf)
+    ang_comps(x_r , y_r , t7 , solver2 = None , theta_per = theta_pert)
+    #print(np.sqrt(x_r**2+y_r**2), rper)
     
     
     

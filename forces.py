@@ -107,3 +107,7 @@ def tot_acc(x , y , m):
     ay = gy * (1 - b) #acc in y dir in ms^-2
     
     return ax , ay
+
+if __name__ == "__main__":
+    x , y , vx , vy = init_cartesian
+    print(x , y , tot_acc(x , y , m_par))

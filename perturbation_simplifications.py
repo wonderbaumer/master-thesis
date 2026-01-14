@@ -74,3 +74,8 @@ angeq_first_order = (angeq_lhs - angeq_rhs).expand().coeff(epsilon , 1) #first o
 
 omegadot_0 = sp.solve(angeq_zeroth_order , omegadot_0) #zeroth order, omegadot0
 omegadot_1 = sp.solve(angeq_first_order , omegadot_1) #zeroth order, omegadot1
+
+omega_0 = sp.solve(angeq_zeroth_order , omega_0)
+omega_1 = sp.solve(angeq_first_order , omega_1)
+
+print(omega_0 , omega_1)

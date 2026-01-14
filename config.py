@@ -1,5 +1,9 @@
 from constants import *
 from polar_to_cart import *
+import decimal
+from decimal import Decimal, getcontext
+
+getcontext().prec = 12
 
 """initial values"""
 m_par = 1.30899694e-15 #mass particle in kg
@@ -27,13 +31,17 @@ T = round(np.sqrt(R**3 / (G * m_s * (1 - beta0)))) #initial period, scaled formu
 rhat0 = r0 / R #initial scaled radial position
 vtheta0scaled = vtheta0 / V #initial scaled angular velocity
 
+init_polar_scaled = np.array([rhat0 , theta0 , v0r , vtheta0scaled])
+init_cart_scaled = polar_to_cartesian(init_polar_scaled)
+x , y , vx , vy = init_cart_scaled
+
 """calculates small parameter epsilon, using constants from mass calcs"""
-def eps(m = m_par):
+def eps():
     """input: m (float), default m_par, mass of particle in kg
 
        returns: eps (float), epsilon parameter"""
     
-    eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m**(-1 / 3) * T #mass constant
+    eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m_par**(-1 / 3) * T #mass constant
 
     return eps
 
@@ -56,14 +64,29 @@ t_tot3 = 100 * T
 t3 = (dt3 , t_tot3)
 
 #500 orbits
-dt4 = 3.16e2 #old e3 new e2
+dt4 = 3.16e3 #old e3 new e2
 t_tot4 = 500 * T
 t4 = (dt4 , t_tot4)
 
-#temp500.
+#temp500 gir plott på innlevering hvis begge r skalert med yr, r pert lagd utifra T og r num skalert ned med R.
 #dt4 = 3.16e3
 #t_tot4 = 500 * 1.36 * yr
 #t4 = (dt4 , t_tot4)
 
+#1000 orbits
+dt5 = 3.16e4
+t_tot5 = 1000 * T
+t5 = (dt5 , t_tot5)
+
+#10000 orbits
+dt6 = 3.16e5
+t_tot6 = 10000 * T
+t6 = (dt6 , t_tot6)
+
+#20000 orbits
+dt7 = 3.16e5
+t_tot7 = 20000 * T
+t7 = (dt7 , t_tot7)
+
 if __name__ == "__main__":
-    print(t4)
+    eps(m_par)

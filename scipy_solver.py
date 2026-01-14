@@ -1,6 +1,7 @@
 from scipy.integrate import solve_ivp
 import numpy as np
 from forces import *
+from forces_scaled import tot_acc, sputtering, betahat
 
 
 """ode function that is put into particle motion ivp solver, on form
@@ -12,9 +13,8 @@ def pos_vel(t , init , massloss = True):
               
         returns: variable_list (list), 
         list of calculated variables for ivp solver, dxdt, dydt, dvxdt, dvydt, dmdt"""
-
+    
     x , y , vx , vy , m = init #initial position, velocity (cartesian coordinates) and mass
-
     dmdt = sputtering(m) if massloss else 0.0 #specify change in mass if massloss is considered
     ax , ay = tot_acc(x , y , m) #acceleration calcs
 
@@ -38,11 +38,12 @@ def particle_motion(fun , t_span , y0 , method , t_eval):
     return sol
 
 if __name__ == "__main__":
-    dt , t_tot = t4
-    t = np.arange(0 , t_tot , dt)
-    y0 = np.append(init_cartesian , m_par)
+    dt , t_tot = t7
+    t = np.arange(0 , t_tot , dt) / T
+    m = m_par / m_par
+    y0 = np.append(init_cart_scaled , m)
 
-    sol = particle_motion(pos_vel , (0 , t_tot) , y0 , "RK45" , t)
+    sol = particle_motion(pos_vel , (0 , t_tot / T) , y0 , "RK45" , t)
     x = sol.y[0]   # array of x positions
     y = sol.y[1]  # array of y positions
     vx = sol.y[2]  # array of x velocities
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     m = sol.y[4]   # array of mass
     b = beta(x , y , m)
 
-    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t4_massloss_yrs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
-
-    r_r = np.sqrt(x**2 + y**2)
+    
+    b = betahat(m)
+    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
     

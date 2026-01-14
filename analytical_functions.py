@@ -46,10 +46,11 @@ def radial_position(t):
 
 """calculates angular position up to first order in epsilon"""
 def angular_position(t):
-    """input: t (array), time (scaled) to calculate for
+    """input: t (array), \time (scaled) to calculate for
 
        returns: theta (array), angular position up to first order in epsilon"""
     #print(-beta0 * t**2 / (3 * (1 - beta0))*eps(), -eps()*2 * beta0 * np.cos(t) / (3 * (1 - beta0)),t)
+
     theta0 = t #zeroth order
     theta1 = -beta0 * t**2 / (3 * (1 - beta0))  - 2 * beta0 * np.cos(t) / (3 * (1 - beta0)) #first order
     theta = theta0 + eps() * theta1 #total expansion
@@ -70,10 +71,10 @@ def analytical_orbit(t):
     return x , y
  
 if __name__ == "__main__":
-    dt , t_tot = t4
+    dt , t_tot = t5
     that = np.arange(0 , t_tot , dt) / T
 
     #angular_position(that)
-    radial_position(that)
+    #radial_position(that)
 
-    #print(angular_position(that))
+    print(angular_position(that))
