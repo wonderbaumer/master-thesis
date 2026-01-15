@@ -36,12 +36,12 @@ init_cart_scaled = polar_to_cartesian(init_polar_scaled)
 x , y , vx , vy = init_cart_scaled
 
 """calculates small parameter epsilon, using constants from mass calcs"""
-def eps():
+def eps(m = m_par):
     """input: m (float), default m_par, mass of particle in kg
 
        returns: eps (float), epsilon parameter"""
     
-    eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m_par**(-1 / 3) * T #mass constant
+    eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m**(-1 / 3) * T #mass constant
 
     return eps
 

@@ -8,12 +8,8 @@ def betahat_analytical(t):
     """input: t (array), scaled time to calculate for
 
        returns: bvals (array), contains all orders as well as their sum"""
-       
-    order_0 = np.ones_like(t) #zeroth order
-    order_1 = eps() * t / 3 #first order
-    tot = order_0 + order_1 #both orders
-
-    bvals = np.column_stack((order_0 , order_1 , tot)) 
+    frac = eps() / 3
+    bvals = 1 / (1 - frac * t)
         
     return bvals
 
@@ -53,7 +49,7 @@ def angular_position(t):
 
     theta0 = t #zeroth order
     theta1 = -beta0 * t**2 / (3 * (1 - beta0))  - 2 * beta0 * np.cos(t) / (3 * (1 - beta0)) #first order
-    theta = theta0 + eps() * theta1 #total expansion
+    theta = theta0 + eps() * theta1 #total expansi
 
     return theta
 
@@ -71,10 +67,10 @@ def analytical_orbit(t):
     return x , y
  
 if __name__ == "__main__":
-    dt , t_tot = t5
+    dt , t_tot = t7
     that = np.arange(0 , t_tot , dt) / T
 
-    #angular_position(that)
+    angular_position(that)
     #radial_position(that)
 
-    print(angular_position(that))
+    #print(angular_position(that))

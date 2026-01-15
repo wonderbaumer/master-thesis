@@ -38,7 +38,7 @@ def particle_motion(fun , t_span , y0 , method , t_eval):
     return sol
 
 if __name__ == "__main__":
-    dt , t_tot = t7
+    dt , t_tot = t6
     t = np.arange(0 , t_tot , dt) / T
     m = m_par / m_par
     y0 = np.append(init_cart_scaled , m)
@@ -53,5 +53,5 @@ if __name__ == "__main__":
 
     
     b = betahat(m)
-    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    #np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
     

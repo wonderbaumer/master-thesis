@@ -84,11 +84,11 @@ if __name__ == "__main__":
     """
 
     "scaled"
-    dt , t_tot = t4  
+    dt , t_tot = t6  
     dt = dt / T
     t_tot = t_tot / T
     
-    lf_vals , b_vals = leapfrog_algorithm(init_cart_scaled , tot_acc , dt , t_tot , sputtering)
+    lf_vals , b_vals = leapfrog_algorithm(init_cart_scaled , tot_acc , dt , t_tot )
     x , y , vx , vy , m = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4]
-    print(f"scaled before num leap:" , np.sqrt(x**2 + y**2) , b_vals , m)
-    #np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t4_masslossTrue_noclass" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+    #print(f"scaled before num leap:" , np.sqrt(x**2 + y**2) , b_vals , m)
+    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

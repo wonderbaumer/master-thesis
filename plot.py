@@ -65,20 +65,20 @@ def ang_comps(x1 , y1 , t , solver2 = None , theta_per = None):
     """comparing theta calculated by RK45 to theta from perturbation expression"""
     if theta_per is not None:
         theta_per = np.unwrap(theta_per) #removing discontinuities
-        plt.plot(t , theta1 , color = "blue", label = "RK4(5)")
-        plt.plot(t , theta_per, color = "red" , linestyle = "--" , label = "Perturbed solution")
-        #rel_fw_err = ((np.abs(theta1[1:]-theta_per[1:])) / np.abs(theta1[1:]))
-        #print(rel_fw_err)
-        #plt.plot(t[1:] , rel_fw_err)
-        #plt.title(r"Forward error, RK4(5) and perturbed $\hat{\theta}$")
-        plt.title(r"$\hat{\theta}$, RK4(5) vs perturbed solution")
+        #plt.plot(t , theta1 , color = "blue", label = "RK4(5)")
+        #plt.plot(t , theta_per, color = "red" , linestyle = "--" , label = "Perturbed solution")
+        rel_fw_err = ((np.abs(theta1[1:]-theta_per[1:])) / np.abs(theta1[1:]))
+        print(rel_fw_err)
+        plt.plot(t[1:] , rel_fw_err)
+        plt.title(r"Forward error, RK4(5) and perturbed $\hat{\theta}$")
+        #plt.title(r"$\hat{\theta}$, RK4(5) vs perturbed solution")
 
     plt.xlabel("Number of orbits")
-    plt.ylabel(r"$\hat{\theta}$")
+    #plt.ylabel(r"$\hat{\theta}$")
     #plt.yscale("log")
-    #plt.ylabel("Forward error")
+    plt.ylabel("Forward error")
 
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 """plotting radial distance as function of time, comparison of Leapfrog and RK45 solver, or RK45
@@ -106,18 +106,18 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
         plt.title(r"$\hat{r}$, RK4(5) and Leapfrog")
 
     else: #comparing RK45 sol for r with r from perturbation expression
-        #plt.plot(t , r1 , color = "blue" , label = "RK45 solution")
-        #plt.plot(t , r_per , color = "red" , linestyle = "--" , label = "Perturbed r")
-        fw_err = (np.abs(r1-r_per) / np.abs(r1))
-        plt.plot(t , fw_err)
-        plt.title(r"$\hat{r}$, numerical vs perturbed")
-        #plt.title(r"RK4(5) and perturbed $\hat{r}$")
+        plt.plot(t , r1 , color = "blue" , label = "RK4(5)")
+        plt.plot(t , r_per , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
+        #fw_err = (np.abs(r1-r_per) / np.abs(r1))
+        #plt.plot(t , fw_err)
+        #plt.title(r"$\hat{r}$, numerical vs perturbed")
+        plt.title(r"RK4(5) and perturbed $\hat{r}$")
         
     plt.xlabel("Number of orbits")
-    #plt.ylabel(r"$\hat{r}$")
-    plt.ylabel("Forward error")
+    plt.ylabel(r"$\hat{r}$")
+    #plt.ylabel("Forward error")
     
-    #plt.legend()
+    plt.legend()
     plt.show()
 
 
@@ -137,14 +137,13 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     t = np.arange(0 , t_tot , dt) / T #time array scaled to 1 orbital period
     _, _, _, _, _, b_r = [solver[k] for k in ("x","y","vx","vy","m","b")]
 
-    b = b_r / beta0 #RK45 beta hat
+    #b = b_r / beta0 #RK45 beta hat
     b_per = b_per[: , 2] #first and second order beta hat perturbed expression
-    b_analytical = b_analytical[: , 2] #first and second order beta hat analytical expression
 
     """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
     if fw_err == False:
         plt.figure()
-        plt.plot(t , b , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t , b_r , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t , b_per , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed expression")
         plt.xlabel("Number of orbits")
@@ -153,7 +152,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
         plt.show()
 
         plt.figure()
-        plt.plot(t , b , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t , b_r , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t , b_analytical , color = "orange" , linestyle = ":" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and analytical expression")
         plt.xlabel("Number of orbits")
@@ -162,7 +161,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
         plt.show()
         
         plt.figure()
-        plt.plot(t , b , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t , b_r , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t , b_per , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.plot(t , b_analytical , color = "orange" , linestyle = ":" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical expression")
@@ -175,8 +174,8 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
     if fw_err == True:
-        fw_err_RK45_per = np.abs(b - b_per) / np.abs(b)
-        fw_err_RK45_analytical = np.abs(b - b_analytical) / np.abs(b)
+        fw_err_RK45_per = np.abs(b_r - b_per) / np.abs(b_r)
+        fw_err_RK45_analytical = np.abs(b_r - b_analytical) / np.abs(b_r)
         plt.plot(t , fw_err_RK45_per * 10**5 , color = "blue" , label = "Rel fw error perturbed vs RK4(5)")
         plt.plot(t , fw_err_RK45_analytical* 10**5 , color = "red" , linestyle = "--" , label = "Rel fw error analytical vs RK4(5)")
         plt.xlabel("Number of orbits")
@@ -187,7 +186,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
         plt.show()
 
 """plots and compares energies between RK45 and Leapfrog solver"""
-def energy_plot(t_arr , solver1 , solver2):
+def energy_plot(t_arr , solver1 , solver2 , fw_err = False):
     """input: t_arr (tuple), consisting of dt and t_tot, time at which solver1 and 2 have been 
                              evaluated
               solver1 (tuple), consisting of x1, y1 , vx1 , vx2 , m1 , b_vals1, RK45 solver
@@ -200,38 +199,66 @@ def energy_plot(t_arr , solver1 , solver2):
 
     totenergy1 = tot_energy(x1 , y1 , vx1 , vy1 , m1 , b_vals1) #total energy calcs for solver1
     kinetic1 , potential1 = totenergy1 #unpacking into kinetic and potential energy
-    kinetic1 = kinetic1 * 10**6
-    potential1 = potential1 * 10**6 
+    kinetic1 = kinetic1 #* 10**6
+    potential1 = potential1 #* 10**6 
     tot1 = kinetic1 + potential1 #summing kinetic and potential energy into total energy
 
     totenergy2 = tot_energy(x2 , y2 , vx2 , vy2 , m2 , b_vals2) #total energy calcs solver2
     kinetic2 , potential2 = totenergy2 #unpacking into kinetic and potential energy
-    kinetic2 = kinetic2 * 10**6
-    potential2 = potential2 * 10**6
+    kinetic2 = kinetic2 #* 10**6
+    potential2 = potential2 #* 10**6
     tot2 = kinetic2 + potential2 #summing kinetic and potential energy into total energy
-    
     dt , t_tot = t_arr #unpacking t_arr
     t_arr = np.arange(0 , t_tot , dt) / T #time array scaled to T
+    
+    if fw_err == False:
+        #plots skipping 10 values for each iteration, for efficiency in plotting
+        plt.plot(t_arr[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
+        plt.plot(t_arr[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
+        plt.plot(t_arr[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
+    
+        plt.plot(t_arr[::10] , kinetic2[::10] , label = "Kinetic Leapfrog" , color = "red" , linestyle = "--" , linewidth = 2)
+        plt.plot(t_arr[::10] , potential2[::10] , label = "Potential Leapfrog" , color = "purple" , linestyle = "--" , linewidth = 2)
+        plt.plot(t_arr[::10] , tot2[::10] , label = "Total Leapfrog" , color = "pink" , linestyle = "--" , linewidth = 2)
+    
+        plt.xlabel("Number of orbits")
+        plt.ylabel("Energy")
+        plt.title("RK4(5) vs Leapfrog")
+        plt.legend(loc = "upper right" ,
+               bbox_to_anchor = (1.0 , 0.8))
+        plt.show()
+    
+    if fw_err == True:
+        err_kin = np.abs(kinetic1 - kinetic2) / np.abs(kinetic1)
+        err_pot = np.abs(potential1 - potential1) / np.abs(potential1)
+        err_tot = np.abs(tot1 - tot2) / np.abs(tot1)
 
-    #plots skipping 10 values for each iteration, for efficiency in plotting
-    plt.plot(t_arr[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
-    plt.plot(t_arr[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
-    plt.plot(t_arr[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
-    
-    plt.plot(t_arr[::10] , kinetic2[::10] , label = "Kinetic Leapfrog" , color = "red" , linestyle = "--" , linewidth = 2)
-    plt.plot(t_arr[::10] , potential2[::10] , label = "Potential Leapfrog" , color = "purple" , linestyle = "--" , linewidth = 2)
-    plt.plot(t_arr[::10] , tot2[::10] , label = "Total Leapfrog" , color = "pink" , linestyle = "--" , linewidth = 2)
-    
-    plt.xlabel("Number of orbits")
-    plt.ylabel(r"Energy ($\mu\mathrm{J}$)")
-    plt.title("RK4(5) vs Leapfrog")
-    plt.legend(loc = "upper right" ,
+        plt.figure()
+        plt.plot(t_arr[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
+        plt.plot(t_arr[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
+        plt.plot(t_arr[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
+        plt.xlabel("Number of orbits")
+        plt.ylabel("Energy")
+        plt.title("RK4(5)")
+        plt.legend(loc = "upper right" ,
                bbox_to_anchor = (1.0 , 0.9))
+        plt.show()
+        
+        plt.figure()
+        plt.plot(t_arr[::10] , err_kin[::10] , label = "Error kinetic" , color = "blue" , linewidth = 2)
+        plt.plot(t_arr[::10] , err_pot[::10]  , label = "Error potential" , color = "orange" , linewidth = 2)
+        plt.plot(t_arr[::10] , err_tot[::10] , label = "Error total energy" , color = "teal" , linewidth = 2)
+        plt.xlabel("Number of orbits")
+        plt.ylabel(r"Relative forward error $\times 10^7$")
+        #plt.ylim(0 , 0.000001)
+        plt.title("Forward error, RK4(5) vs Leapfrog")
+        plt.legend(loc = "upper right" ,
+               bbox_to_anchor = (1.0 , 0.9))
+        plt.show()
 
-    plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/rk45_t7_masslossTrue_scaledeqs.npz")
+    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/rk45_t6_masslossFalse_scaledeqs.npz")
     x_r = rk["x"]
     y_r = rk["y"]
     vx_r = rk["vx"]
@@ -241,7 +268,7 @@ if __name__ == "__main__":
 
     r_r = np.sqrt(x_r**2 + y_r**2) / R
 
-    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/LEAPFROG_t4_masslossTrue_T.npz")
+    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs.npz")
     x_l = lf["x"]
     y_l = lf["y"]
     vx_l = lf["vx"]
@@ -251,7 +278,7 @@ if __name__ == "__main__":
 
     r_l = np.sqrt(x_l**2 + y_l**2) / R
     
-    dt , t_tot = t7
+    dt , t_tot = t6
 
     that = np.arange(0 , t_tot , dt) / T
 
@@ -261,11 +288,16 @@ if __name__ == "__main__":
     theta_pert = angular_position(that)
     rper = radial_position(that)
 
-    #b_plot(rk , bper , banalytical , t6 , fw_err = True)
-    #rad_comps(rk , t7 , solver2 = None , r_per = rper)
-    #energy_plot(t7 , rk , lf)
-    ang_comps(x_r , y_r , t7 , solver2 = None , theta_per = theta_pert)
-    #print(np.sqrt(x_r**2+y_r**2), rper)
+    #b_plot(rk , bper , banalytical , t4 , fw_err = False)
+    #rad_comps(rk , t6 , solver2 = None , r_per = rper)
+    energy_plot(t6 , rk , lf , fw_err = False)
+    #ang_comps(x_r , y_r , t7 , solver2 = None , theta_per = theta_pert)
+
+
+
+    
+
+    
     
     
     
