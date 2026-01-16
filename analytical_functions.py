@@ -66,6 +66,33 @@ def analytical_orbit(t):
 
     return x , y
  
+"calculates perturbed velocity based on t hat"
+def rad_velocity(t):
+    """input: t (array), t hat
+    
+       returns: v (array), v hat values"""
+    
+    v0 = 0
+
+    v1 = beta0 / (3 * (1 - beta0)) - beta0 * np.cos(t) / (3 * (1 - beta0)) #first order v hat
+
+    v = v0 + eps() * v1 #tot v hat up to first order in epsilon
+
+    return v
+
+"calculates pertured angular velocity based on t hat"
+def angular_vel(t):
+    """input: t (array), t hat
+       
+       returns: omega (array), omega hat values"""
+    
+    omega0 = 1 #zeroth order omega hat
+    omega1 = 2 * beta0 * np.sin(t) / (3 * (1 - beta0)) - 2 * beta0 * t / (3 * (1 - beta0)) #first order omega hat
+
+    omega = omega0 + eps() * omega1 #tot omega hat up to first order in epsilon
+
+    return omega
+
 if __name__ == "__main__":
     dt , t_tot = t7
     that = np.arange(0 , t_tot , dt) / T

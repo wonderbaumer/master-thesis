@@ -52,7 +52,7 @@ def betahat(m):
     """input: x (float), cartesian x coordinate for position in m
               y (float), cartesian y coordinate for pos in m
               m (float), mass of particle in kg
-        
+        s
        returns: b (float), ratio between radiation and gravitation force"""
     #m_hat = mhat(m)
     
@@ -97,5 +97,5 @@ def tot_acc(x , y , m):
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
 
-    print(tot_acc(x , y , m_par / m_par))
+    print(x , y , vx , vy)
     

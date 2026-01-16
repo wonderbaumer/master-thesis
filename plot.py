@@ -37,7 +37,7 @@ def eps_init_beta():
     plt.show()
     
 """comparing theta values between two solvers or one solver and perturbed expression"""
-def ang_comps(x1 , y1 , t , solver2 = None , theta_per = None):
+def ang_comps(solver1 , t , solver2 = None , theta_per = None):
     """input: solver1 (tuple), consisting of x and y coordinates for runge kutta 4 solver
               t (tuple), shape dt, t_tot for which x and y have been calculated
               solver2 (tuple), optional, default:None, x and y coordinates for Leapfrog solver
@@ -45,7 +45,7 @@ def ang_comps(x1 , y1 , t , solver2 = None , theta_per = None):
               
         returns: none   """
     
-    #x1 , y1 , _ , _ , _ , _ = [solver1[k] for k in ("x","y","vx","vy","m","b")]  #unpacking solver1
+    x1 , y1 , _ , _ , _ , _ = [solver1[k] for k in ("x","y","vx","vy","m","b")]  #unpacking solver1
     theta1 = np.atan2(y1 , x1) #angle based on x and y
     theta1 = np.unwrap(theta1) #avoiding discontinuities in theta
     
@@ -120,6 +120,60 @@ def rad_comps(solver1 , t , solver2 = None , r_per = None):
     plt.legend()
     plt.show()
 
+"plotting radial velocity calculated by RK4(5) and perturbed expression, as function of t hat"
+def rad_vel_comps(solver , t , v_per):
+    """input: solver (.npz file), RK4(5) solutions
+              t (tuple), consisting of dt,t_tot
+              v_per (array), perturbed radial velocity
+
+       returns: none"""
+    
+    x , y , vx , vy , _ , _ = [solver[k] for k in ("x","y","vx","vy","m","b")] #solver1 unpacking
+    
+    theta_num = np.atan2(y , x) #angle
+    theta_num = np.unwrap(theta_num) #avoiding discontinuities
+
+    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
+
+    dt , t_tot = t #time unpacking
+
+    t = np.arange(0 , t_tot , dt) / T #t hat
+
+    plt.plot(t, v_r , color = "blue" , label = r"RK4(5) $\hat{v}$")
+    plt.plot(t , v_per , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
+    plt.xlabel("Number of orbits")
+    plt.ylabel(r"$\hat{v}$")
+    plt.title(r"RK4(5) and perturbed $\hat{v}$")
+    plt.legend()
+    plt.show()
+
+"plotting angular velocity calculated by RK4(5) and perturbed expression as function of t hat"
+def ang_vel_comps(solver , t , angvel):
+    """input: solver (.npz file), RK4(5) solutions
+              t (tuple), consisting of dt, t_tot
+              angvel (array), angular velocity perturbed expression
+
+       returns: none"""
+    
+    x , y , vx , vy , _ , _ = [solver[k] for k in ("x","y","vx","vy","m","b")] #solver unpacking
+    theta_num = np.atan2(y , x) #angle
+    theta_num = np.unwrap(theta_num) #avoiding discontinuities
+    v = np.sqrt(vx**2 + vy**2) #abs cartesian velocity
+    r = np.sqrt(x**2 + y**2) #r hat
+
+    dt , t_tot = t #time unpacking
+
+    t = np.arange(0 , t_tot , dt) / T #t hat
+
+    angvel_num = v / r #angular velocity
+    
+    plt.plot(t , angvel_num , label = "RK4(5)")
+    plt.plot(t , angvel , label = "Perturbed")
+    plt.xlabel("Number of orbits")
+    plt.ylabel(r"$\hat{\omega}$")
+    plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
+    plt.legend()
+    plt.show()
 
 """plotting betahat as calculated numerically by RK45, from perturbed expression and analytic expression.
 Can compare betahat values or relative forward error between RK45-perturbation and RK45-analytical"""
@@ -153,7 +207,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
 
         plt.figure()
         plt.plot(t , b_r , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t , b_analytical , color = "orange" , linestyle = ":" , label = r"Analytical $\hat{\beta}$")
+        plt.plot(t , b_analytical , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and analytical expression")
         plt.xlabel("Number of orbits")
         plt.ylabel(r"$\hat{\beta}$")
@@ -163,7 +217,7 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
         plt.figure()
         plt.plot(t , b_r , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t , b_per , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.plot(t , b_analytical , color = "orange" , linestyle = ":" , label = r"Analytical $\hat{\beta}$")
+        plt.plot(t , b_analytical , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical expression")
         plt.xlabel("Number of orbits")
         plt.ylabel(r"$\hat{\beta}$")
@@ -176,11 +230,11 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     if fw_err == True:
         fw_err_RK45_per = np.abs(b_r - b_per) / np.abs(b_r)
         fw_err_RK45_analytical = np.abs(b_r - b_analytical) / np.abs(b_r)
-        plt.plot(t , fw_err_RK45_per * 10**5 , color = "blue" , label = "Rel fw error perturbed vs RK4(5)")
-        plt.plot(t , fw_err_RK45_analytical* 10**5 , color = "red" , linestyle = "--" , label = "Rel fw error analytical vs RK4(5)")
+        plt.plot(t , fw_err_RK45_per , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
+        plt.plot(t , fw_err_RK45_analytical , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
         plt.xlabel("Number of orbits")
-        plt.ylabel(r"Relative forward error $\times 10^5$")
-        plt.title("Relative forward error, perturbed vs RK4(5) and analytical vs RK4(5)")
+        plt.ylabel(r"Relative forward error")
+        plt.title("Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical")
 
         plt.legend()
         plt.show()
@@ -210,7 +264,9 @@ def energy_plot(t_arr , solver1 , solver2 , fw_err = False):
     tot2 = kinetic2 + potential2 #summing kinetic and potential energy into total energy
     dt , t_tot = t_arr #unpacking t_arr
     t_arr = np.arange(0 , t_tot , dt) / T #time array scaled to T
-    
+
+    print(tot1 , tot2)
+
     if fw_err == False:
         #plots skipping 10 values for each iteration, for efficiency in plotting
         plt.plot(t_arr[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
@@ -226,7 +282,7 @@ def energy_plot(t_arr , solver1 , solver2 , fw_err = False):
         plt.title("RK4(5) vs Leapfrog")
         plt.legend(loc = "upper right" ,
                bbox_to_anchor = (1.0 , 0.8))
-        plt.show()
+        #plt.show()
     
     if fw_err == True:
         err_kin = np.abs(kinetic1 - kinetic2) / np.abs(kinetic1)
@@ -258,7 +314,7 @@ def energy_plot(t_arr , solver1 , solver2 , fw_err = False):
 
 
 if __name__ == "__main__":
-    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/rk45_t6_masslossFalse_scaledeqs.npz")
+    rk = np.load("C:/Users/cecil/Documents/Project-paper/Files/rk45_t7_masslossTrue_scaledeqs.npz")
     x_r = rk["x"]
     y_r = rk["y"]
     vx_r = rk["vx"]
@@ -268,17 +324,15 @@ if __name__ == "__main__":
 
     r_r = np.sqrt(x_r**2 + y_r**2) / R
 
-    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs.npz")
+    lf = np.load("C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossTrue_scaledeqs.npz")
     x_l = lf["x"]
     y_l = lf["y"]
     vx_l = lf["vx"]
     vy_l = lf["vy"]
     m_l = lf["m"]
     b_l = lf["b"]
-
-    r_l = np.sqrt(x_l**2 + y_l**2) / R
     
-    dt , t_tot = t6
+    dt , t_tot = t7
 
     that = np.arange(0 , t_tot , dt) / T
 
@@ -287,11 +341,15 @@ if __name__ == "__main__":
 
     theta_pert = angular_position(that)
     rper = radial_position(that)
+    vper = rad_velocity(that)
+    ang_vel = angular_vel(that)
 
-    #b_plot(rk , bper , banalytical , t4 , fw_err = False)
+    #b_plot(rk , bper , banalytical , t6 , fw_err = True)
     #rad_comps(rk , t6 , solver2 = None , r_per = rper)
-    energy_plot(t6 , rk , lf , fw_err = False)
-    #ang_comps(x_r , y_r , t7 , solver2 = None , theta_per = theta_pert)
+    #energy_plot(t6 , rk , lf , fw_err = False)
+    #ang_comps(rk , t7 , solver2 = None , theta_per = theta_pert)
+    #rad_vel_comps(rk , t7 , vper)
+    #ang_vel_comps(rk , t6 , ang_vel)
 
 
 
