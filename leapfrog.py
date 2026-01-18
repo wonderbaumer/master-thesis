@@ -1,20 +1,16 @@
-import numpy as np
-#from forces import * 
-from config import *
+import numpy as np 
+from config import mhat0 , t4 , t5 , t6 , t7 , init_cart_scaled
 from forces_scaled import tot_acc, sputtering, betahat
 
-"""simple leapfrog algorithm that uses initial values and acceleration from considered forces to 
-    calculate position, velocity and acceleration of the particle at any given time, in x and y 
-    direction"""
-def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
-    """input: initial_vals (array), array containing cartesian initial position and velocity, x and y
-              in m.
+"""simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
+    calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
+    direction. All parameters are scaled."""
+def leapfrog_algorithm(initial_vals , acc_func , time , massloss = None):
+    """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               
-              acc_func (function), function calculating total acceleration in
-              cartesian coordinates based on considered forces, x and y
-              direction
+              acc_func (function), function calculating total scaled acceleration in x and y dir
               
-              dt (float), timestep value in s
+              dt (float), scaled timestep value
               
               t_tot (float), total simulation time in s
 
@@ -25,16 +21,16 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
         """
     
     x , y , vx , vy = initial_vals #unpack values from nested array
-    
-    leapfroged_values = [] #initializing list for the calculated values
-    
-    
+
+    dt , t_tot = time #unpack time values
     t = 0 #initial time
-    mhat = m_par / m_par  #initial mass
-    #b = beta(x , y , m) #initial beta 
-    bhat = betahat(mhat)
-    #b_vals = [b] #initializing list of beta values
-    b_vals = [bhat]
+
+    mhat = mhat0 #initial scaled mass
+    bhat = betahat(mhat) #initial scaled beta
+
+    N = int(t_tot / dt) + 1 #number of timesteps
+    lf_vals = np.zeros((N, 6)) #array to store leapfrogged values
+    lf_vals[0] = [x, y, vx, vy, mhat, bhat]
 
     ax , ay = acc_func(x , y , mhat) #unpacking acceleration x and y vals 
 
@@ -45,17 +41,16 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
     if massloss is not None:
         m_half = mhat + 0.5 * dt * massloss(mhat) 
 
-    while t < t_tot:
+    for i in range(1, N):
         x += dt * vx_half #pos x calcs
         y += dt * vy_half #pos y calcs
 
         #updating mass if massloss is considered
         if massloss is not None:
-            mhat = m_half + 0.5 * dt * massloss(m_half)  #mass calcs
+            mhat = m_half + 0.5 * dt * massloss(m_half) 
             m_half += dt * massloss(m_half) #updating mass
 
-        #b_vals.append(beta(x, y, m)) #beta calcs
-        b_vals.append(betahat(mhat))
+        bhat = betahat(mhat)
             
         ax , ay = acc_func(x , y , mhat) #acceleration calcs
         
@@ -65,30 +60,14 @@ def leapfrog_algorithm(initial_vals , acc_func , dt , t_tot , massloss = None):
         vx = vx_half - 0.5 * dt * ax #updating vx
         vy = vy_half - 0.5 * dt * ay #updating vy
 
-        #leapfroged_values.append([x , y , vx , vy , m]) #putting values into list
-        leapfroged_values.append([x , y , vx , vy , mhat]) #putting values into list
-        
-        t += dt #update time
-        
-    leapfroged_values = np.array(leapfroged_values)  #leapfrog values list to array
-    b_vals = np.array(b_vals[:-1]) #beta values list to array, drop final value for same length
+        lf_vals[i] = [x, y, vx, vy, mhat, bhat] #leapfroged_values 
     
-    return leapfroged_values , b_vals
+    return lf_vals 
     
 if __name__ == "__main__":
-    """
-    dt , t_tot = t4   
-
-    lf_vals , b_vals = leapfrog_algorithm(init_cartesian , tot_acc , dt , t_tot , sputtering)
-    x , y , vx , vy , m = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4]
-    """
-
-    "scaled"
-    dt , t_tot = t6  
-    dt = dt / T
-    t_tot = t_tot / T
+    dt , t_tot = t6 
     
-    lf_vals , b_vals = leapfrog_algorithm(init_cart_scaled , tot_acc , dt , t_tot )
-    x , y , vx , vy , m = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4]
-    #print(f"scaled before num leap:" , np.sqrt(x**2 + y**2) , b_vals , m)
-    np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+    lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6)
+    x , y , vx , vy , m , beta = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
+    print(np.sqrt(x**2 + y**2))
+    #np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

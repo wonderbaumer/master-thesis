@@ -1,23 +1,18 @@
-from scipy.constants import *
-import numpy as np
+#values kept constant in simulations
 
 yr = 60 * 60 * 24 * 365 #one year in s
 
-"__radiation pressure__"
+"""radiation pressure"""
 rho = 2500 #kgm^-3
 S_s = 1361 #solar constant, in Wm^-2
 au = 149597871e3 #one astronomical unit, AU, in m
 q_pr = 1 #radiation pressure coefficient, unitless
 m_s = 1.98847e30  #mass of sun, in kg
+c = 299792458 #speed of light, in ms^-1
 
-"__beta calcs__"
-beta_const = S_s * q_pr * np.pi * au**2 / (G * m_s * c) #beta const
-betahat_0 = 1 #initial betahat, when beta=B
-
-"__sputtering__"
+"""sputtering"""
 N_sw = 8e6 #m^-3, density slow solar wind
 v_sw = 3e5 #ms^-1, velocity slow solar wind
-#N_CME = 70
 fsw = N_sw * v_sw #solar wind flux, m^-2s^-1
 
 YH = 0.05 #sputtering yield hydrogen, slow sw

@@ -192,7 +192,6 @@ def b_plot(solver , b_per , b_analytical , t , fw_err = False):
     _, _, _, _, _, b_r = [solver[k] for k in ("x","y","vx","vy","m","b")]
 
     #b = b_r / beta0 #RK45 beta hat
-    b_per = b_per[: , 2] #first and second order beta hat perturbed expression
 
     """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
     if fw_err == False:

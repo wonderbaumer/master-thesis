@@ -1,10 +1,7 @@
-import sys
-sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
-from constants import *
 import sympy as sp
-from config import *
+from config import rhat0 , betahat0
 
-"___defining the hatted variables___"
+"""defining the hatted variables"""
 t = sp.Symbol("t") #time
 r_0 = sp.Function("r_0")(t) #r0
 r_1 = sp.Function("r_1")(t) #r1
@@ -39,10 +36,10 @@ theta = theta_0 + epsilon * theta_1 #theta perturbed expression
 omega = omega_0 + epsilon * omega_1 #omega perturbed expression
 omega_dot = omegadot_0 + epsilon * omegadot_1 #omegadot perturbed expression
 
-"___radial equation___"
+"""radial equation"""
 rad_eq = sp.Eq((v_dot - r * omega**2) * (1 - beta0_cst) * r**2 , (-1 + beta0_cst * beta)) #radial eq of motion
 
-"__zeroth and first order expressions__"
+"""zeroth and first order expressions"""
 req_lhs = sp.series(rad_eq.lhs , epsilon , 0 , 2).removeO() #removing O(epsilon^2) lhs
 req_rhs = sp.series(rad_eq.rhs , epsilon , 0 , 2).removeO() #removing O(epsilon^2) rhs
 
@@ -52,20 +49,20 @@ rad_eq_first_order = (req_lhs - req_rhs).expand().coeff(epsilon , 1) #first orde
 vdot0_sol = sp.solve(rad_eq_zeroth_order , vdot_0) #zeroth order, solving for vdot0
 vdot1_sol = sp.solve(rad_eq_first_order , vdot_1) #first order, solving for vdot1
 
-"__zeroth and first order solutions__"
+"""zeroth and first order solutions"""
 vdot0_sol = vdot0_sol[0].subs({
-    beta_0 : betahat_0 , 
+    beta_0 : betahat0 , 
     r_0 : rhat0
     })
 vdot1_sol = vdot1_sol[0].subs({
-    beta_0 : betahat_0 , 
+    beta_0 : betahat0 , 
     r_0 : rhat0
     })
 
-"__angular equation__"
+"""angular equation"""
 ang_eq = sp.Eq(r * omega_dot + 2 * v * omega , 0) #angular eq of motion
 
-"__first order sols__"
+"""first order sols"""
 angeq_lhs = sp.series(ang_eq.lhs , epsilon , 0 , 2).removeO() #removing O(epsilon^2) lhs
 angeq_rhs = sp.series(ang_eq.rhs , epsilon , 0 , 2).removeO() #removing O(epsilon^2) rhs
 
@@ -75,7 +72,7 @@ angeq_first_order = (angeq_lhs - angeq_rhs).expand().coeff(epsilon , 1) #first o
 omegadot_0 = sp.solve(angeq_zeroth_order , omegadot_0) #zeroth order, omegadot0
 omegadot_1 = sp.solve(angeq_first_order , omegadot_1) #zeroth order, omegadot1
 
-omega_0 = sp.solve(angeq_zeroth_order , omega_0)
-omega_1 = sp.solve(angeq_first_order , omega_1)
+omega_0 = sp.solve(angeq_zeroth_order , omega_0) #zeroth order, omega0
+omega_1 = sp.solve(angeq_first_order , omega_1) #first order, omega1
 
 print(omega_0 , omega_1)

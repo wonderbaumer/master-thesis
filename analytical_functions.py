@@ -1,15 +1,14 @@
 import numpy as np
-from constants import *
-from polar_to_cart import *
-from config import *
+from config import eps , B , rhat0 , t7
 
-"""calculates up to first order of beta hat from explicit solution"""
+"""calculates up to first order of beta hat from analytical solution"""
 def betahat_analytical(t):
     """input: t (array), scaled time to calculate for
 
        returns: bvals (array), contains all orders as well as their sum"""
+    
     frac = eps() / 3
-    bvals = 1 / (1 - frac * t)
+    bvals = 1 / (1 - frac * t) #total expression
         
     return bvals
 
@@ -19,85 +18,80 @@ def betahat_pert(t):
 
        returns: bvals (array), contain all orders as well as sum of orders """
     
-    order_0 = 1 * np.ones_like(t) #zeroth order
-    order_1 = eps() * t / 3 #first order
-    tot = order_0 + order_1 #sum of orders
+    betahat_0 = 1 * np.ones_like(t) #zeroth order
+    betahat_1 = eps() * t / 3 #first order
+    betahat_tot = betahat_0 + betahat_1 #sum of orders
 
-    bvals = np.column_stack((order_0 , order_1 , tot))
-
-    return bvals
+    return betahat_tot
 
 """calculates radial position up to first order in epsilon"""
-def radial_position(t):
+def rhat_pert(t):
     """input: t (array), time (scaled) to calculate for
 
        returns: r (array), radial position up to first order in epsilon"""
-    #print(-eps()*(beta0 * np.sin(t) / (3 * (1 - beta0))), eps()*( beta0 * t /(3 * (1 - beta0))))
-    r0 = rhat0 #zeroth order
-    r1 = -beta0 * np.sin(t) / (3 * (1 - beta0)) + beta0 * t /(3 * (1 - beta0)) #first order
 
-    r = r0 + eps() * r1 #total expansion
+    rhat_0 = rhat0 #zeroth order
+    rhat_1 = -B * np.sin(t) / (3 * (1 - B)) + B * t /(3 * (1 - B)) #first order
+    rhat = rhat_0 + eps() * rhat_1 #total expansion
 
-    return r
+    return rhat
 
-"""calculates angular position up to first order in epsilon"""
-def angular_position(t):
+"""calculates angular position up to first order in epsilon, perturbed expression"""
+def thetahat_pert(t):
     """input: t (array), \time (scaled) to calculate for
 
        returns: theta (array), angular position up to first order in epsilon"""
-    #print(-beta0 * t**2 / (3 * (1 - beta0))*eps(), -eps()*2 * beta0 * np.cos(t) / (3 * (1 - beta0)),t)
 
-    theta0 = t #zeroth order
-    theta1 = -beta0 * t**2 / (3 * (1 - beta0))  - 2 * beta0 * np.cos(t) / (3 * (1 - beta0)) #first order
-    theta = theta0 + eps() * theta1 #total expansi
+    thetahat_0 = t #zeroth order 
+    thetahat_1 = -B * t**2 / (3 * (1 - B))  - 2 * B * np.cos(t) / (3 * (1 - B)) #first order
+    thetahat_tot = thetahat_0 + eps() * thetahat_1 #total expansion
 
-    return theta
+    return thetahat_tot
 
-"""calculates the total, analytical orbit from r and theta perturbation expressions, both up to first
-order in epsilon"""
-def analytical_orbit(t):
+"""calculates the total perturbed orbit in x and y coordinates"""
+def perturbed_orbit(t):
     """input: t (array) , scaled time over which to plot the orbit
         
        returns: x,y (tuple), x and y coordinates"""
 
-    r = radial_position(t) #r calcs
-    theta = angular_position(t) #theta calcs
-    x , y = r * np.cos(theta) , r * np.sin(theta) #converting to x and y
+    rhat = rhat_pert(t) #r calcs
+    thetahat = thetahat_pert(t) #theta calcs
+    x , y = rhat * np.cos(thetahat) , rhat * np.sin(thetahat) #converting to x and y
 
     return x , y
  
 "calculates perturbed velocity based on t hat"
-def rad_velocity(t):
+def vrhat_pert(t):
     """input: t (array), t hat
     
        returns: v (array), v hat values"""
     
-    v0 = 0
+    vhat_0 = 0 #zeroth order v hat
+    vhat_1 = B / (3 * (1 - B)) - B * np.cos(t) / (3 * (1 - B)) #first order v hat
+    vhat_tot = vhat_0 + eps() * vhat_1 #tot v hat up to first order in epsilon
 
-    v1 = beta0 / (3 * (1 - beta0)) - beta0 * np.cos(t) / (3 * (1 - beta0)) #first order v hat
+    return vhat_tot
 
-    v = v0 + eps() * v1 #tot v hat up to first order in epsilon
-
-    return v
-
-"calculates pertured angular velocity based on t hat"
-def angular_vel(t):
+"calculates perturbed angular velocity based on t hat"
+def omegahat_pert(t):
     """input: t (array), t hat
        
        returns: omega (array), omega hat values"""
     
-    omega0 = 1 #zeroth order omega hat
-    omega1 = 2 * beta0 * np.sin(t) / (3 * (1 - beta0)) - 2 * beta0 * t / (3 * (1 - beta0)) #first order omega hat
+    omegahat_0 = 1 #zeroth order omega hat
+    omegahat_1 = 2 * B * np.sin(t) / (3 * (1 - B)) - 2 * B * t / (3 * (1 - B)) #first order omega hat
+    omegahat_tot = omegahat_0 + eps() * omegahat_1 #tot omega hat up to first order in epsilon
 
-    omega = omega0 + eps() * omega1 #tot omega hat up to first order in epsilon
-
-    return omega
+    return omegahat_tot
 
 if __name__ == "__main__":
     dt , t_tot = t7
-    that = np.arange(0 , t_tot , dt) / T
+    that = np.arange(0 , t_tot , dt)
 
-    angular_position(that)
-    #radial_position(that)
+    print(omegahat_pert(that))
 
-    #print(angular_position(that))
+    
+
+    
+
+    

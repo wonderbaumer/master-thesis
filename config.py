@@ -1,43 +1,35 @@
-from constants import *
-from polar_to_cart import *
-import decimal
-from decimal import Decimal, getcontext
-
-getcontext().prec = 12
-
-"""initial values"""
-m_par = 1.30899694e-15 #mass particle in kg
-r_par_init = 500e-9 #radius particle in m
-beta0 = 0.45931933916320633 #initial mass and radius from initial pressure radiation/gravity
-vtheta0 = 2.19013101e+04 #initial angular vel in ms^-1, only used for testing purposes
-
-r0 = 1.0 * au #initial radial dist in units of AU
-theta0 = 0 #initial angular position in rad
-v0r = 0 #initial radial vel in ms^-1
-init_polar = np.array([r0 , theta0 , v0r]) #initial values array
-
-init_polar_test = np.array([r0 , theta0 , v0r , vtheta0]) #initial values array, only used for testing
-init_cartesian = polar_to_cartesian(init_polar_test) #initial values to cartesian, only used for testing
+import numpy as np
+from scipy.constants import G
+from constants import fsw , Ytot , mA , rho , m_s , au
+from polar_to_cart import polar_to_cartesian
 
 """evaluating particle size against beta0"""
 r_vals = np.linspace(500e-9 , 10e-6 , 10) #size range over which to evaluate beta0
 m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
 
 """scaling parameters"""
-R = au #initial radial position
-V = np.sqrt((G * m_s * (1 - beta0)) / R) #initial angular velocity, scaled formula
-T = round(np.sqrt(R**3 / (G * m_s * (1 - beta0)))) #initial period, scaled formula
+B = 0.45931933916320633 #initial beta value
+R = 1 * au #initial radial position
+V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
+M = 1.30899694e-15 #initial particle mass in kg
+T = round(np.sqrt(R**3 / (G * m_s * (1 - B)))) #initial period, scaled formula
+orb_period = T * 2 * np.pi #orbital period in s
 
-rhat0 = r0 / R #initial scaled radial position
-vtheta0scaled = vtheta0 / V #initial scaled angular velocity
+"""scaled initial paramaeters"""
+rhat0 = R / R #initial scaled radial position
+thetahat0 = 0 #initial scaled angular position
+vrhat0 = 0  #initial scaled radial velocity
+omegahat0 = V / V #initial scaled angular velocity
+betahat0 = B / B #initial scaled beta
+mhat0 = M / M #initial scaled mass
 
-init_polar_scaled = np.array([rhat0 , theta0 , v0r , vtheta0scaled])
-init_cart_scaled = polar_to_cartesian(init_polar_scaled)
-x , y , vx , vy = init_cart_scaled
+init_polar_scaled = np.array([rhat0 , thetahat0 , vrhat0 , omegahat0]) #initial scaled polar coords
+init_cart_scaled = polar_to_cartesian(init_polar_scaled) #initial scaled cart coords
+x , y , vx , vy = init_cart_scaled #unpacking init scaled cartesian coords
 
 """calculates small parameter epsilon, using constants from mass calcs"""
-def eps(m = m_par):
-    """input: m (float), default m_par, mass of particle in kg
+def eps(m = M):
+    """input: m (float), default M, mass of particle in kg
 
        returns: eps (float), epsilon parameter"""
     
@@ -45,48 +37,26 @@ def eps(m = m_par):
 
     return eps
 
-orb_period = T * 2 * np.pi #orbital period in s
-
-"""time combinations used"""
-#1 orbit
-dt1 = 3.16e1
-t_tot1 = 1 * T
-t1 = (dt1 , t_tot1)
-
-#10 orbits
-dt2 = 3.16e2
-t_tot2 = 10 * T
-t2 = (dt2 , t_tot2)
-
-#100 orbits
-dt3 = 3.16e3
-t_tot3 = 100 * T
-t3 = (dt3 , t_tot3)
-
+"""t hat combinations used, dt timestep, t_tot total simulation time"""
 #500 orbits
-dt4 = 3.16e3 #old e3 new e2
-t_tot4 = 500 * T
+dt4 = 3.16e2 / T 
+t_tot4 = 500
 t4 = (dt4 , t_tot4)
 
-#temp500 gir plott på innlevering hvis begge r skalert med yr, r pert lagd utifra T og r num skalert ned med R.
-#dt4 = 3.16e3
-#t_tot4 = 500 * 1.36 * yr
-#t4 = (dt4 , t_tot4)
-
 #1000 orbits
-dt5 = 3.16e4
-t_tot5 = 1000 * T
+dt5 = 3.16e3 / T
+t_tot5 = 1000
 t5 = (dt5 , t_tot5)
 
 #10000 orbits
-dt6 = 3.16e5
-t_tot6 = 10000 * T
+dt6 = 3.16e3 / T 
+t_tot6 = 10000
 t6 = (dt6 , t_tot6)
 
 #20000 orbits
-dt7 = 3.16e5
-t_tot7 = 20000 * T
+dt7 = 3.16e3 / T
+t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
-    eps(m_par)
+    print(x , y)

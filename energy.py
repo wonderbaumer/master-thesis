@@ -1,27 +1,24 @@
 import numpy as np
-from scipy.constants import *
-from constants import *
-from config import *
+from config import B
 
-"""function that calculates the total energy of the particle in orbit,
-uses cartesian coordinates"""
+"""function that calculates the scaled total energy of the particle in orbit, cartesian coordinates"""
 def tot_energy(x , y , vx , vy , m , beta):
-    """input: x (float), x position in m
-              y (float), y position in m
-              vx (float), x velocity in ms^-1
-              vy (float), y velocity in ms^-1
-              m (float), mass of particle in kg
-              beta (float), default: beta0 if massloss not considered, else user-specified
+    """input: x (float), scaled x position
+              y (float), scaled y position
+              vx (float), scaled x velocity
+              vy (float), scaled y velocity
+              m (float), scaled mass of particle
+              beta (float), betahat value
               
-        returns: kinetic_energy, pot_energy (tuple), the energies of the particle
+        returns: kinetic_energy, pot_energy (tuple), the scaled energies of the particle
         """
         
     v = np.sqrt(vx**2 + vy**2) #speed
     
-    kinetic_energy = 1 / 2 * m * v**2 #formula for kinetic E
+    kinetic_energy = 1 / 2 * m * v**2 #formula corresponding to scaled kinetic E
     
     r = np.sqrt(x**2 + y**2)  #position
     
-    pot_energy = -(1 - beta0 * beta) / ((1 - beta0) * r**2) #potential energy
+    pot_energy = -(1 - B * beta) / ((1 - B) * r**2) #scaled potential energy
     
     return kinetic_energy , pot_energy
