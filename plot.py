@@ -110,14 +110,14 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
-def vhat_comps(solver , t , v_per):
+def vhat_comps(x , y , vx , vy , t , v_per):
     """input: solver (.npz file), RK4(5) solutions
               t (tuple), consisting of dt , t_tot, time for simulations
               v_per (array), perturbed vhat
 
        returns: none"""
     
-    x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver1 unpacking
+    #x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver1 unpacking
     
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
@@ -139,14 +139,14 @@ def vhat_comps(solver , t , v_per):
     plt.show()
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
-def omegahat_comps(solver , t , angvel):
+def omegahat_comps(x , y , vx , vy , t , angvel):
     """input: solver (.npz file), RK4(5) solutions
               t (tuple), consisting of dt, t_tot, time for simulations
               angvel (array), omegahat from perturbed expression
 
        returns: none"""
     
-    x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver unpacking
+    #x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver unpacking
     theta_num = np.atan2(y , x) #thetahat RK4(5)
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
 

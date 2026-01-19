@@ -60,8 +60,8 @@ class particle():
 
 if __name__ == "__main__":
     
-    p = particle(t6 , "RK45" , massloss = False)
+    p = particle(t6 , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
-    #np.savez("Files/RK45_masslossFalse_t6.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    np.savez("Files/rk45_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
