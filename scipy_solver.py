@@ -60,5 +60,5 @@ if __name__ == "__main__":
     lf_vals  = arr_variables(sol)
     x , y , vx , vy , m , b = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
     print(np.sqrt(x**2 + y**2))
-    #np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/rk45_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
     

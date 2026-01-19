@@ -19,6 +19,6 @@ def tot_energy(x , y , vx , vy , m , beta):
     
     r = np.sqrt(x**2 + y**2)  #position
     
-    pot_energy = -(1 - B * beta) / ((1 - B) * r**2) #scaled potential energy
+    pot_energy = -(1 - B * beta) / ((1 - B) * r) #scaled potential energy
     
     return kinetic_energy , pot_energy

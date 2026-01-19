@@ -23,6 +23,9 @@ omegahat0 = V / V #initial scaled angular velocity
 betahat0 = B / B #initial scaled beta
 mhat0 = M / M #initial scaled mass
 
+init_polar = np.array([R , 0 , 0 , V]) #initial cart coords
+init_cart = polar_to_cartesian(init_polar) #initial cart coords
+
 init_polar_scaled = np.array([rhat0 , thetahat0 , vrhat0 , omegahat0]) #initial scaled polar coords
 init_cart_scaled = polar_to_cartesian(init_polar_scaled) #initial scaled cart coords
 x , y , vx , vy = init_cart_scaled #unpacking init scaled cartesian coords
