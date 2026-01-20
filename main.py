@@ -7,8 +7,7 @@ from pert_functions import thetahat_pert , rhat_pert , betahat_pert , betahat_an
 """point of execution for simulations and plotting. 
 all plots compares at least one numerical with perturbed sol,
 some plots can compare two numerical sols, some can plot relative forward error between numerical
-sols or numerical and perturbed sol.
-using specified solver doesnt change labels of plots"""
+sols or numerical and perturbed sol."""
 def main(comp_type , time , solver = None , massloss = True , rk_file = None , lf_file = None 
          , fw_err = False):
     """input: comp_type (string), eps_beta, thetahat, rhat , betahat , energy, vhat, omegahat

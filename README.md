@@ -6,9 +6,9 @@ This project simulates motion of one particle under the influence of gravitation
 pressure radiation force (radial component) and mass loss due to sputtering. Simulations are done
 with RK4(5) using scipy.integrate.solve_ivp and Leapfrog as 
 numerical solvers, and by perturbed expressions for radial distance $\hat{r}$, angular position
-$\hat{theta}$ and $\hat{\beta}$. 
+$\hat{\theta}$ and $\hat{\beta}$. 
 The code offers the option of comparing solvers in terms of $\hat{r}$, $\hat{theta}$ and total energy calculated, with or without mass loss, as well as comparing a numerical solver with perturbative expressions for $\hat{r}$, 
-$\hat{theta}$ or $\hat{\beta}$. For $\hat{\beta}$ also an explicit formula can be used for comparison.
+$\hat{\theta}$ or $\hat{\beta}$. For $\hat{\beta}$ also an explicit formula can be used for comparison.
 Calculations and plots can also be made for radial and angular velocity, $\hat{v}$ and $\hat{\omega}$.
 
 ## Features
@@ -55,6 +55,6 @@ This specifies how to run the main file. Running it will make a variety of compa
 
 
 ## Bugs
-Changing plot input to specified solver in main does not change labels in plots.
-If choosing file corresponding to mass loss and specifying massloss=False in running main file (or vice versa) where mass loss argument is relevant, the function does not raise error but will run anyways.
-Can not run two specified solvers, need at least one file where applicable. 
+* Changing plot input to specified solver in main does not change labels in plots.
+* If choosing file corresponding to mass loss and specifying massloss=False in running main file (or vice versa) where mass loss argument is relevant, the function does not raise error but will run anyways.
+* Can not run two specified solvers, need at least one file where applicable. 
