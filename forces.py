@@ -1,15 +1,6 @@
-from scipy.constants import *
+from scipy.constants import G , c
 import numpy as np
-import sys
-sys.path.insert(1, 'C:/Users/Cecilie.Bamer/Documents/Project-paper/')
-from constants import *
-from config import *
-
-"""scipy constants used:
-    G: gravitational constant: 6.6743e-11 m^3kg^-1s^-2
-    c: speed of light in vacuum: 299792458 ms^-1
-    
-    r_par, m_par are hand-calculated"""
+from constants import S_s , q_pr , m_s , fsw , Ytot , mA , rho , au
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun

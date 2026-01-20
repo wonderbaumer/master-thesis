@@ -1,5 +1,5 @@
 import numpy as np 
-from config import mhat0 , t4 , t5 , t6 , t7 , init_cart_scaled
+from config import mhat0 , t5 , t6 , t7 , init_cart_scaled
 from forces_scaled import tot_acc, sputtering, betahat
 
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 

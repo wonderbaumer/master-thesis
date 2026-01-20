@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
-from config import init_cart , m_range , eps , t4 , t5 , t6 , t7
+from config import init_cart , m_range , eps , t5 , t6 , t7
 from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit
 from energy import tot_energy
 
@@ -56,16 +56,16 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None):
         theta2 = np.atan2(y2 , x2) #Leapfrog thetahat
         theta2 = np.unwrap(theta2) #removing discontinuities
         
-        plt.plot(t[::10] , theta1[::10] , color = "blue", label = "RK4(5)")
-        plt.plot(t[::10] , theta2[::10] , color = "red" , linestyle = "--" , label = "Leapfrog")
-        plt.title(r"$\hat{\theta}$, RK4(5) and Leapfrog")
+        plt.plot(t[::10] , theta1[::10] , color = "blue", label = r"RK4(5) $\hat{\theta}$")
+        plt.plot(t[::10] , theta2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{\theta}$")
+        plt.title(r"$\hat{\theta}$ from RK4(5) and Leapfrog solution")
 
     """comparing thetahat from RK4(5) perturbed thetahat"""
     if theta_per is not None:
         theta_per = np.unwrap(theta_per) #removing discontinuities
-        plt.plot(t[::10] , theta1[::10] , color = "blue" , label = "RK4(5)")
-        plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = "Perturbed solution")
-        plt.title(r"$\hat{\theta}$, RK4(5) vs perturbed solution")
+        plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
+        plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
+        plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
 
     plt.xlabel("Number of orbits")
     plt.ylabel(r"$\hat{\theta}$")
@@ -94,14 +94,14 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
     if x2 is not None and y2 is not None:
         r2 = np.sqrt(x2**2 + y2**2) #r hat
 
-        plt.plot(t[::10] , r1[::10] , color = "blue", label = "RK4(5)")
-        plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = "Leapfrog")
-        plt.title(r"$\hat{r}$, RK4(5) and Leapfrog")
+        plt.plot(t[::10] , r1[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
+        plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
+        plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
 
     if r_per is not None: #comparing RK4(5) with perturbed rhat
-        plt.plot(t[::10] , r1[::10] , color = "blue" , label = "RK4(5)")
+        plt.plot(t[::10] , r1[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
-        plt.title(r"RK4(5) and perturbed $\hat{r}$")
+        plt.title(r"$\hat{r}$ from RK4(5) and perturbed solution")
         
     plt.xlabel("Number of orbits")
     plt.ylabel(r"$\hat{r}$")
@@ -111,13 +111,14 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
 def vhat_comps(x , y , vx , vy , t , v_per):
-    """input: solver (.npz file), RK4(5) solutions
+    """input: x (array), RK4(5) x vals
+              y (array), RK4(5) y vals
+              vx (array), RK4(5) vx vals
+              vy (array), RK4(5) vy vals
               t (tuple), consisting of dt , t_tot, time for simulations
               v_per (array), perturbed vhat
 
        returns: none"""
-    
-    #x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver1 unpacking
     
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
@@ -140,13 +141,15 @@ def vhat_comps(x , y , vx , vy , t , v_per):
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
 def omegahat_comps(x , y , vx , vy , t , angvel):
-    """input: solver (.npz file), RK4(5) solutions
+    """input: x (array), RK4(5) x vals
+              y (array), RK4(5) y vals
+              vx (array), RK4(5) vx vals
+              vy (array), RK4(5) vy vals
               t (tuple), consisting of dt, t_tot, time for simulations
               angvel (array), omegahat from perturbed expression
 
        returns: none"""
     
-    #x , y , vx , vy , _ , _ = [solver[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")] #solver unpacking
     theta_num = np.atan2(y , x) #thetahat RK4(5)
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
 
@@ -187,7 +190,7 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
         plt.figure()
         plt.plot(t[::10] , b_r[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed expression")
+        plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed solution")
         plt.xlabel("Number of orbits")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
@@ -196,7 +199,7 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
         plt.figure()
         plt.plot(t[::10] , b_r[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5) and analytical expression")
+        plt.title(r"$\hat{\beta}$ from RK4(5) and analytical solution")
         plt.xlabel("Number of orbits")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
@@ -206,7 +209,7 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
         plt.plot(t[::10] , b_r[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical expression")
+        plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical solution")
         plt.xlabel("Number of orbits")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()

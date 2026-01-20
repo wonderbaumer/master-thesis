@@ -1,6 +1,6 @@
 from scipy.integrate import solve_ivp
 import numpy as np
-from config import t4 , t5 , t6 , t7 , init_cart_scaled , mhat0
+from config import t5 , t6 , t7 , init_cart_scaled , mhat0
 from forces_scaled import tot_acc, sputtering, betahat
 
 

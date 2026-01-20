@@ -1,15 +1,12 @@
 import numpy as np
-from config import mhat0 , init_cart_scaled , t4 , t5 , t6 , t7
+from config import mhat0 , init_cart_scaled , t5 , t6 , t7
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc, sputtering
 
 """class solving scaled equations of motion for a particle using user-specified numerical solver"""
 class particle():
-    """attributes:
-       
-       init_cond (array), initial scaled x , y , vx , vy
-                          
+    """attributes:                
        sim_time (tuple), consisting of dt and t_tot
         
        solver (string), user-specified solver for equation of motion. 
@@ -60,8 +57,8 @@ class particle():
 
 if __name__ == "__main__":
     
-    p = particle(t6 , "RK45" , massloss = True)
+    p = particle(t7 , "LEAPFROG" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
-    np.savez("Files/rk45_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    np.savez("Files/leapfrog_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)

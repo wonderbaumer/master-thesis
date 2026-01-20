@@ -1,19 +1,20 @@
 # Project-paper
-Particle orbital simulation using numerical solvers and perturbation expressions
+Particle orbital simulation using numerical solvers and perturbation expressions, all equations are scaled.
 
 ## Purpose
 This project simulates motion of one particle under the influence of gravitational pull from the Sun,
 pressure radiation force (radial component) and mass loss due to sputtering. Simulations are done
-with Runge Kutta 4th order scheme using scipy.integrate.solve_ivp, Leapfrog integrators as 
-numerical solvers, and analytically by perturbed expressions for radial distance r, angular position
-theta and beta hat.
-The code offers the option of comparing solvers in terms of r, theta and total energy calculated, with or without mass loss, as well as comparing a numerical solver with perturbative expressions for r, 
-theta or beta hat. For beta hat also an explicit formula can be used for comparison.
+with RK4(5) using scipy.integrate.solve_ivp and Leapfrog as 
+numerical solvers, and by perturbed expressions for radial distance $\hat{r}$, angular position
+$\hat{theta}$ and $\hat{\beta}$. 
+The code offers the option of comparing solvers in terms of $\hat{r}$, $\hat{theta}$ and total energy calculated, with or without mass loss, as well as comparing a numerical solver with perturbative expressions for $\hat{r}$, 
+$\hat{theta}$ or $\hat{\beta}$. For $\hat{\beta}$ also an explicit formula can be used for comparison.
+Calculations and plots can also be made for radial and angular velocity, $\hat{v}$ and $\hat{\omega}$.
 
 ## Features
 - Calculate orbital parameters, with or without massloss, using Leapfrog integrator or scipy's non-stiff
 solvers.
-- Calculate orbital parameters beta, x and y numerically, and compare with perturbed solutions
+- Calculate orbital parameters $\hat{\beta}$, $\hat{r}$ and $\hat{\theta}$ numerically, and compare with perturbed solutions
 - Comparison plots of energies and orbital parameters
 
 ## Requirements
@@ -21,7 +22,6 @@ solvers.
 - matplotlib
 - numpy
 - scipy
-- sys
 
 ## Installation
 1. From zip file or clone repository:
@@ -45,11 +45,16 @@ solvers.
     python main.py
     ```
 ## Usage
-This specifies how to run the main file.
-The main file will calculate orbital parameters numerically, using Leapfrog or RK45 and make comparison plots. The comparison plot can be between RK45 and Leapfrog solver, and will then be in terms of energy, r or theta, with or without massloss. The comparisons can also be between RK45 and perturbed expressions, for r, theta or betahat. The user has to either specify a filename for the numerical solutions file they want to use, or run the particle class by specifying time and solver. If the solver is not specified, it will revert to default for particle_class. 
-Comp_type also has to be specified by user, it can be "r", "theta", "eps_beta", "betahat" or "energy" where each will call different plotting functions from plot.py. 
-Note: only some plotting functions are compatible with comparing two numerical solvers.
-Note: currently, up to first order in epsilon are plotted in default for perturbed expressions, if you want to compare numerical sol without massloss to perturbed expression, set the realistic case of time 1 orbit, t1, and plot only zeroth order of perturbed expressions.
+This specifies how to run the main file. Running it will make a variety of comparison plots based on input. Not all plots have same attributes. This will explain in that in detail. Note that mandatory input arguments for main file are comp_type and time, and plotting a specified solver will not change labels of the plots.
+* "eps_beta": only need mandatory input args to run and provides $\epsilon$ and $\beta$ values corresponding to mass and size range in config file.
+* "thetahat": input can be RK4(5) and Leapfrog file, one of the files or a specified solver. If two files input it will plot the comparison of $\hat{\theta}$ between the files, if file or solver it will plot that against the perturbed expression. No combinations will compare a file to solver solution.
+* "betahat": input RK4(5) or Leapfrog file, or solver input, rel_fw_err can be True or False. Will compare specified file or solver to perturbed and analytical $\hat{\beta}$ if rel_fw_err==False, else it will plot relative forward error between file or solver and perturbed and analytical $\hat{\beta}$.
+* "energy": input RK4(5) and Leapfrog file or solver input, massloss True or False, rel_fw_err True or False. Compares input energies with or without massloss if rel_fw_err ==False, else compares relative forward error in energy between RK4(5) and Leapfrog or solver and file.
+* "vhat": input RK4(5), Leapfrog or solver, will compare with perturbed $\hat{v}$.
+* "omegahat": input RK4(5), Leapfrog or solver, will compare with perturbed $\hat{\omega}$.
+
 
 ## Bugs
-Time in plotting functions scaled to 1 year, not the original orbital period T, which is closer to 1.36 yr
+Changing plot input to specified solver in main does not change labels in plots.
+If choosing file corresponding to mass loss and specifying massloss=False in running main file (or vice versa) where mass loss argument is relevant, the function does not raise error but will run anyways.
+Can not run two specified solvers, need at least one file where applicable. 

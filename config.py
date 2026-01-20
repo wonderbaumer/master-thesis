@@ -13,7 +13,6 @@ R = 1 * au #initial radial position
 V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
 M = 1.30899694e-15 #initial particle mass in kg
 T = round(np.sqrt(R**3 / (G * m_s * (1 - B)))) #initial period, scaled formula
-orb_period = T * 2 * np.pi #orbital period in s
 
 """scaled initial paramaeters"""
 rhat0 = R / R #initial scaled radial position
@@ -41,11 +40,6 @@ def eps(m = M):
     return eps
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
-#500 orbits
-dt4 = 3.16e2 / T 
-t_tot4 = 500
-t4 = (dt4 , t_tot4)
-
 #1000 orbits
 dt5 = 3.16e3 / T
 t_tot5 = 1000

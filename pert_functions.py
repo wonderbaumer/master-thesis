@@ -1,5 +1,5 @@
 import numpy as np
-from config import eps , B , rhat0 , t7
+from config import eps , B , rhat0
 
 """calculates up to first order of beta hat from analytical solution"""
 def betahat_analytical(t):
@@ -84,11 +84,6 @@ def omegahat_pert(t):
 
     return omegahat_tot
 
-if __name__ == "__main__":
-    dt , t_tot = t7
-    that = np.arange(0 , t_tot , dt)
-
-    print(omegahat_pert(that))
 
     
 
