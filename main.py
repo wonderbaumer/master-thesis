@@ -141,9 +141,9 @@ def main(comp_type , time , solver = None , massloss = True , rk_file = None , l
 
 if __name__ == "__main__":
     """Example of running code"""
-    comp_type = "thetahat"
-    rk_file = "Files/rk45_t7_masslossTrue_scaledeqs.npz"
-    lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz"
+    comp_type = "energy"
+    rk_file = "Files/rk45_t6_masslossFalse_scaledeqs.npz"
+    lf_file = "Files/leapfrog_t6_masslossFalse_scaledeqs.npz"
     
 
-    main(comp_type , t7 , solver = "RK45" , rk_file = rk_file , lf_file = None , massloss = True , fw_err = False)
+    main(comp_type , t6 , solver = None , rk_file = rk_file , lf_file = lf_file , massloss = False , fw_err = False)

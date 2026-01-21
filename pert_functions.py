@@ -85,8 +85,6 @@ def omegahat_pert(t):
     return omegahat_tot
 
 
-    
 
-    
 
     

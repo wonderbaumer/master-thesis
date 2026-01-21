@@ -1,8 +1,8 @@
 import numpy as np
-from config import B
+from config import B, M, V
 
 """function that calculates the scaled total energy of the particle in orbit, cartesian coordinates"""
-def tot_energy(x , y , vx , vy , m , beta):
+def tot_energy(x , y , vx , vy ,  m , beta):
     """input: x (float), scaled x position
               y (float), scaled y position
               vx (float), scaled x velocity

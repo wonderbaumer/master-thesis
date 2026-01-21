@@ -56,6 +56,5 @@ t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
-    a = (T**4 * (1 - B)) / (R**6 * (1 - B)**2)
-    ecc_0 = np.sqrt(1 - a)
-    print(a)
+    that = np.arange(0 , t_tot6 , dt6) / t_tot6
+    print(len(that))

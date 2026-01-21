@@ -89,10 +89,17 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
 
     dt , t_tot = t #t unpacking
     t = np.arange(0 , t_tot , dt) #t hat
+
+    orbit = round(len(t) / t_tot)
+    orbit *=10
+    t=t[0:orbit]
+
+    r1 = r1[0:orbit]
     
     """comparing RK4(5) and Leapfrog rhat"""
     if x2 is not None and y2 is not None:
         r2 = np.sqrt(x2**2 + y2**2) #r hat
+        r2 = r2[0:orbit]
 
         plt.plot(t[::10] , r1[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
@@ -302,13 +309,14 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/RK45_masslossTrue_t6.npz")
+    rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
 
-    lf = np.load("Files/LEAPFROG_masslossTrue_t6.npz")
+    lf = np.load("Files/leapfrog_t6_masslossTrue_scaledeqs.npz")
     
     dt , t_tot = t6
 
     that = np.arange(0 , t_tot , dt)
+    orbit = len(that) / t_tot
 
     bper = betahat_pert(that)
     banalytical = betahat_analytical(that)
@@ -318,7 +326,22 @@ if __name__ == "__main__":
     vper = vrhat_pert(that)
     ang_vel = omegahat_pert(that)
 
-    rhat_comps(rk["x"] , rk["y"] , t6 , x2 = lf["x"] , y2 = lf["y"] , r_per = None)
+    #rhat_comps(rk["x"] , rk["y"] , t6 , x2 = lf["x"] , y2 = lf["y"] , r_per = None)
+
+    orbit =round(2*np.pi * orbit)
+    x = rk["x"]
+    y = rk["y"]
+    vx = rk["vx"]
+    vy = rk["vy"]
+
+    theta = np.atan2(y , x) #rk45 thetahat
+    theta = np.unwrap(theta)
+    vr = vx * np.cos(theta) + vy * np.sin(theta)
+    vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
+    vpol = np.sqrt(vr**2 + vtheta**2)
+    v = np.sqrt(vx**2 + vy**2)
+
+    print(vpol)
 
 
     
