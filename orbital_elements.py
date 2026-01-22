@@ -4,18 +4,18 @@ from config import B , t6
 from energy import tot_energy
 
 def eccentricity(x , y , vx , vy , m , beta):
-    k , u = tot_energy(x , y , vx , vy ,  m , beta)
-    e = k + u
-
     r = np.sqrt(x**2 + y**2)
-    v = np.sqrt(vx**2 + vy**2)
-    omega = r / v
-    l = omega * m * r**2
 
-    alpha =-(1 - B * beta) / (1 - B)
+    theta_num = np.atan2(y , x) #thetahat
+    theta_num = np.unwrap(theta_num)
+    vr = (x*vx + y*vy)/r
+    vtheta = (x*vy - y*vx) / r
+    omega = vtheta / r
 
-    #ecc = np.sqrt(1 + 2 * e * l**2 / (m * alpha**2))
-    ecc = 1 + 2 * e * l**2 / (m * alpha**2)
+    l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2
+    energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r)
+
+    ecc = 1 + l_frac * energies
 
     return ecc
 
@@ -24,6 +24,7 @@ if __name__ == "__main__":
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
     ecc = eccentricity(x1 , y1 , vx1 , vy1 , m1 , b1)
 
+    #print(ecc)
     dt , t_tot = t6
     that = np.arange(0 , t_tot , dt)
 
@@ -34,6 +35,8 @@ if __name__ == "__main__":
     
 
     orbits = np.arange(orbit , len(that) , orbit)
+    plt.plot(that , ecc)
+    plt.show()
     """
     for i in orbits:
 

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
-from config import init_cart , m_range , eps , t5 , t6 , t7
+from config import init_cart , m_range , eps , t5 , t6 , t7 , T
 from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit
 from energy import tot_energy
 
@@ -130,10 +130,11 @@ def vhat_comps(x , y , vx , vy , t , v_per):
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
 
-    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
+    #v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
+    v_r = (x*vx + y*vy)/np.sqrt(x**2+y**2)
     vrplot = v_r * 10**5 #scaling for better labelling
     vperplot = v_per * 10**5 #scaling for better labelling
-
+    #vrplot = np.sqrt(vx**2 + vy**2)
     dt , t_tot = t #time unpacking
 
     t = np.arange(0 , t_tot , dt)
@@ -166,8 +167,10 @@ def omegahat_comps(x , y , vx , vy , t , angvel):
     dt , t_tot = t #time unpacking
 
     t = np.arange(0 , t_tot , dt) #t hat
-
-    angvel_num = v / r #linear omegahat RK4(5)
+    angvel_num = (x*vy - y*vx) / r
+    #angvel_num = v * np.sin(theta_num) / r
+    
+    
     
     plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
     plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
