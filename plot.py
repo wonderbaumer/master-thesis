@@ -92,14 +92,14 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
 
     orbit = round(len(t) / t_tot)
     orbit *=10
-    t=t[0:orbit]
+    #t=t[0:orbit]
 
-    r1 = r1[0:orbit]
+    #r1 = r1[0:orbit]
     
     """comparing RK4(5) and Leapfrog rhat"""
     if x2 is not None and y2 is not None:
         r2 = np.sqrt(x2**2 + y2**2) #r hat
-        r2 = r2[0:orbit]
+        #r2 = r2[0:orbit]
 
         plt.plot(t[::10] , r1[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
@@ -130,13 +130,13 @@ def vhat_comps(x , y , vx , vy , t , v_per):
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
 
-    #v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
-    v_r = (x*vx + y*vy)/np.sqrt(x**2+y**2)
+    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
+    #v_r = (x*vx + y*vy)/np.sqrt(x**2+y**2)
     vrplot = v_r * 10**5 #scaling for better labelling
     vperplot = v_per * 10**5 #scaling for better labelling
     #vrplot = np.sqrt(vx**2 + vy**2)
     dt , t_tot = t #time unpacking
-
+    
     t = np.arange(0 , t_tot , dt)
 
     plt.plot(t[::10] , vrplot[::10] , color = "blue" , label = r"RK4(5) $\hat{v}$")
@@ -167,10 +167,8 @@ def omegahat_comps(x , y , vx , vy , t , angvel):
     dt , t_tot = t #time unpacking
 
     t = np.arange(0 , t_tot , dt) #t hat
-    angvel_num = (x*vy - y*vx) / r
-    #angvel_num = v * np.sin(theta_num) / r
-    
-    
+    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num)
+    angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
     
     plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
     plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
@@ -343,8 +341,8 @@ if __name__ == "__main__":
     vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
     vpol = np.sqrt(vr**2 + vtheta**2)
     v = np.sqrt(vx**2 + vy**2)
-
-    print(vpol)
+    omegahat_comps(x , y , vx , vy , t6 , omegahat_pert(that))
+    
 
 
     

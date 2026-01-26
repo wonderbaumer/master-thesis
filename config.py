@@ -56,5 +56,6 @@ t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
-    that = np.arange(0 , t_tot6 , dt6) / t_tot6
+    that = np.arange(0 , t_tot6 , dt6)
+    print(2 * np.pi * that)
     

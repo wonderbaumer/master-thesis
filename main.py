@@ -131,7 +131,7 @@ def main(comp_type , time , solver = None , massloss = True , rk_file = None , l
         ang_vel = omegahat_pert(t_hat)
 
         if rk_file is not None: #RK4(5) comp pert
-            omegahat_comps(x1 , x1 , vx1 , vy1 , time , ang_vel)
+            omegahat_comps(x1 , y1 , vx1 , vy1 , time , ang_vel)
         
         elif lf_file is not None: #Leapfrog comp pert
             omegahat_comps(x2 , y2 , vx2 , vy2 , time , ang_vel)
@@ -141,9 +141,9 @@ def main(comp_type , time , solver = None , massloss = True , rk_file = None , l
 
 if __name__ == "__main__":
     """Example of running code"""
-    comp_type = "energy"
-    rk_file = "Files/rk45_t7_masslossTrue_scaledeqs.npz"
-    lf_file = "Files/leapfrog_t7_masslossTrue_scaledeqs.npz"
+    comp_type = "omegahat"
+    rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz"
+    lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz"
     
 
-    main(comp_type , t7 , solver = None , rk_file = rk_file , lf_file = lf_file , massloss = True , fw_err = False)
+    main(comp_type , t6 , solver = None , rk_file = rk_file , lf_file = None , massloss = True , fw_err = False)
