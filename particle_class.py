@@ -57,8 +57,8 @@ class particle():
 
 if __name__ == "__main__":
     
-    p = particle(t7 , "LEAPFROG" , massloss = True)
+    p = particle(t5 , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
-    np.savez("Files/leapfrog_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    np.savez("Files/rk45_t5_masslossTrue_scaledeqs_dt1.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)

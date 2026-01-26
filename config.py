@@ -41,7 +41,7 @@ def eps(m = M):
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits
-dt5 = 3.16e3 / T
+dt5 = 3.16e3 / T #3.16e3 / T
 t_tot5 = 1000
 t5 = (dt5 , t_tot5)
 

@@ -48,7 +48,7 @@ def ecc_math(ecc_sc , t , x , y):
     orbit = round(2 * np.pi * len(that) / t_tot) #steps per 1 orbit
     r = np.sqrt(x**2 + y**2) #r hat
     orbits = np.arange(0 , len(that) - orbit + 1 , orbit) #orbits array, 1 element is 1 orbit
-
+    print(orbit)
     N = int(len(r) / orbit)  #number of timesteps 
 
     ecc_arr = np.zeros((N , 3)) #math defs
@@ -78,14 +78,16 @@ def ecc_math(ecc_sc , t , x , y):
 
         row +=1
     
-    return orbits , ecc_arr , ecc_scaled
+    num_orbs = orbits / orbit
+
+    return num_orbs , ecc_arr , ecc_scaled
 
 if __name__ == "__main__":
     rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
     ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1)
     
-    orbits , math , escaled = ecc_math(ecc , t6 , x1 , y1)
-    print(math[: , 0] , math[: , 1])
+    num_orbs , math , escaled = ecc_math(ecc , t6 , x1 , y1)
+    
 
 
