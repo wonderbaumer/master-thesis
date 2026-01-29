@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.constants import G
-from constants import fsw , Ytot , mA , rho , m_s , au
+from constants import fsw , Ytot , mA , rho , m_s , au , c
 from polar_to_cart import polar_to_cartesian
 
 """evaluating particle size against beta0"""
@@ -57,5 +57,5 @@ t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
     that = np.arange(0 , t_tot6 , dt6)
-    print(2 * np.pi * that)
+    print(2 * V / c)
     

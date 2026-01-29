@@ -100,3 +100,5 @@ def tot_acc(x , y , m):
     return ax , ay
 
 
+if __name__ == "__main__":
+    print(radius(1.30899694e-15))

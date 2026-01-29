@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from config import B , t6 
+from pert_functions import vrhat_pert , thetahat_pert , omegahat_pert , rhat_pert , betahat_pert
 
 """func calculating scaled eccentricity using scaled/hatted values from numerical solver"""
-def eccentricity_sc(x , y , vx , vy , beta):
+def eccentricity_sc(x , y , vx , vy , beta , t):
     """input: x (array), x position 
               y (array), y position 
               vx (array), x velocity 
@@ -12,16 +13,29 @@ def eccentricity_sc(x , y , vx , vy , beta):
 
        returns: ecc (arr), scaled eccentricity values"""
     
-    r = np.sqrt(x**2 + y**2) #r hat
+    dt , t_tot = t
+    that = np.arange(0 , t_tot , dt)
 
+    #Numerical
+    r = np.sqrt(x**2 + y**2) #r hat
     theta_num = np.atan2(y , x) #theta hat
     theta_num = np.unwrap(theta_num) #continuous theta hat
     vr = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cart to radial vel
     vtheta = -vx * np.sin(theta_num) + vy * np.cos(theta_num) #cart to theta vel
     omega = vtheta / r #angular velocity
 
-    l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2 
-    energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r)
+    #Perturbed
+    r_p = rhat_pert(that)
+    omega_p = omegahat_pert(that)
+    vr_p = vrhat_pert(that)
+    beta_p = betahat_pert(that)
+
+
+    #l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2 #not pert
+    #energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r) #not pert
+
+    l_frac = 2 * r_p**4 * (1 - B)**2 * omega_p**2 / (1 - B * beta_p)**2
+    energies = 1 / 2 * vr_p**2 + 1 / 2 * r_p**2 * omega_p**2 - (1 - beta_p * B) / ((1 - B) * r_p)
 
     ecc_sq = 1 + l_frac * energies #eccentricity squared
     
@@ -34,60 +48,53 @@ def eccentricity_sc(x , y , vx , vy , beta):
     return ecc
 
 """calculates eccentricity for each orbit based on mathematical definitions"""
-def ecc_math(ecc_sc , t , x , y):
-    """input: ecc_sc (array), scaled eccentricity values
-              t (tuple), on the form dt, t_tot
+def ecc_math(x , y , t , ecc_sc):
+    """input: t (tuple), on the form dt, t_tot
               x (array), scaled x position 
               y (array), scaled y position
-       returns: orbits (array), ecc_arr (array), ecc_scaled (array), 
-       orbits, mathematical ecc and modified scaled ecc"""
-    
-    dt , t_tot = t #time unpacking
-    that = np.arange(0 , t_tot , dt) #t hat
 
-    orbit = round(2 * np.pi * len(that) / t_tot) #steps per 1 orbit
-    r = np.sqrt(x**2 + y**2) #r hat
-    orbits = np.arange(0 , len(that) - orbit + 1 , orbit) #orbits array, 1 element is 1 orbit
-    print(orbit)
-    N = int(len(r) / orbit)  #number of timesteps 
+       returns: eccearr_filled (array), eccentricity array corresponding to time values"""
 
-    ecc_arr = np.zeros((N , 3)) #math defs
-    ecc_scaled = np.zeros((N , 1)) #scaled eqs
+    theta = np.atan2(y , x) #angle
+    theta_cont = np.unwrap(theta) #continuous angle
+
+    r = np.sqrt(x**2 + y**2) #radial distance
+
+    dt , t_tot = t
+    that = np.arange(0 , t_tot , dt)
   
-    row = 0
+    orbit_index = np.floor(theta_cont / (2 * np.pi)) #defining orbit in terms of angle
+    full_orbit = np.where(np.diff(orbit_index) > 0)[0] + 1 #indexing orbits 
 
-    #iterating over all orbits
-    for i in orbits:
-        if i+orbit > len(r): #running until orbits more than values for the orbit
-            break
-
-        r_orb = r[i:i+orbit] #r values for each orbit
-        ecc_orb = ecc_sc[i:i+orbit] #scaled ecc values for each orbit
-
-        r_max = np.max(r_orb) #largest radial distance
-        r_min = np.min(r_orb) #smallest radial distance
-
-        amajor = (r_max + r_min) / 2 #semi-major axis
-        aminor = np.sqrt(r_max * r_min) #semi-minor axis
+    orb_start = np.concatenate(([0] , full_orbit)) #start point of each orbit
+    orb_end = np.concatenate((full_orbit , [len(r)])) #end point of each orbit
+    counts = orb_end - orb_start #number of steps per orbit
     
-        ecce = (r_max - r_min) / (r_max + r_min)
+    r_max = np.array([r[start : end].max() for start , end in zip(orb_start , orb_end)]) #max r val per orbit
+    r_min = np.array([r[start : end].min() for start , end in zip(orb_start , orb_end)]) #min r val per orbit
+    amajor = (r_max + r_min) / 2 #semi-major axis
+    aminor = np.sqrt(r_max * r_min) #semi-minor axis
 
-        #semi-major, semi-minor and eccentricity into same list, different cols
-        ecc_arr[row , 0] , ecc_arr[row , 1] , ecc_arr[row , 2] = r_min , r_max , ecce
-        ecc_scaled[row] = ecc_orb[-1] #using final value for each orbit in scaled ecc as scaled ecc
+    ecce = np.sqrt(1 - (aminor**2 / amajor**2)) #eccentricity 
 
-        row +=1
-    
-    num_orbs = orbits / orbit
+    ecce_arr = np.stack([aminor , amajor , ecce] , axis = 1) #array of aminor, amajor, eccentricity
+    eccearr_filled = np.repeat(ecce_arr , counts , axis = 0) #filling remainder steps with equal values of eccentricity for comparing with that and other ecc
 
-    return num_orbs , ecc_arr , ecc_scaled
+    ecce_filled = eccearr_filled[: , 2]
+
+    return ecce_filled , that , ecc_sc
+
 
 if __name__ == "__main__":
     rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1)
+    ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1 , t6)
     
-    num_orbs , math , escaled = ecc_math(ecc , t6 , x1 , y1)
+    
+    
+    
+
+    
     
 
 
