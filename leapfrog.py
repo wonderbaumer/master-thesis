@@ -1,11 +1,13 @@
 import numpy as np 
-from config import mhat0 , t5 , t6 , t7 , init_cart_scaled
+import time
+from tqdm import tqdm
+from config import mhat0 , t5 , t6 , t7 , init_cart_scaled , eps
 from forces_scaled import tot_acc, sputtering, betahat
 
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
     calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
     direction. All parameters are scaled."""
-def leapfrog_algorithm(initial_vals , acc_func , time , massloss = None):
+def leapfrog_algorithm(initial_vals , acc_func , time , epsilon , massloss = None):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               
               acc_func (function), function calculating total scaled acceleration in x and y dir
@@ -24,12 +26,15 @@ def leapfrog_algorithm(initial_vals , acc_func , time , massloss = None):
 
     dt , t_tot = time #unpack time values
     t = 0 #initial time
-
+    
     mhat = mhat0 #initial scaled mass
     bhat = betahat(mhat) #initial scaled beta
 
     N = int(t_tot / dt) + 1 #number of timesteps
     lf_vals = np.zeros((N, 6)) #array to store leapfrogged values
+
+    pbar = tqdm(total = N)
+
     lf_vals[0] = [x, y, vx, vy, mhat, bhat]
 
     ax , ay = acc_func(x , y , mhat) #unpacking acceleration x and y vals 
@@ -39,16 +44,16 @@ def leapfrog_algorithm(initial_vals , acc_func , time , massloss = None):
 
     #half-stepping mass calcs if massloss is considered
     if massloss is not None:
-        m_half = mhat + 0.5 * dt * massloss(mhat) 
+        m_half = mhat + 0.5 * dt * massloss(mhat , epsilon) 
 
-    for i in range(1, N):
+    for i in range(1 , N):
         x += dt * vx_half #pos x calcs
         y += dt * vy_half #pos y calcs
 
         #updating mass if massloss is considered
         if massloss is not None:
-            mhat = m_half + 0.5 * dt * massloss(m_half) 
-            m_half += dt * massloss(m_half) #updating mass
+            mhat = m_half + 0.5 * dt * massloss(m_half , epsilon) 
+            m_half += dt * massloss(m_half , epsilon) #updating mass
 
         bhat = betahat(mhat)
             
@@ -61,13 +66,17 @@ def leapfrog_algorithm(initial_vals , acc_func , time , massloss = None):
         vy = vy_half - 0.5 * dt * ay #updating vy
 
         lf_vals[i] = [x, y, vx, vy, mhat, bhat] #leapfroged_values 
+
+        pbar.update(1)
+
+    pbar.close()
     
     return lf_vals 
     
 if __name__ == "__main__":
     dt , t_tot = t6 
-    
-    lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6)
+    epsilon = eps("slow" , "all")
+    lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6 , epsilon , sputtering)
     x , y , vx , vy , m , beta = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
     print(np.sqrt(x**2 + y**2))
-    #np.savez(f"C:/Users/cecil/Documents/Project-paper/Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)
+    #np.savez(f"Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

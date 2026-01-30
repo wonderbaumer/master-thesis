@@ -1,5 +1,5 @@
 import numpy as np
-from config import t5 , t6 , t7
+from config import t5 , t6 , t7 , eps
 from particle_class import particle
 from plot import eps_init_beta , thetahat_comps , rhat_comps , vhat_comps , omegahat_comps , b_plot , energy_plot
 from pert_functions import thetahat_pert , rhat_pert , betahat_pert , betahat_analytical , vrhat_pert , omegahat_pert
@@ -8,7 +8,7 @@ from pert_functions import thetahat_pert , rhat_pert , betahat_pert , betahat_an
 all plots compares at least one numerical with perturbed sol,
 some plots can compare two numerical sols, some can plot relative forward error between numerical
 sols or numerical and perturbed sol."""
-def main(comp_type , time , solver = None , massloss = True , rk_file = None , lf_file = None 
+def main(comp_type , time , epsilon , solver = None , massloss = True , rk_file = None , lf_file = None 
          , fw_err = False):
     """input: comp_type (string), eps_beta, thetahat, rhat , betahat , energy, vhat, omegahat
               time (tuple), consiting of dt, t_tot
@@ -17,12 +17,12 @@ def main(comp_type , time , solver = None , massloss = True , rk_file = None , l
               lf_file (.npz), default: None, Leapfrog solver results"""
     
     if solver is not None and massloss == True:
-        p = particle(sim_time = time, solver = solver , massloss = True) #initializing particle class
+        p = particle(sim_time = time , epsilon = epsilon , solver = solver , massloss = True) #initializing particle class
         vals = p.pos_vel_calcs() #running numerical solver
         x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
     
     elif solver is not None and massloss == False:
-        p = particle(sim_time = time, solver = solver , massloss = False) #initializing particle class
+        p = particle(sim_time = time , epsilon = epsilon , solver = solver , massloss = False) #initializing particle class
         vals = p.pos_vel_calcs() #running numerical solver
         x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
@@ -139,11 +139,11 @@ def main(comp_type , time , solver = None , massloss = True , rk_file = None , l
         elif solver is not None: #Solver comp pert
             omegahat_comps(x , y , vx , vy , time , ang_vel)
 
-if __name__ == "__main__":
-    """Example of running code"""
-    comp_type = "omegahat"
-    rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz"
-    lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz"
-    
+"""Example of running code"""
+comp_type = "eps_beta"
+rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz"
+lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz"
 
-    main(comp_type , t6 , solver = None , rk_file = rk_file , lf_file = None , massloss = True , fw_err = False)
+epsilon = eps(sw = "slow" , species = "all")    
+
+main(comp_type , t6 , epsilon , solver = "RK45" , rk_file = None , lf_file = None , massloss = True , fw_err = False)

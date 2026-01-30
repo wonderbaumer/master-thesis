@@ -16,12 +16,13 @@ def gravity(x , y):
     return acc_x , acc_y 
 
 """calculates mass change from sputtering based on scaled parameters"""
-def sputtering(m):
+def sputtering(m , epsilon):
     """input: m (float), scaled mass
         
        return: dmdt (float), mass change as function of time"""
 
-    dmdt = - eps() * m**(2 / 3) #mass change with time
+    #dmdt = - eps(sw , species) * m**(2 / 3) #mass change with time
+    dmdt = - epsilon * m**(2 / 3)
     
     return dmdt
 
@@ -70,5 +71,6 @@ def tot_acc(x , y , m):
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
 
-    print(x , y , vx , vy)
+    a = sputtering(1e-15 , sw = "fast" , species = "H")
+    print(a)
     

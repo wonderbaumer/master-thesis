@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.constants import G
-from constants import fsw , Ytot , mA , rho , m_s , au , c
+from constants import sputtering_yield , sw_flux , mA , rho , m_s , au , c
 from polar_to_cart import polar_to_cartesian
 
 """evaluating particle size against beta0"""
@@ -30,11 +30,16 @@ init_cart_scaled = polar_to_cartesian(init_polar_scaled) #initial scaled cart co
 x , y , vx , vy = init_cart_scaled #unpacking init scaled cartesian coords
 
 """calculates small parameter epsilon, using constants from mass calcs"""
-def eps(m = M):
+def eps(sw = "slow" , species = "all" , m = M):
     """input: m (float), default M, mass of particle in kg
+              sw (string), default: slow, options fast and CME
+              species (string), default: all, else one of the elements H, He, C, O, N, Fe, Ne, Mg, Si, S
 
        returns: eps (float), epsilon parameter"""
     
+    Ytot = sputtering_yield(sw , species) #total sputtering yield
+    fsw = sw_flux(sw) #solar wind flux
+
     eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m**(-1 / 3) * T #mass constant
 
     return eps
@@ -56,6 +61,6 @@ t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
-    that = np.arange(0 , t_tot6 , dt6)
-    print(2 * V / c)
+    a = eps(sw = "fast" , species = "H")
+    print(a)
     

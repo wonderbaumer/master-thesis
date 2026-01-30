@@ -25,13 +25,22 @@ def eps_init_beta():
     x , y = init_cart[0] , init_cart[1] #unpacking initial, unscaled cartesian values
     b_init_vals = beta(x , y , m_range) #calculating B values for mass range
 
-    epsilon = eps(m_range) #calculating epsilon
-    epsilon = epsilon * 10**5 #scaling for better labelling
+    epsilon_slow = eps("slow" , "all" , m_range) #calculating epsilon for slow sw
+    epsilon_slow = epsilon_slow * 10**5 #scaling for better labelling
 
-    plt.plot(b_init_vals[::-1] , epsilon[::-1]) #plots in reverse order
+    epsilon_fast = eps("fast" , "all" , m_range) #calculating epsilon for fast sw
+    epsilon_fast = epsilon_fast * 10**5 #scaling for better labelling
+
+    epsilon_cme = eps("CME" , "all" , m_range) #calculating epsilon for CME
+    epsilon_cme = epsilon_cme * 10**5 #scaling for better labelling
+
+    plt.plot(b_init_vals[::-1] , epsilon_slow[::-1] , color = "blue" , label = "Slow sw") #plots in reverse order
+    plt.plot(b_init_vals[::-1] , epsilon_fast[::-1] , color = "red" , label = "Fast sw") #plots in reverse order
+    plt.plot(b_init_vals[::-1] , epsilon_cme[::-1] , color = "green" , label = "CME") #plots in reverse order
     plt.xlabel(r"$B$")
     plt.ylabel(r"$\epsilon \times 10^5$ ")
-    plt.title(r"$\epsilon$ vs $B$, corresponding to size range $500^{-9} \text{–} 10^{-6}\,\mathrm{m}$")
+    plt.title(r"$\epsilon$ vs $B$, corresponding to size range $500^{-9} \text{–} 10^{-6}\,\mathrm{m}$, different solar wind conditions")
+    plt.legend()
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
@@ -341,7 +350,7 @@ if __name__ == "__main__":
     vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
     vpol = np.sqrt(vr**2 + vtheta**2)
     v = np.sqrt(vx**2 + vy**2)
-    omegahat_comps(x , y , vx , vy , t6 , omegahat_pert(that))
+    eps_init_beta()
     
 
 

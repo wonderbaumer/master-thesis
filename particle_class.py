@@ -1,5 +1,5 @@
 import numpy as np
-from config import mhat0 , init_cart_scaled , t5 , t6 , t7
+from config import mhat0 , init_cart_scaled , t5 , t6 , t7 , eps
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc, sputtering
@@ -19,10 +19,11 @@ class particle():
        pos_vel_calcs(), numerical solution for particle parameters based on input of solver type and 
                         if massloss=True or =False"""
     
-    def __init__(self , sim_time , solver = "LEAPFROG" , massloss = True):
+    def __init__(self , sim_time , epsilon , solver = "LEAPFROG" , massloss = True):
         self.solver = solver
         self.sim_time = sim_time
         self.massloss = massloss
+        self.epsilon = epsilon
     
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
@@ -32,10 +33,12 @@ class particle():
         
         t_span = (0 , t_tot) #time for simulations
         t_eval = np.arange(0 , t_tot , dt) #setting number of timesteps scipy solver
+
+        state = [0 , t_tot / 1000]
         
         if self.solver == "LEAPFROG" and self.massloss == True:
             pos_and_vel1 = leapfrog_algorithm(init_cart_scaled , tot_acc
-                     , self.sim_time , sputtering) #leapfroging using initial cond
+                     , self.sim_time , self.epsilon , sputtering) #leapfroging using initial cond
             
         elif self.solver == "LEAPFROG" and self.massloss == False:
             pos_and_vel1 = leapfrog_algorithm(init_cart_scaled , tot_acc
@@ -43,13 +46,12 @@ class particle():
             
         elif self.solver in ["RK45" , "RK23" , "DOP853"] and self.massloss == True: 
             pos_and_vel = particle_motion(pos_vel , t_span , 
-                                          y0 , self.solver , t_eval , massloss = True) #specified scipy solver
+                                          y0 , self.solver , t_eval , state , self.epsilon ,  massloss = True) #specified scipy solver
             
             pos_and_vel1 = arr_variables(pos_and_vel) #array of variables
         
         elif self.solver in ["RK45" , "RK23" , "DOP853"] and self.massloss == False: 
-            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , t_eval
-                                          , massloss = False) #specified scipy solver
+            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , t_eval , state , self.epsilon, massloss = False) #specified scipy solver
             
             pos_and_vel1 = arr_variables(pos_and_vel) #array of variables
 
@@ -57,8 +59,9 @@ class particle():
 
 if __name__ == "__main__":
     
-    p = particle(t5 , "RK45" , massloss = True)
+    epsilon = eps(sw = "slow" , species = "all")
+    p = particle(t5 , epsilon , "LEAPFROG" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
-    np.savez("Files/rk45_t5_masslossTrue_scaledeqs_dt1.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    #np.savez("Files/rk45_t5_masslossTrue_scaledeqs_dt1.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)

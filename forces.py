@@ -1,6 +1,6 @@
 from scipy.constants import G , c
 import numpy as np
-from constants import S_s , q_pr , m_s , fsw , Ytot , mA , rho , au
+from constants import S_s , q_pr , m_s , sw_flux , sputtering_yield , mA , rho , au
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -19,15 +19,13 @@ def gravity(x , y):
     return acc_x , acc_y 
 
 """calculates mass change from sputtering"""
-def sputtering(m):
+def sputtering(m , epsilon):
     """input: m (float), mass in kg
+              epsilon (float), epsilon value 
         
        return: dmdt (float), mass change as function of time"""
-       
-    numerator = fsw * Ytot * mA * np.pi * 3**(2 / 3) #numerator in calcs
-    denominator = (4 * np.pi * rho)**(2 / 3) #denominator in calcs
     
-    dmdt = - numerator / denominator * m**(2 / 3) #total mass change
+    dmdt = - epsilon * m**(2 / 3) #total mass change
     
     return dmdt
 
