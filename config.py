@@ -61,6 +61,5 @@ t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
-    a = eps(sw = "fast" , species = "H")
-    print(a)
+    print(V / c)
     
