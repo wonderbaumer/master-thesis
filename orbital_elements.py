@@ -4,39 +4,46 @@ from config import B , t6
 from pert_functions import vrhat_pert , thetahat_pert , omegahat_pert , rhat_pert , betahat_pert
 
 """func calculating scaled eccentricity using scaled/hatted values from numerical solver"""
-def eccentricity_sc(x , y , vx , vy , beta , t):
+def eccentricity_sc(x , y , vx , vy , beta , t , type = "numerical"):
     """input: x (array), x position 
               y (array), y position 
               vx (array), x velocity 
               vy (array), y velocity 
               beta (array), beta value 
+              t (tuple), on the form dt, t_tot
+              type (str), default: "numerical", if using numerical solved params
+              else "perturbed", if using perturbed params
 
        returns: ecc (arr), scaled eccentricity values"""
     
     dt , t_tot = t
     that = np.arange(0 , t_tot , dt)
 
+    if type == "numerical":
     #Numerical
-    r = np.sqrt(x**2 + y**2) #r hat
-    theta_num = np.atan2(y , x) #theta hat
-    theta_num = np.unwrap(theta_num) #continuous theta hat
-    vr = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cart to radial vel
-    vtheta = -vx * np.sin(theta_num) + vy * np.cos(theta_num) #cart to theta vel
-    omega = vtheta / r #angular velocity
+        r = np.sqrt(x**2 + y**2) #r hat
+        theta_num = np.atan2(y , x) #theta hat
+        theta_num = np.unwrap(theta_num) #continuous theta hat
+        vr = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cart to radial vel
+        vtheta = -vx * np.sin(theta_num) + vy * np.cos(theta_num) #cart to theta vel
+        omega = vtheta / r #angular velocity
 
-    #Perturbed
-    r_p = rhat_pert(that)
-    omega_p = omegahat_pert(that)
-    vr_p = vrhat_pert(that)
-    beta_p = betahat_pert(that)
+        l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2 #not pert
+        energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r) #not pert
 
 
-    #l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2 #not pert
-    #energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r) #not pert
+    elif type == "perturbed":
+        r_p = rhat_pert(that)
+        omega_p = omegahat_pert(that)
+        vr_p = vrhat_pert(that)
+        beta_p = betahat_pert(that)
 
-    l_frac = 2 * r_p**4 * (1 - B)**2 * omega_p**2 / (1 - B * beta_p)**2
-    energies = 1 / 2 * vr_p**2 + 1 / 2 * r_p**2 * omega_p**2 - (1 - beta_p * B) / ((1 - B) * r_p)
+        l_frac = 2 * r_p**4 * (1 - B)**2 * omega_p**2 / (1 - B * beta_p)**2
+        energies = 1 / 2 * vr_p**2 + 1 / 2 * r_p**2 * omega_p**2 - (1 - beta_p * B) / ((1 - B) * r_p)
 
+    else:
+        raise ValueError("Invalid type. Must be numerical or perturbed.")
+    
     ecc_sq = 1 + l_frac * energies #eccentricity squared
     
     #setting extremely small negative numbers to zero
@@ -88,7 +95,7 @@ def ecc_math(x , y , t , ecc_sc):
 if __name__ == "__main__":
     rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1 , t6)
+    ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1 , t6 , type = "perturbed")
     
     
     

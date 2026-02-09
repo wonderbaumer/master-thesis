@@ -4,6 +4,9 @@ from particle_class import particle
 from plot import eps_init_beta , thetahat_comps , rhat_comps , vhat_comps , omegahat_comps , b_plot , energy_plot
 from pert_functions import thetahat_pert , rhat_pert , betahat_pert , betahat_analytical , vrhat_pert , omegahat_pert
 
+#Fikse input args til main, kan og fikse på selve plottefunksjonene og bare kalle de her,
+#istedenfor hele main
+
 """point of execution for simulations and plotting. 
 all plots compares at least one numerical with perturbed sol,
 some plots can compare two numerical sols, some can plot relative forward error between numerical
@@ -139,11 +142,57 @@ def main(comp_type , time , epsilon , solver = None , massloss = True , rk_file 
         elif solver is not None: #Solver comp pert
             omegahat_comps(x , y , vx , vy , time , ang_vel)
 
-"""Example of running code"""
-comp_type = "eps_beta"
-rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz"
-lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz"
+"""If files not provided"""
+epsilon = eps(sw = "slow" , species = "all")
 
-epsilon = eps(sw = "slow" , species = "all")    
+"""LEAPFROG solver 10.000 orbits, without mass loss"""
+# p = particle(t6 , epsilon , "LEAPFROG" , massloss = False)
+# vals = p.pos_vel_calcs()
+# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+# np.savez("Files/leapfrog_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
 
-main(comp_type , t6 , epsilon , solver = "RK45" , rk_file = None , lf_file = None , massloss = True , fw_err = False)
+"""LEAPFROG solver 10.000 orbits, with mass loss"""
+# p = particle(t6 , epsilon , "LEAPFROG" , massloss = True)
+# vals = p.pos_vel_calcs()
+# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+# np.savez("Files/leapfrog_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+
+"""RK4(5) solver 10.000 orbits, without mass loss"""
+# p = particle(t6 , epsilon , "RK45" , massloss = False)
+# vals = p.pos_vel_calcs()
+# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+# np.savez("Files/rk45_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+
+"""RK4(5) solver 10.000 orbits, with mass loss"""
+# p = particle(t6 , epsilon , "RK45" , massloss = True)
+# vals = p.pos_vel_calcs()
+# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+# np.savez("Files/rk45_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+
+"""RK4(5) solver 20.000 orbits, with mass loss"""
+# p = particle(t7 , epsilon , "RK45" , massloss = True)
+# vals = p.pos_vel_calcs()
+# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+# np.savez("Files/rk45_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+
+"""Code providing plots in the paper"""
+#Epsilon vs B values
+#main("eps_beta" , t6 , epsilon)
+
+#Energy without massloss
+#main("energy" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossFalse_scaledeqs.npz" , lf_file = "Files/leapfrog_t6_masslossFalse_scaledeqs.npz" , massloss = False , fw_err = False)
+
+#Energy with massloss
+#main("energy" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz" , massloss = True , fw_err = False)
+
+#Betahat comparisons
+#main("betahat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)
+
+#Betahat relative forward error
+#main("betahat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = True)
+
+#Thetahat comparisons
+#main("thetahat" , t7 , epsilon , solver = None , rk_file = "Files/rk45_t7_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)
+
+#rhat comparisons
+#main("rhat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)

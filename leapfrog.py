@@ -7,7 +7,7 @@ from forces_scaled import tot_acc, sputtering, betahat
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
     calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
     direction. All parameters are scaled."""
-def leapfrog_algorithm(initial_vals , acc_func , time , epsilon , massloss = None):
+def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , massloss = None):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               
               acc_func (function), function calculating total scaled acceleration in x and y dir
