@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from orbital_elements import eccentricity_sc, ecc_math
-from config import t5 , t6 , t7 , c , V
+from config import t5 , t6 , t7 , c , V , B
 
 def ecc_comps(x , y , vx , vy , beta , t , type):
     theta = np.atan2(y , x) #angle
@@ -30,19 +30,20 @@ def ecc_comps(x , y , vx , vy , beta , t , type):
     plt.legend()
     plt.show()
 
-
-dt , t_tot = t7
-t = np.arange(0 , t_tot , dt)
-#y = np.exp(t * 10**(-5))
-y = c / V * np.exp((V / c - 1) * t)
-#plt.plot(t , 1-y) #huske å gange med Bbeta1/1-B for full effekt
-plt.plot(t , y)
-plt.show()
+def v_c_parts(t):
+    dt , t_tot = t
+    t = np.arange(0 , t_tot , dt)
+    b = B / (3 * (1 - B))
+    e = np.exp(V * t / c)
+    tot = - b * (t + c / V - c / V * e)
+    plt.plot(t , tot)
+    plt.show()
 
 
 
 if __name__ == "__main__":
     rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    ecc_comps(x1 , y1 , vx1 , vy1 , b1 , t6 , "perturbed")
+    #ecc_comps(x1 , y1 , vx1 , vy1 , b1 , t6 , "perturbed")
+    v_c_parts(t7)
     
