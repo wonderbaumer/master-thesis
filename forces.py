@@ -78,9 +78,38 @@ def beta(x , y , m):
     
     return b
 
+"""calculates acceleration due to Poynting-Robertson drag"""
+def pr_drag(x , y , vx , vy , m):
+    """input: x (float), cartesian x coordinate for position in m
+              y (float), cartesian y coordinate for pos in m
+              vx (float), cartesian x velocity in ms^-1
+              vy (float), cartesian y velocity in ms^-1
+              m (float), mass of particle, in kg
+
+        returns: ax , ay (tuple), acceleration in x and y direction"""
+        
+    r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun in m
+    theta = np.atan2(y , x)
+    #theta = np.unwrap(theta)
+    r_par = radius(m) #radius of the particle in m
+    
+    A = np.pi * r_par**2 #cross section area of particle in m^2
+    
+    s = S_s * (au / r)**2 #radiation flux density at distance r from Sun, in Wm^-2
+    
+    rad_flux_term = s * A * q_pr / (c**2 * r * m) #radiation flux density
+
+    xvel_terms = -vx * (2 * x**2 + y**2) - x * y * vy #x velocity terms
+    yvel_terms = -x * y * vx - vy * (2 * y**2 + x**2) #y velocity terms
+
+    ax = rad_flux_term * xvel_terms #acceleration in x direction
+    ay = rad_flux_term * yvel_terms #acceleration in y direction
+
+    return ax , ay
+
 """function that calculates total acceleration given radiation pressure force
 and gravitational force only"""
-def tot_acc(x , y , m):
+def tot_acc(x , y , vx , vy , m):
     """input: x (float), cartesian x coordinate for position in m
               y (float), cartesian y coordinate for pos in m
               m (float), mass of particle in kg
@@ -91,9 +120,13 @@ def tot_acc(x , y , m):
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir, in ms^-2
     
     b = pressure_acc / np.sqrt(gx**2 + gy**2) #beta calcs
+    prx , pry = pr_drag(x , y , vx , vy , m)
     
-    ax = gx * (1 - b) #acc in x dir in ms^-2
-    ay = gy * (1 - b) #acc in y dir in ms^-2
+    #ax = gx * (1 - b) #acc in x dir in ms^-2 without drag
+    #ay = gy * (1 - b) #acc in y dir in ms^-2 without drag
+
+    ax = gx * (1 - b) + prx #acc in x dir in ms^-2 with drag
+    ay = gy * (1 - b) + pry #acc in y dir in ms^-2 with drag
     
     return ax , ay
 

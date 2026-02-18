@@ -124,4 +124,4 @@ omegadot_11 = sp.solve(angeq_11 , omegadot_11) #second order, omegadot11
 omegadot_20 = sp.solve(angeq_20 , omegadot_20) #second order, omegadot20
 omegadot_02 = sp.solve(angeq_02 , omegadot_02) #second order, omegadot02
 
-print(vrdot11_sol)
+#print(vrdot10_sol)

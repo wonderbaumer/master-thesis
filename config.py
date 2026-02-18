@@ -44,9 +44,11 @@ def eps(sw = "slow" , species = "all" , m = M):
 
     return eps
 
+delta = V / c
+
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits
-dt5 = 3.16e3 / T #3.16e3 / T
+dt5 = 3.16e3 / T 
 t_tot5 = 1000
 t5 = (dt5 , t_tot5)
 
@@ -59,6 +61,10 @@ t6 = (dt6 , t_tot6)
 dt7 = 3.16e3 / T
 t_tot7 = 20000
 t7 = (dt7 , t_tot7)
+
+dt8 = 3.16e3 
+t_tot8 = 1000000
+t8 = (dt8 , t_tot8)
 
 if __name__ == "__main__":
     print(V / c)

@@ -37,7 +37,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
 
     lf_vals[0] = [x, y, vx, vy, mhat, bhat]
 
-    ax , ay = acc_func(x , y , mhat) #unpacking acceleration x and y vals 
+    ax , ay = acc_func(x , y , vx , vy , mhat) #unpacking acceleration x and y vals 
 
     vx_half = vx + 0.5 * dt * ax #half-stepping x velocity
     vy_half = vy + 0.5 * dt * ay #half-stepping y velocity
@@ -57,7 +57,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
 
         bhat = betahat(mhat)
             
-        ax , ay = acc_func(x , y , mhat) #acceleration calcs
+        ax , ay = acc_func(x , y , vx , vy , mhat) #acceleration calcs
         
         vx_half += dt * ax #updating vx_half
         vy_half += dt * ay #updating vy_half
@@ -78,5 +78,5 @@ if __name__ == "__main__":
     epsilon = eps("slow" , "all")
     lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6 , epsilon , sputtering)
     x , y , vx , vy , m , beta = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
-    print(np.sqrt(x**2 + y**2))
+    
     #np.savez(f"Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

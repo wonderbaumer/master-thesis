@@ -1,5 +1,5 @@
 import numpy as np
-from config import B , eps , init_cart_scaled
+from config import B , eps , init_cart_scaled , delta
 
 """calculates acceleration of the particle in x and y direction
     based on scaled gravitational force between particle and Sun"""
@@ -52,25 +52,50 @@ def pressure_radial(x , y , m):
 
     return ax , ay
 
-"""function that calculates total acceleration based on pressure radiation force and gravity"""
-def tot_acc(x , y , m):
+"""calculates Poynting-Robertson drag based on scaled parameters"""
+def pr_drag(x , y , vx , vy , m):
     """input: x (float), scaled x position
               y (float), scaled y position
+              vx (float), scaled x velocity
+              vy (float), scaled y velocity
+              m (float), scaled particle mass
+
+        returns ax , ay (tuple), acceleration in x and y direction"""
+    
+    r = np.sqrt(x**2 + y**2) #scaled radial distance
+    theta = np.atan2(y , x) #scaled angle
+    #theta = np.unwrap(theta) #avoiding discontinuities in angle
+
+    b_term = betahat(m) * B / ((1 - B) * r**3) #beta term in expression 
+    xvel_terms = -vx * (2 * x**2 + y**2) - x * y * vy #x velocity terms
+    yvel_terms = -x * y * vx - vy * (2 * y**2 + x**2) #y velocity terms
+
+    ax = b_term * delta * xvel_terms #acceleration in x direction
+    ay = b_term * delta * yvel_terms #acceleration in y direction
+
+    return ax , ay
+
+"""function that calculates total acceleration based on pressure radiation force, gravity and Poynting-Robertson drag"""
+def tot_acc(x , y , vx , vy , m):
+    """input: x (float), scaled x position
+              y (float), scaled y position
+              vx (float), scaled x velocity
+              vy (float), scaled y velocity
               m (float), scaled mass of particle
 
         returns: ax , ay (array), scaled acceleration in x and y dir"""
     
     px , py = pressure_radial(x , y , m) #decomposing pressure radiation force
     gx , gy = gravity(x , y) #decomposing gravitational force
+    prx , pry = pr_drag(x , y , vx , vy , m) #decomposing Poynting-Robertson force
 
-    ax = px + gx  #total acceleration in x dir
-    ay = py + gy  #total acceleration in y dir 
+    ax = px + gx + prx  #total acceleration in x dir
+    ay = py + gy + pry  #total acceleration in y dir 
     
     return ax , ay
 
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
 
-    a = sputtering(1e-15 , sw = "fast" , species = "H")
-    print(a)
+   
     
