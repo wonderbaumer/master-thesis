@@ -75,7 +75,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
     
 if __name__ == "__main__":
     dt , t_tot = t6 
-    epsilon = eps("slow" , "all")
+    epsilon = eps()
     lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6 , epsilon , sputtering)
     x , y , vx , vy , m , beta = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
     

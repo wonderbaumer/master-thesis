@@ -1,9 +1,8 @@
 import numpy as np
-from config import mhat0 , init_cart_scaled , init_cart , t5 , t6 , t7 , eps , M , t8
+from config import mhat0 , init_cart_scaled , init_cart , t5 , t6 , t7 , eps
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
-#from forces_scaled import tot_acc, sputtering
-from forces import tot_acc , sputtering
+from forces_scaled import tot_acc, sputtering
 
 """class solving scaled equations of motion for a particle using user-specified numerical solver"""
 class particle():
@@ -28,8 +27,7 @@ class particle():
     
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
-        #y0 = np.append(init_cart_scaled, mhat0) #initial values for scipy ivp solver
-        y0 = np.append(init_cart , M)
+        y0 = np.append(init_cart_scaled, mhat0) #initial values for scipy ivp solver
         dt , t_tot = self.sim_time #dt and t_tot unpacking
         
         t_span = (0 , t_tot) #time for simulations
@@ -60,9 +58,10 @@ class particle():
 
 if __name__ == "__main__":
     
-    epsilon = eps(sw = "slow" , species = "all")
-    p = particle(t8 , epsilon , "RK45" , massloss = True)
+    epsilon = eps("silicate" , "slow")
+    p = particle(t5 , epsilon , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
 
-    np.savez("Files/rk45_t8_masslossTrue.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    np.savez("Files/rk45_t5_masslossTrue_silicate_slow_noPR.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    

@@ -24,44 +24,97 @@ n_Mg = np.array([2.88e-5 , 6.81e-5 , 2.80e-3])
 n_Si = np.array([3.15e-5 , 6.28e-5 , 1.74e-3])
 n_S = np.array([1.53e-5 , 2.43e-5 , 1.18e-3])
 n_Fe = np.array([2.52e-5 , 5.05e-5 , 7.05e-3])
-n_H = n_tot - n_He - n_O - n_C - n_N - n_Ne - n_Mg - n_Si - n_S - n_Fe
+n_H = n_tot - n_He - n_O - n_C - n_N - n_Ne - n_Mg - n_Si - n_S - n_Fe 
+
+#Sputtering yields for carbon fast sw, slow sw and CME, from Baumann, et al., 2020.
+H_C = np.array([0.0034 , 0.0076 , 0.0055])
+He_C = np.array([0.0211 , 0.0567 , 0.0365])
+C_C = np.array([0.1063 , 0.2389 , 0.1706])
+O_C = np.array([0.1728 , 0.3614 , 0.2689])
+N_C = np.array([0.1204 , 0.2606 , 0.1902])
+Fe_C = np.array([1.3500 , 1.3500 , 1.3500])
+Ne_C = np.array([0.3303 , 0.4620 , 0.4267])
+Mg_C = np.array([0.6000 , 0.6000 , 0.6000])
+Si_C = np.array([0.7200 , 0.7200 , 0.7200])
+S_C = np.array([0.8300 , 0.8300 , 0.8300])
 
 sputter = {
-    "fast": {
-        "H": H_arr[0:3] * n_H[0] ,
-        "He": He_arr[0:3] * n_He[0] ,
-        "C": C_arr[0:3] * n_C[0] ,
-        "O": O_arr[0:3] * n_O[0] ,
-        "N": N_arr[0:3] * n_N[0] ,
-        "Fe": Fe_arr[0:3] * n_Fe[0] ,
-        "Ne": Ne_arr[0:3] * n_Ne[0] ,
-        "Mg": Mg_arr[0:3] * n_Mg[0] ,
-        "Si": Si_arr[0:3] * n_Si[0] ,
-        "S": S_arr[0:3] * n_S[0] ,
-    },
-    "slow":{
-        "H": H_arr[4:7] * n_H[1] ,
-        "He": He_arr[4:7] * n_He[1] ,
-        "C": C_arr[4:7] * n_C[1] ,
-        "O": O_arr[4:7] * n_O[1] ,
-        "N": N_arr[4:7] * n_N[1] ,
-        "Fe": Fe_arr[4:7] * n_Fe[1] ,
-        "Ne": Ne_arr[4:7] * n_Ne[1] ,
-        "Mg": Mg_arr[4:7] * n_Mg[1] ,
-        "Si": Si_arr[4:7] * n_Si[1] ,
-        "S": S_arr[4:7] * n_S[1] ,
-    },
-    "CME":{
-        "H": H_arr[8:11] * n_H[2] ,
-        "He": He_arr[8:11] * n_He[2] ,
-        "C": C_arr[8:11] * n_C[2] ,
-        "O": O_arr[8:11] * n_O[2] ,
-        "N": N_arr[8:11] * n_N[2] ,
-        "Fe": Fe_arr[8:11] * n_Fe[2] ,
-        "Ne": Ne_arr[8:11] * n_Ne[2] ,
-        "Mg": Mg_arr[8:11] * n_Mg[2] ,
-        "Si": Si_arr[8:11] * n_Si[2] ,
-        "S": S_arr[8:11] * n_S[2] ,
+    "silicate":{
+        "fast": {
+            "H": H_arr[0:4] * n_H[0] ,
+            "He": He_arr[0:4] * n_He[0] ,
+            "C": C_arr[0:4] * n_C[0] ,
+            "O": O_arr[0:4] * n_O[0] ,
+            "N": N_arr[0:4] * n_N[0] ,
+            "Fe": Fe_arr[0:4] * n_Fe[0] ,
+            "Ne": Ne_arr[0:4] * n_Ne[0] ,
+            "Mg": Mg_arr[0:4] * n_Mg[0] ,
+            "Si": Si_arr[0:4] * n_Si[0] ,
+            "S": S_arr[0:4] * n_S[0] ,
+        },
+        "slow":{
+            "H": H_arr[4:8] * n_H[1] ,
+            "He": He_arr[4:8] * n_He[1] ,
+            "C": C_arr[4:8] * n_C[1] ,
+            "O": O_arr[4:8] * n_O[1] ,
+            "N": N_arr[4:8] * n_N[1] ,
+            "Fe": Fe_arr[4:8] * n_Fe[1] ,
+            "Ne": Ne_arr[4:8] * n_Ne[1] ,
+            "Mg": Mg_arr[4:8] * n_Mg[1] ,
+            "Si": Si_arr[4:8] * n_Si[1] ,
+            "S": S_arr[4:8] * n_S[1] ,
+        },
+        "CME":{
+            "H": H_arr[8:12] * n_H[2] ,
+            "He": He_arr[8:12] * n_He[2] ,
+            "C": C_arr[8:12] * n_C[2] ,
+            "O": O_arr[8:12] * n_O[2] ,
+            "N": N_arr[8:12] * n_N[2] ,
+            "Fe": Fe_arr[8:12] * n_Fe[2] ,
+            "Ne": Ne_arr[8:12] * n_Ne[2] ,
+            "Mg": Mg_arr[8:12] * n_Mg[2] ,
+            "Si": Si_arr[8:12] * n_Si[2] ,
+            "S": S_arr[8:12] * n_S[2] ,
+        }},
+
+    "carbon":{
+        "fast":{
+            "H": H_C[0] * n_H[0] ,
+            "He": He_C[0] * n_He[0] ,
+            "C": C_C[0] * n_C[0] ,
+            "O": O_C[0] * n_O[0] ,
+            "N": N_C[0] * n_N[0] ,
+            "Fe": Fe_C[0] * n_Fe[0] ,
+            "Ne": Ne_C[0] * n_Ne[0] ,
+            "Mg": Mg_C[0] * n_Mg[0] ,
+            "Si": Si_C[0] * n_Si[0] ,
+            "S": S_C[0] * n_S[0] ,
+            },
+
+        "slow":{
+            "H": H_C[1] * n_H[1] ,
+            "He": He_C[1] * n_He[1] ,
+            "C": C_C[1] * n_C[1] ,
+            "O": O_C[1] * n_O[1] ,
+            "N": N_C[1] * n_N[1] ,
+            "Fe": Fe_C[1] * n_Fe[1] ,
+            "Ne": Ne_C[1] * n_Ne[1] ,
+            "Mg": Mg_C[1] * n_Mg[1] ,
+            "Si": Si_C[1] * n_Si[1] ,
+            "S": S_C[1] * n_S[1] ,
+            },
+        "CME":{
+            "H": H_C[2] * n_H[2] ,
+            "He": He_C[2] * n_He[2] ,
+            "C": C_C[2] * n_C[2] ,
+            "O": O_C[2] * n_O[2] ,
+            "N": N_C[2] * n_N[2] ,
+            "Fe": Fe_C[2] * n_Fe[2] ,
+            "Ne": Ne_C[2] * n_Ne[2] ,
+            "Mg": Mg_C[2] * n_Mg[2] ,
+            "Si": Si_C[2] * n_Si[2] ,
+            "S": S_C[2] * n_S[2] ,
+            }
     }
 }
 

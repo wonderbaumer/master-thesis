@@ -1,6 +1,7 @@
 from scipy.constants import G , c
 import numpy as np
-from constants import S_s , q_pr , m_s , sw_flux , sputtering_yield , mA , rho , au
+from constants import S_s , q_pr , m_s , sw_flux , sputtering_yield , rho , au
+from config import init_cart
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -90,20 +91,16 @@ def pr_drag(x , y , vx , vy , m):
         
     r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun in m
     theta = np.atan2(y , x)
-    #theta = np.unwrap(theta)
-    r_par = radius(m) #radius of the particle in m
-    
-    A = np.pi * r_par**2 #cross section area of particle in m^2
-    
-    s = S_s * (au / r)**2 #radiation flux density at distance r from Sun, in Wm^-2
-    
-    rad_flux_term = s * A * q_pr / (c**2 * r * m) #radiation flux density
 
-    xvel_terms = -vx * (2 * x**2 + y**2) - x * y * vy #x velocity terms
-    yvel_terms = -x * y * vx - vy * (2 * y**2 + x**2) #y velocity terms
+    b = beta(x , y , m)
 
-    ax = rad_flux_term * xvel_terms #acceleration in x direction
-    ay = rad_flux_term * yvel_terms #acceleration in y direction
+    grav_term = G * m_s / r**4
+
+    xvel_terms = -2 * vx * (x**2 + y**2) - x * y * vy #x velocity terms
+    yvel_terms = -x * y * vx - 2 * vy * (y**2 + x**2) #y velocity terms
+
+    ax = grav_term * b / c * xvel_terms #acceleration in x direction
+    ay = grav_term * b / c * yvel_terms #acceleration in y direction
 
     return ax , ay
 
@@ -120,7 +117,7 @@ def tot_acc(x , y , vx , vy , m):
     gx , gy = gravity(x , y) #gravitational acceleration in x and y dir, in ms^-2
     
     b = pressure_acc / np.sqrt(gx**2 + gy**2) #beta calcs
-    prx , pry = pr_drag(x , y , vx , vy , m)
+    prx , pry = pr_drag(x , y , vx , vy , m) 
     
     #ax = gx * (1 - b) #acc in x dir in ms^-2 without drag
     #ay = gy * (1 - b) #acc in y dir in ms^-2 without drag
@@ -132,4 +129,4 @@ def tot_acc(x , y , vx , vy , m):
 
 
 if __name__ == "__main__":
-    print(radius(1.30899694e-15))
+    x , y , vx , vy = init_cart

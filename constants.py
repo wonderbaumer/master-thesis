@@ -38,28 +38,28 @@ def sw_flux(sw = "slow"):
 
 
 #Total sputtering yield
-def sputtering_yield(sw = "slow" , species = "all"):
+def sputtering_yield(material = "silicate" , sw = "slow" , species = "all"):
     """input: sw (string), solar wind conditions, default slow, options fast, slow, CME
               species (string), solar wind elements, default all, else one of H, He, C, O, N, Fe, Ne, Mg, Si, S
         
         returns: Ytot (array), total sputtering yield"""
     
     if species == "all":
-        H = np.sum(sputter[sw]["H"]) #total sputtering yield hydrogen
-        He = np.sum(sputter[sw]["He"]) #total sputtering yield helium
-        C = np.sum(sputter[sw]["C"]) #total sputtering yield carbon
-        O = np.sum(sputter[sw]["O"]) #total sputtering yield oxygen
-        N = np.sum(sputter[sw]["N"]) #total sputtering yield nitrogen
-        Fe = np.sum(sputter[sw]["Fe"]) #total sputtering yield iron
-        Ne = np.sum(sputter[sw]["Ne"]) #total sputtering yield neon
-        Mg = np.sum(sputter[sw]["Mg"]) #total sputtering yield magnesium
-        Si = np.sum(sputter[sw]["Si"]) #total sputtering yield silicon
-        S = np.sum(sputter[sw]["S"]) #total sputtering yield sulfur
+        H = np.sum(sputter[material][sw]["H"]) #total sputtering yield hydrogen
+        He = np.sum(sputter[material][sw]["He"]) #total sputtering yield helium
+        C = np.sum(sputter[material][sw]["C"]) #total sputtering yield carbon
+        O = np.sum(sputter[material][sw]["O"]) #total sputtering yield oxygen
+        N = np.sum(sputter[material][sw]["N"]) #total sputtering yield nitrogen
+        Fe = np.sum(sputter[material][sw]["Fe"]) #total sputtering yield iron
+        Ne = np.sum(sputter[material][sw]["Ne"]) #total sputtering yield neon
+        Mg = np.sum(sputter[material][sw]["Mg"]) #total sputtering yield magnesium
+        Si = np.sum(sputter[material][sw]["Si"]) #total sputtering yield silicon
+        S = np.sum(sputter[material][sw]["S"]) #total sputtering yield sulfur
 
         Ytot = H + He + C + O + N + Fe + Ne + Mg + Si + S #total sputtering yield 
     
     else:
-        spec = np.sum(sputter[sw][species]) #total sputtering yield specified species
+        spec = np.sum(sputter[material][sw][species]) #total sputtering yield specified species
 
         Ytot = spec #total sputtering yield
 
@@ -71,12 +71,14 @@ m_Mg = 24.31 #atomic mass magnesium
 m_Si = 28.08 #atomic mass silisium
 m_O = 16.00 #atomic mass oxygen
 m_Fe = 55.84 #atomic mass iron
+m_C = 12.01 #atomic mass carbon
 
-mA = (m_Mg + m_Si + m_Fe + 4 * m_O) / 7 * u #total mass, all constituents, in kg
+mA_S = (m_Mg + m_Si + m_Fe + 4 * m_O) / 7 * u #total mass, all constituents, in kg, silicate
+mA_C = m_C * u #total mass in kg, carbon
 
 
 if __name__ == "__main__":
-    a = sputtering_yield("fast" , "all")
+    a = sputtering_yield()
     print(a)
 
 

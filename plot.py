@@ -24,23 +24,38 @@ def eps_init_beta():
     
     x , y = init_cart[0] , init_cart[1] #unpacking initial, unscaled cartesian values
     b_init_vals = beta(x , y , m_range) #calculating B values for mass range
+    
+    epsilon_slow = eps("silicate" , "slow" , "all" , m_range) #calculating epsilon for slow sw
+    #epsilon_slow = epsilon_slow * 10**5 #scaling for better labelling
 
-    epsilon_slow = eps("slow" , "all" , m_range) #calculating epsilon for slow sw
-    epsilon_slow = epsilon_slow * 10**5 #scaling for better labelling
+    epsilon_fast = eps("silicate" , "fast" , "all" , m_range) #calculating epsilon for fast sw
+    #epsilon_fast = epsilon_fast * 10**5 #scaling for better labelling
 
-    epsilon_fast = eps("fast" , "all" , m_range) #calculating epsilon for fast sw
-    epsilon_fast = epsilon_fast * 10**5 #scaling for better labelling
+    epsilon_cme = eps("silicate" , "CME" , "all" , m_range) #calculating epsilon for CME
+    #epsilon_cme = epsilon_cme * 10**5 #scaling for better labelling
 
-    epsilon_cme = eps("CME" , "all" , m_range) #calculating epsilon for CME
-    epsilon_cme = epsilon_cme * 10**5 #scaling for better labelling
+    epsilon_slowC = eps("carbon" , "slow" , "all" , m_range) #calculating epsilon for slow sw
+    #epsilon_slowC = epsilon_slow * 10**5 #scaling for better labelling
+
+    epsilon_fastC = eps("carbon" , "fast" , "all" , m_range) #calculating epsilon for fast sw
+    #epsilon_fastC = epsilon_fast * 10**5 #scaling for better labelling
+
+    epsilon_cmeC = eps("carbon" , "CME" , "all" , m_range) #calculating epsilon for CME
+    #epsilon_cmeC = epsilon_cme * 10**5 #scaling for better labelling
 
     plt.plot(b_init_vals[::-1] , epsilon_slow[::-1] , color = "blue" , label = "Slow sw") #plots in reverse order
     plt.plot(b_init_vals[::-1] , epsilon_fast[::-1] , color = "red" , label = "Fast sw") #plots in reverse order
     plt.plot(b_init_vals[::-1] , epsilon_cme[::-1] , color = "green" , label = "CME") #plots in reverse order
+
+    plt.plot(b_init_vals[::-1] , epsilon_slowC[::-1] , linestyle = "--" , color = "blue" ) #plots in reverse order
+    plt.plot(b_init_vals[::-1] , epsilon_fastC[::-1] , linestyle = "--" , color = "red" ) #plots in reverse order
+    plt.plot(b_init_vals[::-1] , epsilon_cmeC[::-1] , linestyle = "--" , color = "green") #plots in reverse order
+
     plt.xlabel(r"$B$")
-    plt.ylabel(r"$\epsilon \times 10^5$ ")
-    plt.title(r"$\epsilon$ vs $B$, corresponding to size range $500^{-9} \text{–} 10^{-6}\,\mathrm{m}$, different solar wind conditions")
-    plt.legend()
+    plt.ylabel(r"${\epsilon}$")
+    plt.yscale("log")
+    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range ${500^{-9} \text{–} 10^{-6}\,\mathrm{m}}$, silicate and carbon")
+    plt.legend(loc = "lower right")
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
@@ -256,8 +271,8 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
 
        returns: none"""
     
-    #x1 , y1 , vx1 , vy1 , m1 , b_vals1 = [solver1[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver1
-    #x2 , y2 , vx2 , vy2 , m2 , b_vals2 = [solver2[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver2
+    x1 , y1 , vx1 , vy1 , m1 , b_vals1 = [solver1[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver1
+    x2 , y2 , vx2 , vy2 , m2 , b_vals2 = [solver2[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver2
     x1 , y1 , vx1 , vy1 , m1 , b_vals1 = solver1
     x2 , y2 , vx2 , vy2 , m2 , b_vals2 = solver2
     totenergy1 = tot_energy(x1 , y1 , vx1 , vy1 , m1 , b_vals1) #total energy calcs for solver1
@@ -265,12 +280,13 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
     kinetic1 = kinetic1 
     potential1 = potential1  
     tot1 = kinetic1 + potential1 #summing kinetic and potential energy into total energy
-
+    
     totenergy2 = tot_energy(x2 , y2 , vx2 , vy2 , m2 , b_vals2) #total energy calcs solver2
     kinetic2 , potential2 = totenergy2 #unpacking into kinetic and potential energy
     kinetic2 = kinetic2 
     potential2 = potential2 
     tot2 = kinetic2 + potential2 #summing kinetic and potential energy into total energy
+    
     dt , t_tot = t #unpacking t_arr
     t = np.arange(0 , t_tot , dt) #that
 
@@ -279,11 +295,9 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         plt.plot(t[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
         plt.plot(t[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
         plt.plot(t[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
-
         plt.plot(t[::10] , kinetic2[::10] , label = "Kinetic Leapfrog" , color = "red" , linestyle = "--" , linewidth = 2)
         plt.plot(t[::10] , potential2[::10] , label = "Potential Leapfrog" , color = "purple" , linestyle = "--" , linewidth = 2)
         plt.plot(t[::10] , tot2[::10] , label = "Total Leapfrog" , color = "pink" , linestyle = "--" , linewidth = 2)
-    
         plt.xlabel("Number of orbits")
         plt.ylabel("Energy")
         plt.title("RK4(5) vs Leapfrog")
@@ -306,7 +320,7 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         plt.legend(loc = "upper right" ,
                bbox_to_anchor = (1.0 , 0.9))
         plt.show()
-        
+        """
         plt.figure()
         plt.plot(t[::10] , err_kin[::10] , label = "Error kinetic" , color = "blue" , linewidth = 2)
         plt.plot(t[::10] , err_pot[::10]  , label = "Error potential" , color = "orange" , linewidth = 2)
@@ -317,41 +331,12 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         plt.legend(loc = "upper right" ,
                bbox_to_anchor = (1.0 , 0.9))
         plt.show()
-
+        """
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
+    #rk = np.load("Files/rk45_t5_masslossFalse.npz")
+    #x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
 
-    lf = np.load("Files/leapfrog_t6_masslossTrue_scaledeqs.npz")
-    
-    dt , t_tot = t6
-
-    that = np.arange(0 , t_tot , dt)
-    orbit = len(that) / t_tot
-
-    bper = betahat_pert(that)
-    banalytical = betahat_analytical(that)
-
-    theta_pert = thetahat_pert(that)
-    r_pert = rhat_pert(that)
-    vper = vrhat_pert(that)
-    ang_vel = omegahat_pert(that)
-
-    #rhat_comps(rk["x"] , rk["y"] , t6 , x2 = lf["x"] , y2 = lf["y"] , r_per = None)
-
-    orbit =round(2*np.pi * orbit)
-    x = rk["x"]
-    y = rk["y"]
-    vx = rk["vx"]
-    vy = rk["vy"]
-
-    theta = np.atan2(y , x) #rk45 thetahat
-    theta = np.unwrap(theta)
-    vr = vx * np.cos(theta) + vy * np.sin(theta)
-    vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
-    vpol = np.sqrt(vr**2 + vtheta**2)
-    v = np.sqrt(vx**2 + vy**2)
     eps_init_beta()
-    
 
 
     

@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.constants import G
-from constants import sputtering_yield , sw_flux , mA , rho , m_s , au , c
+from constants import sputtering_yield , sw_flux , mA_S , rho , m_s , au , c , mA_C
 from polar_to_cart import polar_to_cartesian
 
 """evaluating particle size against beta0"""
@@ -9,6 +9,7 @@ m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
 
 """scaling parameters"""
 B = 0.45931933916320633 #initial beta value
+#B = 0.1 #test 
 R = 1 * au #initial radial position
 V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
 M = 1.30899694e-15 #initial particle mass in kg
@@ -30,16 +31,24 @@ init_cart_scaled = polar_to_cartesian(init_polar_scaled) #initial scaled cart co
 x , y , vx , vy = init_cart_scaled #unpacking init scaled cartesian coords
 
 """calculates small parameter epsilon, using constants from mass calcs"""
-def eps(sw = "slow" , species = "all" , m = M):
+def eps(material = "silicate" , sw = "slow" , species = "all" , m = M):
     """input: m (float), default M, mass of particle in kg
               sw (string), default: slow, options fast and CME
               species (string), default: all, else one of the elements H, He, C, O, N, Fe, Ne, Mg, Si, S
 
        returns: eps (float), epsilon parameter"""
     
-    Ytot = sputtering_yield(sw , species) #total sputtering yield
+    Ytot = sputtering_yield(material , sw , species) #total sputtering yield
     fsw = sw_flux(sw) #solar wind flux
-
+    if material == "silicate":
+        mA = mA_S
+    
+    elif material == "carbon": 
+        mA = mA_C
+    
+    else: 
+        raise ValueError("Material must be silicate or carbon")
+    
     eps = fsw * Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * m**(-1 / 3) * T #mass constant
 
     return eps
@@ -62,10 +71,6 @@ dt7 = 3.16e3 / T
 t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
-dt8 = 3.16e3 
-t_tot8 = 1000000
-t8 = (dt8 , t_tot8)
-
 if __name__ == "__main__":
-    print(V / c)
+    print(eps("carbon" , "slow"))
     

@@ -63,12 +63,10 @@ def pr_drag(x , y , vx , vy , m):
         returns ax , ay (tuple), acceleration in x and y direction"""
     
     r = np.sqrt(x**2 + y**2) #scaled radial distance
-    theta = np.atan2(y , x) #scaled angle
-    #theta = np.unwrap(theta) #avoiding discontinuities in angle
 
-    b_term = betahat(m) * B / ((1 - B) * r**3) #beta term in expression 
-    xvel_terms = -vx * (2 * x**2 + y**2) - x * y * vy #x velocity terms
-    yvel_terms = -x * y * vx - vy * (2 * y**2 + x**2) #y velocity terms
+    b_term = betahat(m) * B / ((1 - B) * r**4) #beta term in expression 
+    xvel_terms = -2 * vx * (x**2 + y**2) - x * y * vy #x velocity terms
+    yvel_terms = -x * y * vx - 2 * vy * (y**2 + x**2) #y velocity terms
 
     ax = b_term * delta * xvel_terms #acceleration in x direction
     ay = b_term * delta * yvel_terms #acceleration in y direction
