@@ -4,6 +4,7 @@ from forces import beta
 from config import init_cart , m_range , eps , t5 , t6 , t7 , T
 from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit
 from energy import tot_energy
+from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , M_ms , M_mc  
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -332,11 +333,68 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
                bbox_to_anchor = (1.0 , 0.9))
         plt.show()
         """
+
+"""plots beta curves for silicate and carbon"""
+def beta_curves_comp():
+    """input: None
+    
+       returns: None"""
+    
+    sil_size , sil_betaval , _ = dat_to_arr(sil_beta) #fetching silicate size and beta values
+    car_size , car_betaval , _ = dat_to_arr(car_beta) #fetching carbon size and beta values
+
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.plot(sil_size , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
+    plt.plot(car_size , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+
+    plt.ylim(0.01 , None)
+    plt.xlim(None , 50)
+    plt.title(r"$\beta$ versus particle size")
+    plt.xlabel(r"Particle size ($\mu$m)")
+    plt.ylabel(r"$\beta$")
+    plt.legend()
+    plt.show()
+
+def PR_spu_lifetime():
+    """input: None
+    
+    returns: None"""
+    
+    f_sw , s_sw , CME_sw = sw_flux("fast") , sw_flux("slow") , sw_flux("CME")
+
+    #Silicate
+    sil_size , _ , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and PR lifetime values
+    fs_spu , ss_spu , CMEs_spu = sputtering_yield("silicate" , "fast") , sputtering_yield("silicate" , "slow") , sputtering_yield("silicate" , "CME")
+    fs_lifetime , ss_lifetime , CMEs_lifetime = sputtering_lifetime(r_vals , f_sw , fs_spu , M_ms) , sputtering_lifetime(r_vals , s_sw , ss_spu , M_ms) , sputtering_lifetime(r_vals , CME_sw , CMEs_spu , M_ms)
+
+    #Carbon
+    car_size , _ , car_PR = dat_to_arr(car_beta) #fetching carbon size and PR lifetime values
+    fc_spu , sc_spu , CMEc_spu = sputtering_yield("carbon" , "fast") , sputtering_yield("carbon" , "slow") , sputtering_yield("carbon" , "CME")
+    fc_lifetime , sc_lifetime , CMEc_lifetime = sputtering_lifetime(r_vals , f_sw , fc_spu , M_mc) , sputtering_lifetime(r_vals , s_sw , sc_spu , M_mc) , sputtering_lifetime(r_vals , CME_sw , CMEc_spu , M_mc)
+
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.plot(sil_size * 10**(-6) , sil_PR , color = "black" , linestyle = "-" , label = "PR lifetime")
+    plt.plot(car_size * 10**(-6) , car_PR , color = "black" , linestyle = "--")
+    plt.plot(r_vals , fs_lifetime , color = "red" , linestyle = "-" , label = "Fast sw")
+    plt.plot(r_vals , fc_lifetime , color = "red" , linestyle = "--")
+    plt.plot(r_vals , ss_lifetime , color = "green" , linestyle = "-" , label = "Slow sw")
+    plt.plot(r_vals , sc_lifetime , color = "green" , linestyle = "--")
+    plt.plot(r_vals , CMEs_lifetime , color = "blue" , linestyle = "-" , label = "CME")
+    plt.plot(r_vals , CMEc_lifetime , color = "blue" , linestyle = "--")
+
+    plt.title(r"Poynting-Robertson and sputtering lifetimes")
+    plt.xlabel(r"Particle size (m)")
+    plt.ylabel(r"Lifetime (years)")
+    plt.legend()
+    plt.show()
+
 if __name__ == "__main__":
     #rk = np.load("Files/rk45_t5_masslossFalse.npz")
     #x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
 
-    eps_init_beta()
+    PR_spu_lifetime()
 
 
     

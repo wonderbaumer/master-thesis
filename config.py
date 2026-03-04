@@ -15,7 +15,7 @@ V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
 M = 1.30899694e-15 #initial particle mass in kg
 T = round(np.sqrt(R**3 / (G * m_s * (1 - B)))) #initial period, scaled formula
 
-"""scaled initial paramaeters"""
+"""scaled initial parameters"""
 rhat0 = R / R #initial scaled radial position
 thetahat0 = 0 #initial scaled angular position
 vrhat0 = 0  #initial scaled radial velocity
