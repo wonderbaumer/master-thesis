@@ -24,24 +24,24 @@ def eps_init_beta():
        returns: none"""
     
     x , y = init_cart[0] , init_cart[1] #unpacking initial, unscaled cartesian values
-    b_init_vals = beta(x , y , m_range) #calculating B values for mass range
+    b_init_vals = beta(x , y , m_range)[1:] #calculating B values for mass range
     
-    epsilon_slow = eps("silicate" , "slow" , "all" , m_range) #calculating epsilon for slow sw
+    epsilon_slow = eps("silicate" , "slow" , "all" , m_range)[1:] #calculating epsilon for slow sw
     #epsilon_slow = epsilon_slow * 10**5 #scaling for better labelling
 
-    epsilon_fast = eps("silicate" , "fast" , "all" , m_range) #calculating epsilon for fast sw
+    epsilon_fast = eps("silicate" , "fast" , "all" , m_range)[1:] #calculating epsilon for fast sw
     #epsilon_fast = epsilon_fast * 10**5 #scaling for better labelling
 
-    epsilon_cme = eps("silicate" , "CME" , "all" , m_range) #calculating epsilon for CME
+    epsilon_cme = eps("silicate" , "CME" , "all" , m_range)[1:] #calculating epsilon for CME
     #epsilon_cme = epsilon_cme * 10**5 #scaling for better labelling
 
-    epsilon_slowC = eps("carbon" , "slow" , "all" , m_range) #calculating epsilon for slow sw
+    epsilon_slowC = eps("carbon" , "slow" , "all" , m_range)[1:] #calculating epsilon for slow sw
     #epsilon_slowC = epsilon_slow * 10**5 #scaling for better labelling
 
-    epsilon_fastC = eps("carbon" , "fast" , "all" , m_range) #calculating epsilon for fast sw
+    epsilon_fastC = eps("carbon" , "fast" , "all" , m_range)[1:] #calculating epsilon for fast sw
     #epsilon_fastC = epsilon_fast * 10**5 #scaling for better labelling
 
-    epsilon_cmeC = eps("carbon" , "CME" , "all" , m_range) #calculating epsilon for CME
+    epsilon_cmeC = eps("carbon" , "CME" , "all" , m_range)[1:] #calculating epsilon for CME
     #epsilon_cmeC = epsilon_cme * 10**5 #scaling for better labelling
 
     plt.plot(b_init_vals[::-1] , epsilon_slow[::-1] , color = "blue" , label = "Slow sw") #plots in reverse order
@@ -55,7 +55,7 @@ def eps_init_beta():
     plt.xlabel(r"$B$")
     plt.ylabel(r"${\epsilon}$")
     plt.yscale("log")
-    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range ${500^{-9} \text{–} 10^{-6}\,\mathrm{m}}$, silicate and carbon")
+    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
     plt.legend(loc = "lower right")
     plt.show()
     
@@ -343,15 +343,15 @@ def beta_curves_comp():
     sil_size , sil_betaval , _ = dat_to_arr(sil_beta) #fetching silicate size and beta values
     car_size , car_betaval , _ = dat_to_arr(car_beta) #fetching carbon size and beta values
 
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.plot(sil_size , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
-    plt.plot(car_size , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+    #plt.xscale("log")
+    #plt.yscale("log")
+    plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
+    plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
 
     plt.ylim(0.01 , None)
     plt.xlim(None , 50)
     plt.title(r"$\beta$ versus particle size")
-    plt.xlabel(r"Particle size ($\mu$m)")
+    plt.xlabel(r"Particle size (m)")
     plt.ylabel(r"$\beta$")
     plt.legend()
     plt.show()
@@ -391,10 +391,12 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    #rk = np.load("Files/rk45_t5_masslossFalse.npz")
-    #x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-
-    PR_spu_lifetime()
+    rk = np.load("Files/rk45_t5_masslossTrue_silicate_slow.npz")
+    x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
+    dt , t_tot = t5
+    t = np.arange(0 , t_tot , dt)
+    beta_curves_comp()
+    
 
 
     

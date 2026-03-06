@@ -61,7 +61,7 @@ def arr_variables(sol):
     #beta = betahat(m) #calculating beta values from mass array
     b = betahat(m)
 
-    new_arr = np.column_stack((x , y , vx , vy , m , b)) #creating new array with all variables
+    new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
 
     return new_arr
 

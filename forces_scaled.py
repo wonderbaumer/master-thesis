@@ -1,5 +1,8 @@
 import numpy as np
-from config import B , eps , init_cart_scaled , delta
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+from config import B , eps , init_cart_scaled , delta , m_range , r_vals
+from constants import sil_beta , car_beta , dat_to_arr , rho
 
 """calculates acceleration of the particle in x and y direction
     based on scaled gravitational force between particle and Sun"""
@@ -32,7 +35,32 @@ def betahat(m):
 
        returns: betahat(float), scaled betahat """
 
-    betahat = m**(-1 / 3) #scaled betahat
+    #betahat = m**(-1 / 3) #scaled betahat
+
+    r = (3 * m / (4 * rho * np.pi))**(1 / 3)
+
+    sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
+    sil_size = sil_size * 10**(-6) #m
+    betahat = np.interp(r , sil_size , sil_betaval) #interpolating betahat for silicate
+
+    return betahat
+
+def betahat_car(m):
+    """input: m (float), scaled mass of particle
+
+       returns: betahat(float), scaled betahat for carbon """
+
+    r = (3 * m / (4 * rho * np.pi))**(1 / 3)
+
+    car_size , car_betaval , _ = dat_to_arr(car_beta)
+    car_size = car_size * 10**(-6) #m
+    
+    #betahat = np.interp(r , car_size , car_betaval) #interpolating betahat for carbon
+    log_size = np.log10(car_size)
+    log_beta = np.log10(car_beta)
+
+    log_interp = interp1d(log_size, log_beta, kind='linear', fill_value='extrapolate')
+    betahat = 10**log_interp(np.log10(r))
     
     return betahat
 
@@ -94,6 +122,11 @@ def tot_acc(x , y , vx , vy , m):
 
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
+    
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.plot(r_vals , betahat(m_range))
+    plt.show()
 
    
     

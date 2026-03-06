@@ -24,7 +24,7 @@ class particle():
         self.sim_time = sim_time
         self.massloss = massloss
         self.epsilon = epsilon
-    
+
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
         y0 = np.append(init_cart_scaled, mhat0) #initial values for scipy ivp solver
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     epsilon = eps("silicate" , "slow")
     p = particle(t5 , epsilon , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
-    x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+    x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    np.savez("Files/rk45_t5_masslossTrue_silicate_slow_noPR.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    np.savez("Files/rk45_t5_masslossTrue_silicate_slow.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

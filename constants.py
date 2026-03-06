@@ -105,7 +105,7 @@ def dat_to_arr(file):
      
        returns: dust_size , dust_betaval , dust_PRtime (array), containing dust sizes, beta values and Poynting-Robertson lifetime"""
     
-    dust = pd.read_csv(file , delim_whitespace = True , header = None , names = ["Dust size (micron)" , "Beta value" , "PR drag time (years)"])
+    dust = pd.read_csv(file , sep = r'\s+' , header = None , names = ["Dust size (micron)" , "Beta value" , "PR drag time (years)"])
     dust_size = dust["Dust size (micron)"].to_numpy() 
     dust_betaval = dust["Beta value"].to_numpy()
     dust_PRtime = dust["PR drag time (years)"].to_numpy() 
@@ -117,6 +117,6 @@ if __name__ == "__main__":
     sil_size , sil_betaval , sil_PRtime = dat_to_arr(sil_beta)
     fsw = sw_flux()
     Ytot = sputtering_yield("silicate" , "slow" , "all")
-    print(sputtering_lifetime(r_vals , fsw , Ytot , M_ms))
+    
 
 
