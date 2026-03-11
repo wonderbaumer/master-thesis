@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.interpolate import PchipInterpolator as pchip
 import matplotlib.pyplot as plt
 from config import B , eps , init_cart_scaled , delta , m_range , r_vals
 from constants import sil_beta , car_beta , dat_to_arr , rho
@@ -41,9 +41,10 @@ def betahat(m):
 
     sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
     sil_size = sil_size * 10**(-6) #m
-    betahat = np.interp(r , sil_size , sil_betaval) #interpolating betahat for silicate
+    interp = pchip(sil_size , sil_betaval)
+    b = interp(sil_size)
 
-    return betahat
+    return b
 
 def betahat_car(m):
     """input: m (float), scaled mass of particle
@@ -59,10 +60,10 @@ def betahat_car(m):
     log_size = np.log10(car_size)
     log_beta = np.log10(car_beta)
 
-    log_interp = interp1d(log_size, log_beta, kind='linear', fill_value='extrapolate')
-    betahat = 10**log_interp(np.log10(r))
+    #log_interp = interp1d(log_size, log_beta, kind='linear', fill_value='extrapolate')
+    #betahat = 10**log_interp(np.log10(r))
     
-    return betahat
+    #return betahat
 
 """function that calculates the radial component of the pressure radiation force, 
 based on scaled equations"""
@@ -123,10 +124,14 @@ def tot_acc(x , y , vx , vy , m):
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
     
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.plot(r_vals , betahat(m_range))
-    plt.show()
+    # plt.title(r"Interpolated $\beta$ function")
+    # plt.xlabel("Particle size (m)")
+    # plt.ylabel(r"$\beta$")
+    # plt.plot(r_vals , betahat(m_range))
+    #plt.show()
 
+    #sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
+    #print(len(r_vals) , len(sil_size))
+    
    
     

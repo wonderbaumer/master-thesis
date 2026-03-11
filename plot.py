@@ -5,6 +5,7 @@ from config import init_cart , m_range , eps , t5 , t6 , t7 , T
 from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit
 from energy import tot_energy
 from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , M_ms , M_mc  
+from forces_scaled import betahat
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -335,7 +336,7 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         """
 
 """plots beta curves for silicate and carbon"""
-def beta_curves_comp():
+def beta_curves_comp(interp = False):
     """input: None
     
        returns: None"""
@@ -343,13 +344,17 @@ def beta_curves_comp():
     sil_size , sil_betaval , _ = dat_to_arr(sil_beta) #fetching silicate size and beta values
     car_size , car_betaval , _ = dat_to_arr(car_beta) #fetching carbon size and beta values
 
-    #plt.xscale("log")
-    #plt.yscale("log")
-    plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
-    plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+    if interp == True: #compare interpolated function with true curve for silicate values
+        plt.plot(sil_size * 10**(-6) , sil_betaval , linestyle = "--" , label = "True curve")
+        plt.plot(sil_size * 10**(-6) , betahat(m_range) , linestyle = "-" , label = "Interpolated function")
+    
+    else:
 
-    plt.ylim(0.01 , None)
-    plt.xlim(None , 50)
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
+        plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+
     plt.title(r"$\beta$ versus particle size")
     plt.xlabel(r"Particle size (m)")
     plt.ylabel(r"$\beta$")
@@ -395,7 +400,7 @@ if __name__ == "__main__":
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
     dt , t_tot = t5
     t = np.arange(0 , t_tot , dt)
-    beta_curves_comp()
+    beta_curves_comp(interp = True)
     
 
 

@@ -1,7 +1,12 @@
 import sympy as sp
+from sympy import symbols , abc , dsolve , Derivative
+from sympy.abc import a , b , c , g , e , d
+from sympy.solvers.ode.systems import dsolve_system
 from config import rhat0 , betahat0
+from sympy.matrices.expressions import MatMul
 
-"""defining the hatted variables"""
+"""
+#defining the hatted variables
 t = sp.Symbol("t") #time
 r_0 = sp.Function("r_0")(t) #r0
 r_10 = sp.Function("r_10")(t) #r10
@@ -72,11 +77,11 @@ theta = theta_0 + epsilon * theta_10 + delta * theta_01 + epsilon * delta * thet
 omega = omega_0 + epsilon * omega_10 + delta * omega_01 + epsilon * delta * omega_11 + epsilon**2 * omega_20 + delta**2 * omega_02 #omega perturbed expression
 omega_dot = omegadot_0 + epsilon * omegadot_10 + delta * omegadot_01 + epsilon * delta * omegadot_11 + epsilon**2 * omegadot_20 + delta**2 * omegadot_02 #omegadot perturbed expression
 
-"""radial equation"""
+#radial equation
 rad_eq = sp.Eq((vr_dot - r * omega**2) * (1 - B) * r**2 , 
                (-1 + B * beta) * (1 - (2 * vr * delta))) #radial eq of motion
 
-"""up to second order expressions"""
+#up to second order expressions
 req_lhs = sp.series(rad_eq.lhs , epsilon , 0 , 3).removeO() #removing O(epsilon^3) lhs
 req_lhs = sp.series(req_lhs , delta , 0 , 3).removeO() #removing O(delta^3) lhs
 
@@ -99,10 +104,10 @@ vrdot11_sol = sp.solve(rad_eq_11 , vrdot_11) #second order, solving for vdot11
 vrdot20_sol = sp.solve(rad_eq_20 , vrdot_20) #second order, solving for vdot20
 vrdot02_sol = sp.solve(rad_eq_02 , vrdot_02) #second order, solving for vdot02
 
-"""angular equation"""
+#angular equation
 ang_eq = sp.Eq(r**2 * (1 - B) * (r * omega_dot + 2 * vr * omega) , (1 - B * beta) * r * omega * delta) #angular eq of motion
 
-"""second order sols"""
+#second order sols
 angeq_lhs = sp.series(ang_eq.lhs , epsilon , 0 , 3).removeO() #removing O(epsilon^3) lhs
 angeq_lhs = sp.series(angeq_lhs , delta , 0 , 3).removeO() #removing O(delta^3) lhs
 
@@ -123,5 +128,20 @@ omegadot_01 = sp.solve(angeq_01 , omegadot_01) #first order, omegadot01
 omegadot_11 = sp.solve(angeq_11 , omegadot_11) #second order, omegadot11
 omegadot_20 = sp.solve(angeq_20 , omegadot_20) #second order, omegadot20
 omegadot_02 = sp.solve(angeq_02 , omegadot_02) #second order, omegadot02
+"""
+vr1 = sp.Function("vr1")
+theta0 = sp.Function("theta0")
+theta1 = sp.Function("theta1")
+r0 = sp.Function("r0")
+r1 = sp.Function("r1")
+omega1 = sp.Function("omega1")
+dt1_r0 = sp.Function("dt1_r0")
+dt1_theta0 = sp.Function("dt1_theta0")
+t0 = symbols("t0")
+t1 = symbols("t1")
 
-#print(vrdot10_sol)
+eqs = [Derivative(r1(t0) , t0) - vr1(t0) + Derivative(r0(t0) , t1) , Derivative(theta1(t0) , t0) - omega1(t0) + Derivative(theta0(t0), t1) , 
+       Derivative(vr1(t0) , t0) - a * r1(t0) - g * omega1(t0) , Derivative(omega1(t0) , t0) + e * vr1(t0)]
+
+sol = dsolve(eqs , [r1(t0) , theta1(t0) , vr1(t0) , omega1(t0)])
+print(sol)
