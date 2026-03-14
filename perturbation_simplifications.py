@@ -1,6 +1,6 @@
 import sympy as sp
 from sympy import symbols , abc , dsolve , Derivative
-from sympy.abc import a , b , c , g , e , d
+from sympy.abc import a , b , c , g , e , d , f , h , i , j , k , l , m , n
 from sympy.solvers.ode.systems import dsolve_system
 from config import rhat0 , betahat0
 from sympy.matrices.expressions import MatMul
@@ -130,18 +130,39 @@ omegadot_20 = sp.solve(angeq_20 , omegadot_20) #second order, omegadot20
 omegadot_02 = sp.solve(angeq_02 , omegadot_02) #second order, omegadot02
 """
 vr1 = sp.Function("vr1")
+vr2 = sp.Function("vr2")
 theta0 = sp.Function("theta0")
 theta1 = sp.Function("theta1")
+theta2 = sp.Function("theta2")
 r0 = sp.Function("r0")
 r1 = sp.Function("r1")
+r2 = sp.Function("r2")
 omega1 = sp.Function("omega1")
-dt1_r0 = sp.Function("dt1_r0")
-dt1_theta0 = sp.Function("dt1_theta0")
+omega2 = sp.Function("omega2")
+
+dt1_r0 = symbols("dt1_r0")
+dt1_theta0 = symbols("dt1_theta0")
 t0 = symbols("t0")
 t1 = symbols("t1")
+dt1_omega0 = symbols("dt1_omega0")
+dt0t1_r1 = symbols("dt0t1_r1")
+dt1t1_r0 = symbols("dt1t1_r0")
+dt0t0_r1 = symbols("dt0t0_r1")
+dt1_r1 = symbols("dt1_r1")
+dt2_r0 = symbols("dt2_r0")
+dt1_theta1 = symbols("dt1_theta1")
+dt2_theta0 = symbols("dt2_theta0")
+dt1t0_r1 = symbols("dt1t0_r1")
 
-eqs = [Derivative(r1(t0) , t0) - vr1(t0) + Derivative(r0(t0) , t1) , Derivative(theta1(t0) , t0) - omega1(t0) + Derivative(theta0(t0), t1) , 
-       Derivative(vr1(t0) , t0) - a * r1(t0) - g * omega1(t0) , Derivative(omega1(t0) , t0) + e * vr1(t0)]
+
+
+#a=3omega0^2, g=2omega0r0, e=2omega0/r0, d=(1-betaB)K/(1-B) * omega0/r0^2 , f = omega1^2r0 , h = 2r0omega0omega1r1 , i = 2omega0omega2r0, j = 3r0^2r2omega0^2 , k = 4omega0omega1r1 , l = 3r1^2omega0^2/r0
+#m= 2r1/r0, n = [1-Bbeta]/[1-B]r0^2
+
+eqs = [Derivative(r1(t0) , t0) - vr1(t0) + dt1_r0 , Derivative(theta1(t0) , t0) - omega1(t0) + dt1_theta0 , 
+       Derivative(vr1(t0) , t0) - a * r1(t0) - g * omega1(t0) , Derivative(omega1(t0) , t0) + e * vr1(t0) - d + dt1_omega0]
 
 sol = dsolve(eqs , [r1(t0) , theta1(t0) , vr1(t0) , omega1(t0)])
-print(sol)
+
+eqs_second = [Derivative(r2(t0) , t0) - vr2(t0) + dt1_r1 + dt2_r0 , Derivative(theta2(t0) , t0) - omega2(t0) + dt1_theta1 + dt2_theta0 , 
+       Derivative(vr2(t0) , t0) + dt1t0_r1 - dt1t1_r0 - f - h - i - j -  m * dt0t0_r1 - k - l - vr1 , Derivative(omega1(t0) , t0) + e * vr1(t0) - d + dt1_omega0]
