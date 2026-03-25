@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
 from config import init_cart , m_range , eps , t5 , t6 , t7 , T
-from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit
+from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit , C0 , r , omega , theta , vr
 from energy import tot_energy
 from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , M_ms , M_mc  
 from forces_scaled import betahat
@@ -118,14 +118,10 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
 
     orbit = round(len(t) / t_tot)
     orbit *=10
-    #t=t[0:orbit]
 
-    #r1 = r1[0:orbit]
-    
     """comparing RK4(5) and Leapfrog rhat"""
     if x2 is not None and y2 is not None:
         r2 = np.sqrt(x2**2 + y2**2) #r hat
-        #r2 = r2[0:orbit]
 
         plt.plot(t[::10] , r1[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
@@ -187,13 +183,11 @@ def omegahat_comps(x , y , vx , vy , t , angvel):
     theta_num = np.atan2(y , x) #thetahat RK4(5)
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
 
-    v = np.sqrt(vx**2 + vy**2) #vhat RK4(5)
     r = np.sqrt(x**2 + y**2) #r hat RK4(5)
 
     dt , t_tot = t #time unpacking
 
     t = np.arange(0 , t_tot , dt) #t hat
-    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num)
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
     
     plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
@@ -396,11 +390,15 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t5_masslossTrue_silicate_slow.npz")
+    rk = np.load("Files/rk45_t5_masslossTrue_defaulteps.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
     dt , t_tot = t5
     t = np.arange(0 , t_tot , dt)
-    beta_curves_comp(interp = True)
+    angvel = omega(t , betahat_analytical(t))
+    rad = r(t , betahat_analytical(t))
+    rhat_comps(x1 , y1 , t5 , r_per = rad)
+    
+    
     
 
 

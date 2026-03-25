@@ -1,5 +1,5 @@
 import numpy as np
-from config import eps , B , rhat0
+from config import eps , B , rhat0 , K
 
 """calculates up to first order of beta hat from analytical solution"""
 def betahat_analytical(t):
@@ -7,10 +7,51 @@ def betahat_analytical(t):
 
        returns: bvals (array), contains all orders as well as their sum"""
     
-    frac = eps() / 3
-    bvals = 1 / (1 - frac * t) #total expression
+    bvals = 1 / (1 -  eps() * t / 3) #total expression
         
     return bvals
+
+###WITH DRAG###
+def C0(beta_func):
+
+    #tot = ((1 - beta_func * B) / (1 - B))**(2 / 3)
+    tot = (2 * B * beta_func**2 * (1 - B)**3 / (9 * K * (1 - beta_func * B)**4))**(1 / 4)
+
+    return tot
+
+def r(t , beta_func):
+    r0 = ((1 - beta_func * B) / (1 - B))**(1 / 3)
+    r1 = B * np.sin(t) / (9 * (1 - B))
+
+    rtot = r0 + eps() * r1
+
+    return rtot
+   
+def omega(t , beta_func):
+    omega0 = 1
+    omega1 = -2 * B * np.sin(t) /(9 * (1 - B)**(2 / 3) * (1 - beta_func * B)**(1 / 3))
+
+    omegatot = omega0 + eps() * omega1
+
+    return omegatot
+
+def theta(t , beta_func):
+    theta0 = t
+    theta1 = -2 * B /(9 * (1 - B)) * (1 - ((1 - beta_func * B) / (1 - B))**(-1 / 3) * np.cos(t))
+
+    thetatot = theta0 + eps() * theta1
+    
+    return thetatot
+
+def vr(t , beta_func):
+    vr0 = 0
+    vr1 = B / (9 * (1 - B)) * (np.cos(t) - beta_func**2 * ((1 - beta_func * B) / (1 - B))**(-2 / 3))
+
+    vrtot = vr0 + eps() * vr1
+
+    return vrtot
+
+###WITHOUT DRAG###
 
 """calculates up to first order of betahat from perturbed expression"""
 def betahat_pert(t):
@@ -84,7 +125,7 @@ def omegahat_pert(t):
 
     return omegahat_tot
 
-
-
+if __name__== "__main__":
+    1
 
     

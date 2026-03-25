@@ -7,14 +7,15 @@ from polar_to_cart import polar_to_cartesian
 #r_vals = np.linspace(500e-9 , 10e-6 , 10) #size range over which to evaluate beta0
 r_vals = np.linspace(1e-9 , 50e-6 , 200)
 m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
-M = 4 / 3 * np.pi * rho * (10.33226 * 10**(-6))**3 #mass corresponding to size of 10.33226 microns
-B = 0.0163 #beta value corresponding to size of 10.33226 microns
+#M = 4 / 3 * np.pi * rho * (10.33226 * 10**(-6))**3 #mass corresponding to size of 10.33226 microns
+#B = 0.0163 #beta value corresponding to size of 10.33226 microns
 """scaling parameters"""
-#B = 0.45931933916320633 #initial beta value
+B = 0.45931933916320633 #initial beta value
 R = 1 * au #initial radial position
 V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
-#M = 1.30899694e-15 #initial particle mass in kg
+M = 1.30899694e-15 #initial particle mass in kg
 T = round(np.sqrt(R**3 / (G * m_s * (1 - B)))) #initial period, scaled formula
+K = 1
 
 """scaled initial parameters"""
 rhat0 = R / R #initial scaled radial position

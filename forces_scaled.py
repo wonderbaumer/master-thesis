@@ -35,14 +35,14 @@ def betahat(m):
 
        returns: betahat(float), scaled betahat """
 
-    #betahat = m**(-1 / 3) #scaled betahat
+    b = m**(-1 / 3) #scaled betahat
 
-    r = (3 * m / (4 * rho * np.pi))**(1 / 3)
+    # r = (3 * m / (4 * rho * np.pi))**(1 / 3)
 
-    sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
-    sil_size = sil_size * 10**(-6) #m
-    interp = pchip(sil_size , sil_betaval)
-    b = interp(sil_size)
+    # sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
+    # sil_size = sil_size * 10**(-6) #m
+    # interp = pchip(sil_size , sil_betaval)
+    # b = interp(sil_size)
 
     return b
 
