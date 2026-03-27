@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
-from config import init_cart , m_range , eps , t5 , t6 , t7 , T
+from config import init_cart , m_range , eps , t5 , t6 , t7 , T , B , r_betatest
 from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit , C0 , r , omega , theta , vr
 from energy import tot_energy
 from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , M_ms , M_mc  
-from forces_scaled import betahat
+from forces_scaled import betahat , beta_real
+from scipy.interpolate import PchipInterpolator as pchip
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -61,7 +62,7 @@ def eps_init_beta():
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
-def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None):
+def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , species = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), shape dt, t_tot for simulations
@@ -92,6 +93,14 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None):
         plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
         plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
+    
+    if species == "Silicate":
+        plt.plot(t[::10] , theta1[::10])
+        plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
+    
+    if species == "Carbon":
+        plt.plot(t[::10] , theta1[::10])
+        plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
 
     plt.xlabel("Number of orbits")
     plt.ylabel(r"$\hat{\theta}$")
@@ -101,7 +110,7 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None):
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
 and perturbed rhat"""
-def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
+def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), consisting of dt and t_tot, time of simulations
@@ -126,16 +135,28 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None):
         plt.plot(t[::10] , r1[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
+        plt.legend()
 
     if r_per is not None: #comparing RK4(5) with perturbed rhat
         plt.plot(t[::10] , r1[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) and perturbed solution")
+        plt.legend()
+    
+    if species == "Silicate":
+        r = np.sqrt(x1**2 + y1**2)
+        plt.plot(t[::10] , r[::10])
+        plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
         
-    plt.xlabel("Number of orbits")
+    
+    if species == "Carbon":
+        r = np.sqrt(x1**2 + y1**2)
+        plt.plot(t[::10] , r[::10])
+        plt.title(r"$\hat{r}$ for carbon, real $\hat{\beta}$")
+        
+    plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{r}$")
     
-    plt.legend()
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
@@ -330,7 +351,7 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         """
 
 """plots beta curves for silicate and carbon"""
-def beta_curves_comp(interp = False):
+def beta_curves(interp = False , comp = False):
     """input: None
     
        returns: None"""
@@ -339,15 +360,26 @@ def beta_curves_comp(interp = False):
     car_size , car_betaval , _ = dat_to_arr(car_beta) #fetching carbon size and beta values
 
     if interp == True: #compare interpolated function with true curve for silicate values
+        interp = pchip(sil_size , sil_betaval)
+
         plt.plot(sil_size * 10**(-6) , sil_betaval , linestyle = "--" , label = "True curve")
-        plt.plot(sil_size * 10**(-6) , betahat(m_range) , linestyle = "-" , label = "Interpolated function")
+        plt.plot(sil_size * 10**(-6) , interp(sil_size) , linestyle = "-" , label = "Interpolated function")
     
-    else:
+    if comp == True:
 
         plt.xscale("log")
         plt.yscale("log")
         plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
         plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+    
+    else:
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.scatter([1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)] , [0.1235 , 0.8560 , 0.2098] , c = "g")
+        plt.scatter([1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)] , [0.2646 , 3.0589 , 1.6179] , c = "orange")
+        plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
+        plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+
 
     plt.title(r"$\beta$ versus particle size")
     plt.xlabel(r"Particle size (m)")
@@ -390,13 +422,16 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t5_masslossTrue_defaulteps.npz")
+    rk = np.load("Files/rk45_t6_silicateslowsw_realbeta.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    dt , t_tot = t5
+    dt , t_tot = t6
     t = np.arange(0 , t_tot , dt)
-    angvel = omega(t , betahat_analytical(t))
-    rad = r(t , betahat_analytical(t))
-    rhat_comps(x1 , y1 , t5 , r_per = rad)
+    b_func = betahat_analytical(t)
+    cst = C0(b_func)
+    om = omega(t , b_func , cst)
+    rad = r(t , b_func , cst , om)
+    x = np.linspace(0 , 100 , 30)
+    rhat_comps(x1 , y1 , t6 , species = "Silicate")
     
     
     

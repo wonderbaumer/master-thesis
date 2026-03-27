@@ -11,12 +11,19 @@ t1 = symbols("t1")
 b = symbols("b")
 c0 = sp.Function("c0")(t1)
 B = symbols("B")
+K = symbols("K")
 
 beta = 1 / (1 - t1 / 3)
 r0_exp = ((1-B) / (1 - beta * B)) * c0**2
 
 dt1_r0 = sp.diff(r0_exp , t1)
-print(dt1_r0)
+
+omega0_exp = ((1-B) / (1 - beta * B))**(-2) * c0**(-3)
+dt1_omega0 = sp.diff(omega0_exp , t1)
+
+C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3))**(1 / 4)
+dt1_C0 = sp.diff(C0_exp , t1)
+print(dt1_C0)
 
 """
 #defining the hatted variables
@@ -141,6 +148,7 @@ omegadot_01 = sp.solve(angeq_01 , omegadot_01) #first order, omegadot01
 omegadot_11 = sp.solve(angeq_11 , omegadot_11) #second order, omegadot11
 omegadot_20 = sp.solve(angeq_20 , omegadot_20) #second order, omegadot20
 omegadot_02 = sp.solve(angeq_02 , omegadot_02) #second order, omegadot02
+"""
 
 vr1 = sp.Function("vr1")
 vr2 = sp.Function("vr2")
@@ -197,10 +205,12 @@ S = sp.Function("S")(t0)   # stands for sin(omega0*t0) part
 #m= 2/r0, n = [1-Bbeta]K/[1-B]r0^2, o = 2omega0/r0^2, p = 2/r0 , q = 2omega0/r0 , r = 3omega0^2/r0
 
 eqs = [Derivative(r1(t0) , t0) - vr1(t0) + dt1_r0 , Derivative(theta1(t0) , t0) - omega1(t0) + dt1_theta0 , 
-       Derivative(vr1(t0) , t0) - a * r1(t0) - g * omega1(t0) , Derivative(omega1(t0) , t0) + e * vr1(t0) - d + dt1_omega0]
+       Derivative(vr1(t0) , t0) - 3 * j * r1(t0) - g * omega1(t0) , Derivative(omega1(t0) , t0) + q * vr1(t0) - d + dt1_omega0]
 
 sol = dsolve(eqs , [r1(t0) , theta1(t0) , vr1(t0) , omega1(t0)])
 
+
+"""
 #Legg inn enkle løsninger av førsteorden her, få med t0,t1 dep
 omega0 = symbols("omega0")
 r1_sol = C2 * R + C3 * S + C1 / q 
@@ -215,5 +225,5 @@ der_omega2 = Derivative(omega2(t0) , t0) - n * omega1_sol + dt1_omega1 + dt2_ome
 
 eqs_second = [der_r2 , dr_theta2 , der_vr2 , der_omega2]
 sol2 = dsolve(eqs_second , [r2(t0) , theta2(t0) , vr2(t0) , omega2(t0)])
-print(sol2[0])
+
 """

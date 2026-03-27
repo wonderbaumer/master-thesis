@@ -12,28 +12,33 @@ def betahat_analytical(t):
     return bvals
 
 ###WITH DRAG###
-def C0(beta_func):
+def C0(b_func):
 
-    #tot = ((1 - beta_func * B) / (1 - B))**(2 / 3)
-    tot = (2 * B * beta_func**2 * (1 - B)**3 / (9 * K * (1 - beta_func * B)**4))**(1 / 4)
+    first = -4 * B * K / (1 - B)**3
+    second = 3 * b_func**4 * B / 4 - 4 * B**3 * b_func**3 + 9 * B**2 * b_func**2 - 12 * B * b_func + 3 * np.log(b_func)
+    third = 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3)
 
-    return tot
+    tot = first * second + third
 
-def r(t , beta_func):
-    r0 = ((1 - beta_func * B) / (1 - B))**(1 / 3)
-    r1 = B * np.sin(t) / (9 * (1 - B))
+    return tot**(1 / 4)
+
+def omega(t , beta_func , c):
+    omega0 = ((1 - B) / (1 - beta_func * B))**(-2) * c**(-3)
+    omega1 = -2 * omega0 / (((1 - B) / (1 - beta_func * B)) * c**2) * (-2 * K - B / (3 * (1 - B))) * np.sin(omega0 * t)
+    
+    omegatot = omega0 + eps() * omega1
+
+    return omegatot , omega0 , omega1
+
+def r(t , beta_func , c , om):
+    _ , omega0 , _ = om
+
+    r0 = ((1 - B) / (1 - beta_func * B)) * c**2
+    r1 = (-2 * K - B / (3 * (1 - B))) * np.sin(omega0 * t)
 
     rtot = r0 + eps() * r1
 
     return rtot
-   
-def omega(t , beta_func):
-    omega0 = 1
-    omega1 = -2 * B * np.sin(t) /(9 * (1 - B)**(2 / 3) * (1 - beta_func * B)**(1 / 3))
-
-    omegatot = omega0 + eps() * omega1
-
-    return omegatot
 
 def theta(t , beta_func):
     theta0 = t

@@ -1,8 +1,28 @@
 import numpy as np
 from scipy.interpolate import PchipInterpolator as pchip
 import matplotlib.pyplot as plt
-from config import B , eps , init_cart_scaled , delta , m_range , r_vals
+from config import B , eps , init_cart_scaled , delta , m_range , r_vals , r_init , M , V , c
 from constants import sil_beta , car_beta , dat_to_arr , rho
+
+sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
+
+size = sil_size * 10**(-6) / r_init
+betaval = sil_betaval / B
+
+interp = pchip(size , betaval)
+b = interp(size)
+# plt.plot(size , b)
+# plt.xlabel("Particle size")
+# plt.ylabel(r"$\hat{\beta}$ value")
+# plt.title(r"$\hat{\beta}$ curve")
+# plt.show()
+
+def beta_real(par_size):
+
+    b = interp(par_size)
+
+    return b
+
 
 """calculates acceleration of the particle in x and y direction
     based on scaled gravitational force between particle and Sun"""
@@ -35,14 +55,11 @@ def betahat(m):
 
        returns: betahat(float), scaled betahat """
 
-    b = m**(-1 / 3) #scaled betahat
+    r = m**(1/3)
 
-    # r = (3 * m / (4 * rho * np.pi))**(1 / 3)
+    #b = m**(-1 / 3) #scaled betahat
 
-    # sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
-    # sil_size = sil_size * 10**(-6) #m
-    # interp = pchip(sil_size , sil_betaval)
-    # b = interp(sil_size)
+    b = beta_real(r)
 
     return b
 
@@ -93,12 +110,12 @@ def pr_drag(x , y , vx , vy , m):
     
     r = np.sqrt(x**2 + y**2) #scaled radial distance
 
-    b_term = betahat(m) * B / ((1 - B) * r**4) #beta term in expression 
-    xvel_terms = -2 * vx * (x**2 + y**2) - x * y * vy #x velocity terms
-    yvel_terms = -x * y * vx - 2 * vy * (y**2 + x**2) #y velocity terms
+    r_hat_x = x / r
+    r_hat_y = y / r
+    v_dot_r = vx*r_hat_x + vy*r_hat_y
 
-    ax = b_term * delta * xvel_terms #acceleration in x direction
-    ay = b_term * delta * yvel_terms #acceleration in y direction
+    ax = - betahat(m) * (vx + v_dot_r * r_hat_x) * B * V / (c * r**2 * (1 - B)) 
+    ay = - betahat(m) * (vy + v_dot_r * r_hat_y) * B * V / (c * r**2 * (1 - B)) 
 
     return ax , ay
 
@@ -124,14 +141,4 @@ def tot_acc(x , y , vx , vy , m):
 if __name__ == "__main__":
     x , y , vx , vy = init_cart_scaled
     
-    # plt.title(r"Interpolated $\beta$ function")
-    # plt.xlabel("Particle size (m)")
-    # plt.ylabel(r"$\beta$")
-    # plt.plot(r_vals , betahat(m_range))
-    #plt.show()
-
-    #sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
-    #print(len(r_vals) , len(sil_size))
-    
-   
     

@@ -59,9 +59,9 @@ class particle():
 if __name__ == "__main__":
     
     epsilon = eps()
-    p = particle(t5 , epsilon , "RK45" , massloss = True)
+    p = particle(t7 , epsilon , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    np.savez("Files/rk45_t5_masslossTrue_defaulteps.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    np.savez("Files/rk45_t7_silicateslowsw_realbeta.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

@@ -5,15 +5,24 @@ from polar_to_cart import polar_to_cartesian
 
 """evaluating particle size against beta0"""
 #r_vals = np.linspace(500e-9 , 10e-6 , 10) #size range over which to evaluate beta0
-r_vals = np.linspace(1e-9 , 50e-6 , 200)
+r_vals = np.linspace(0.00100 * 10**(-6) , 50 * 10**(-6) , 200)
+r_betatest = np.linspace(0.00100 , 50 , 200)
 m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
-#M = 4 / 3 * np.pi * rho * (10.33226 * 10**(-6))**3 #mass corresponding to size of 10.33226 microns
-#B = 0.0163 #beta value corresponding to size of 10.33226 microns
+
 """scaling parameters"""
-B = 0.45931933916320633 #initial beta value
+#B = 0.45931933916320633 #initial beta value
+#M = 1.30899694e-15 #initial particle mass in kg
+
+# r_init = 10**(-5) #size attempt 1
+# M = 4 / 3 * np.pi * rho * (r_init)**3 #real attempt 1
+# B= 0.016827935883420662 #real attempt 1
+
+r_init = 1.54079 * 10**(-6)
+M = 4 / 3 * np.pi * rho * (r_init)**3
+B = 0.1235
+
 R = 1 * au #initial radial position
 V = np.sqrt((G * m_s * (1 - B)) / R) #initial angular velocity, scaled formula
-M = 1.30899694e-15 #initial particle mass in kg
 T = round(np.sqrt(R**3 / (G * m_s * (1 - B)))) #initial period, scaled formula
 K = 1
 
@@ -25,7 +34,7 @@ omegahat0 = V / V #initial scaled angular velocity
 betahat0 = B / B #initial scaled beta
 mhat0 = M / M #initial scaled mass
 
-init_polar = np.array([R , 0 , 0 , V]) #initial cart coords
+init_polar = np.array([R , 0 , 0 , V]) #initial polar coords
 init_cart = polar_to_cartesian(init_polar) #initial cart coords
 
 init_polar_scaled = np.array([rhat0 , thetahat0 , vrhat0 , omegahat0]) #initial scaled polar coords
