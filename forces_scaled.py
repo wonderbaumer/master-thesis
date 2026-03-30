@@ -1,28 +1,23 @@
 import numpy as np
-from scipy.interpolate import PchipInterpolator as pchip
 import matplotlib.pyplot as plt
-from config import B , eps , init_cart_scaled , delta , m_range , r_vals , r_init , M , V , c
-from constants import sil_beta , car_beta , dat_to_arr , rho
+from config import B , eps , init_cart_scaled , delta , m_range , r_vals , r1 , r2 , r3 , M , V , c
+from scipy.interpolate import PchipInterpolator as pchip
 
-sil_size , sil_betaval , _ = dat_to_arr(sil_beta)
+def inter_func(self , bval_file):
+        size , betaval , _ = dat_to_arr(bval_file)
+        size *= 1e-6 / self.size
 
-size = sil_size * 10**(-6) / r_init
-betaval = sil_betaval / B
+        return pchip(size , betaval)
 
-interp = pchip(size , betaval)
-b = interp(size)
-# plt.plot(size , b)
-# plt.xlabel("Particle size")
-# plt.ylabel(r"$\hat{\beta}$ value")
-# plt.title(r"$\hat{\beta}$ curve")
-# plt.show()
 
-def beta_real(par_size):
+def beta_real(par_size , material , b_val):
+        if material == "Silicate":
+            b = silicate_interp(par_size) / b_val
+    
+        else:
+            b = carbon_interp(par_size) / b_val
 
-    b = interp(par_size)
-
-    return b
-
+        return b
 
 """calculates acceleration of the particle in x and y direction
     based on scaled gravitational force between particle and Sun"""
@@ -50,7 +45,7 @@ def sputtering(m , epsilon):
     return dmdt
 
 """function that calculates betahat, based on scaled equations"""
-def betahat(m):
+def betahat(m , particle_obj):
     """input: m (float), scaled mass of particle
 
        returns: betahat(float), scaled betahat """
@@ -59,28 +54,11 @@ def betahat(m):
 
     #b = m**(-1 / 3) #scaled betahat
 
-    b = beta_real(r)
+    #b = beta_real(r , material)
+    b = particle_obj.beta_real(r)
 
     return b
 
-def betahat_car(m):
-    """input: m (float), scaled mass of particle
-
-       returns: betahat(float), scaled betahat for carbon """
-
-    r = (3 * m / (4 * rho * np.pi))**(1 / 3)
-
-    car_size , car_betaval , _ = dat_to_arr(car_beta)
-    car_size = car_size * 10**(-6) #m
-    
-    #betahat = np.interp(r , car_size , car_betaval) #interpolating betahat for carbon
-    log_size = np.log10(car_size)
-    log_beta = np.log10(car_beta)
-
-    #log_interp = interp1d(log_size, log_beta, kind='linear', fill_value='extrapolate')
-    #betahat = 10**log_interp(np.log10(r))
-    
-    #return betahat
 
 """function that calculates the radial component of the pressure radiation force, 
 based on scaled equations"""
@@ -110,12 +88,14 @@ def pr_drag(x , y , vx , vy , m):
     
     r = np.sqrt(x**2 + y**2) #scaled radial distance
 
-    r_hat_x = x / r
-    r_hat_y = y / r
-    v_dot_r = vx*r_hat_x + vy*r_hat_y
+    theta = np.atan2(y , x)
 
-    ax = - betahat(m) * (vx + v_dot_r * r_hat_x) * B * V / (c * r**2 * (1 - B)) 
-    ay = - betahat(m) * (vy + v_dot_r * r_hat_y) * B * V / (c * r**2 * (1 - B)) 
+    A = -betahat(m) * B * V / ((1 - B) * r**3 * c)
+    x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
+    y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)
+
+    ax = A * x_dir
+    ay = A * y_dir
 
     return ax , ay
 

@@ -52,14 +52,14 @@ def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , mass
     return sol
 
 """function that creates array of variables from solution object, same structure as leapfrog output"""
-def arr_variables(sol):
+def arr_variables(sol , material = "Silicate"):
     """input: sol (array_like), solution object from solve_ivp
        
        returns: new_arr (array), array containing x , y , vx , vy , m , beta values"""
     
     x , y , vx , vy , m = sol.y #unpacking solution object
     #beta = betahat(m) #calculating beta values from mass array
-    b = betahat(m)
+    b = betahat(m , material)
 
     new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
 

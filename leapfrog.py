@@ -7,7 +7,7 @@ from forces_scaled import tot_acc, sputtering, betahat
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
     calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
     direction. All parameters are scaled."""
-def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , massloss = None):
+def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , massloss = None , material = "Silicate"):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               
               acc_func (function), function calculating total scaled acceleration in x and y dir
@@ -28,7 +28,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
     t = 0 #initial time
     
     mhat = mhat0 #initial scaled mass
-    bhat = betahat(mhat) #initial scaled beta
+    bhat = betahat(mhat , material) #initial scaled beta
 
     N = int(t_tot / dt) + 1 #number of timesteps
     lf_vals = np.zeros((N, 6)) #array to store leapfrogged values
@@ -55,7 +55,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
             mhat = m_half + 0.5 * dt * massloss(m_half , epsilon) 
             m_half += dt * massloss(m_half , epsilon) #updating mass
 
-        bhat = betahat(mhat)
+        bhat = betahat(mhat , material)
             
         ax , ay = acc_func(x , y , vx , vy , mhat) #acceleration calcs
         

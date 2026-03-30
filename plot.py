@@ -86,6 +86,7 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , spec
         plt.plot(t[::10] , theta1[::10] , color = "blue", label = r"RK4(5) $\hat{\theta}$")
         plt.plot(t[::10] , theta2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and Leapfrog solution")
+        plt.legend()
 
     """comparing thetahat from RK4(5) perturbed thetahat"""
     if theta_per is not None:
@@ -93,8 +94,10 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , spec
         plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
         plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
+        plt.legend()
     
     if species == "Silicate":
+        t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
     
@@ -102,10 +105,9 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , spec
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
 
-    plt.xlabel("Number of orbits")
+    plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{\theta}$")
 
-    plt.legend()
     plt.show()
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
@@ -145,6 +147,7 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = No
     
     if species == "Silicate":
         r = np.sqrt(x1**2 + y1**2)
+        #t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
         
@@ -160,7 +163,7 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = No
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
-def vhat_comps(x , y , vx , vy , t , v_per):
+def vhat_comps(x , y , t , vx , vy , v_per = None, species = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -170,28 +173,43 @@ def vhat_comps(x , y , vx , vy , t , v_per):
 
        returns: none"""
     
-    theta_num = np.atan2(y , x) #thetahat
-    theta_num = np.unwrap(theta_num) #avoiding discontinuities
-
-    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
-    #v_r = (x*vx + y*vy)/np.sqrt(x**2+y**2)
-    vrplot = v_r * 10**5 #scaling for better labelling
-    vperplot = v_per * 10**5 #scaling for better labelling
-    #vrplot = np.sqrt(vx**2 + vy**2)
     dt , t_tot = t #time unpacking
     
     t = np.arange(0 , t_tot , dt)
 
-    plt.plot(t[::10] , vrplot[::10] , color = "blue" , label = r"RK4(5) $\hat{v}$")
-    plt.plot(t[::10] , vperplot[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
-    plt.xlabel("Number of orbits")
-    plt.ylabel(r"$\hat{v} \times 10^5$")
-    plt.title(r"RK4(5) and perturbed $\hat{v}$")
-    plt.legend()
+    theta_num = np.atan2(y , x) #thetahat
+    theta_num = np.unwrap(theta_num) #avoiding discontinuities
+
+    v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
+    
+    if v_per is not None:
+        vrplot = v_r * 10**5 #scaling for better labelling
+        vperplot = v_per * 10**5 #scaling for better labelling
+    
+        plt.plot(t[::10] , vrplot[::10] , color = "blue" , label = r"RK4(5) $\hat{v}$")
+        plt.plot(t[::10] , vperplot[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{v} \times 10^5$")
+        plt.legend()
+        plt.title(r"RK4(5) and perturbed $\hat{v}$")
+    
+    if species == "Silicate":
+        #t = t[:31816510] #silicate slow sw impact sun, init r1
+        plt.plot(t[::10] , v_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{v}_r$")
+        plt.title(r"$\hat{v}_r$ for silicate, real $\hat{\beta}$")
+
+    if species == "Carbon":
+        plt.plot(t[::10] , v_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{v}_r$")
+        plt.title(r"$\hat{v}_r$ for carbon, real $\hat{\beta}$")
+
     plt.show()
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
-def omegahat_comps(x , y , vx , vy , t , angvel):
+def omegahat_comps(x , y , vx , vy , t , angvel = None , species = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -210,18 +228,29 @@ def omegahat_comps(x , y , vx , vy , t , angvel):
 
     t = np.arange(0 , t_tot , dt) #t hat
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
-    
-    plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
-    plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
-    plt.xlabel("Number of orbits")
+
+    if angvel is not None:
+        plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
+        plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
+        plt.legend()
+
+    if species == "Silicate":
+        t = t[:31816510] #silicate slow sw impact sun, init r1
+        plt.plot(t[::10] , angvel_num[::10])
+        plt.title(r"$\hat{\omega}$ for silicate, real $\hat{\beta}$")
+
+    if species == "Carbon":
+        plt.plot(t[::10] , angvel_num[::10])
+        plt.title(r"$\hat{\omega}$ for carbon, real $\hat{\beta}$")
+
+    plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{\omega}$")
-    plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
-    plt.legend()
     plt.show()
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
 Can compare betahat values or relative forward error RK4(5)-perturbed and RK4(5)-analytical"""
-def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
+def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False , species = "Silicate"):
     """input: solver (.npz), RK4(5) solver file consisting of x, y, vx, vy, m, b
               b_per (array), betahat from perturbed expression
               b_analytical (array), betahat from analytical expression
@@ -235,12 +264,12 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
     t = np.arange(0 , t_tot , dt) #that
 
     """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
-    if fw_err == False:
+    if fw_err == False and b_per is not None and b_analytical is not None:
         plt.figure()
         plt.plot(t[::10] , b_r[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed solution")
-        plt.xlabel("Number of orbits")
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
@@ -249,7 +278,7 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
         plt.plot(t[::10] , b_r[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and analytical solution")
-        plt.xlabel("Number of orbits")
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
@@ -263,20 +292,34 @@ def b_plot(b_r , t , b_per , b_analytical , fw_err = False):
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
-
     
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
-    if fw_err == True:
+    if fw_err == True and b_per is not None and b_analytical is not None:
         fw_err_RK45_per = np.abs(b_r - b_per) / np.abs(b_r)
         fw_err_RK45_analytical = np.abs(b_r - b_analytical) / np.abs(b_r)
         plt.plot(t[::10] , fw_err_RK45_per[::10] , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
         plt.plot(t[::10] , fw_err_RK45_analytical[::10] , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
-        plt.xlabel("Number of orbits")
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"Relative forward error")
         plt.title("Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical")
 
         plt.legend()
+        plt.show()
+
+    if species == "Silicate":
+        #t = t[:22906716]
+        plt.plot(t[::10] , b_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.title(r"Real $\hat{\beta}$ for silicate")
+        plt.show()
+    
+    if species == "Carbon":
+        plt.plot(t[::10] , b_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.title(r"Real $\hat{\beta}$ for carbon")
         plt.show()
 
 """plots and compares energies between RK4(5) and Leapfrog solver"""
@@ -422,16 +465,22 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t6_silicateslowsw_realbeta.npz")
+    rk = np.load("Files/rk45_t5_carbon_slowsw_realbeta_test.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    dt , t_tot = t6
+    dt , t_tot = t7
     t = np.arange(0 , t_tot , dt)
     b_func = betahat_analytical(t)
     cst = C0(b_func)
     om = omega(t , b_func , cst)
     rad = r(t , b_func , cst , om)
     x = np.linspace(0 , 100 , 30)
-    rhat_comps(x1 , y1 , t6 , species = "Silicate")
+    #b_plot(b1 , t5 , species = "Carbon")
+    #omegahat_comps(x1 , y1 , vx1 , vy1 , t5 , species = "Silicate")
+    rhat_comps(x1 , y1 , t5 , species = "Carbon")
+    #vhat_comps(x1 , y1 , t6 , vx1 , vy1 , species = "Carbon")
+    #thetahat_comps(x1 , y1 , t6 , species = "Carbon")
+    
+    
     
     
     
