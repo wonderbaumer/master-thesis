@@ -1,35 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from config import B , eps , init_cart_scaled , delta , m_range , r_vals , r1 , r2 , r3 , M , V , c
 from scipy.interpolate import PchipInterpolator as pchip
+from constants import dat_to_arr, sil_beta , car_beta , c
 
-def inter_func(self , bval_file):
+def inter_func(bval_file):
         size , betaval , _ = dat_to_arr(bval_file)
-        size *= 1e-6 / self.size
+        size = np.asarray(size).copy()
+        size *= 1e-6 
+        beta_val = pchip(size , betaval)
 
-        return pchip(size , betaval)
-
-
-def beta_real(par_size , material , b_val):
-        if material == "Silicate":
-            b = silicate_interp(par_size) / b_val
-    
-        else:
-            b = carbon_interp(par_size) / b_val
-
-        return b
+        return beta_val
 
 """calculates acceleration of the particle in x and y direction
     based on scaled gravitational force between particle and Sun"""
-def gravity(x , y):
+def gravity(x , y , particle_obj):
     """input: x (float), scaled x position
               y (float), scaled y position
               
        returns: acc_x, acc_y (float), scaled acceleration in x and y direction"""
        
     r = np.sqrt(x**2 + y**2) #radial distance
-    acc_x = - x / ((1 - B) * r**3) #scaled acceleration in x direction
-    acc_y = - y / ((1 - B) * r**3) #scaledacceleration in y direction
+    acc_x = - x / ((1 - particle_obj.B) * r**3) #scaled acceleration in x direction
+    acc_y = - y / ((1 - particle_obj.B) * r**3) #scaledacceleration in y direction
 
     return acc_x , acc_y 
 
@@ -53,16 +45,15 @@ def betahat(m , particle_obj):
     r = m**(1/3)
 
     #b = m**(-1 / 3) #scaled betahat
-
-    #b = beta_real(r , material)
-    b = particle_obj.beta_real(r)
+    r_physical = r * particle_obj.r
+    b = particle_obj.beta_func(r_physical) / particle_obj.B
 
     return b
 
 
 """function that calculates the radial component of the pressure radiation force, 
 based on scaled equations"""
-def pressure_radial(x , y , m):
+def pressure_radial(x , y , m , particle_obj):
     """input: x (float), scaled x position
               y (float), scaled y position
               m (float), scaled mass of particle
@@ -71,13 +62,13 @@ def pressure_radial(x , y , m):
     
     r = np.sqrt(x**2 + y**2) #scaled radial distance
 
-    ax = x * betahat(m) * B / ((1 - B) * r**3) #scaled acceleration in x dir
-    ay = y * betahat(m) * B / ((1 - B) * r**3) #scaled acceleration in y dir
+    ax = x * betahat(m , particle_obj) * particle_obj.B / ((1 - particle_obj.B) * r**3) #scaled acceleration in x dir
+    ay = y * betahat(m , particle_obj) * particle_obj.B / ((1 - particle_obj.B) * r**3) #scaled acceleration in y dir
 
     return ax , ay
 
 """calculates Poynting-Robertson drag based on scaled parameters"""
-def pr_drag(x , y , vx , vy , m):
+def pr_drag(x , y , vx , vy , m , particle_obj):
     """input: x (float), scaled x position
               y (float), scaled y position
               vx (float), scaled x velocity
@@ -90,7 +81,7 @@ def pr_drag(x , y , vx , vy , m):
 
     theta = np.atan2(y , x)
 
-    A = -betahat(m) * B * V / ((1 - B) * r**3 * c)
+    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.V / ((1 - particle_obj.B) * r**3 * c)
     x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
     y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)
 
@@ -100,7 +91,7 @@ def pr_drag(x , y , vx , vy , m):
     return ax , ay
 
 """function that calculates total acceleration based on pressure radiation force, gravity and Poynting-Robertson drag"""
-def tot_acc(x , y , vx , vy , m):
+def tot_acc(x , y , vx , vy , m , particle_obj):
     """input: x (float), scaled x position
               y (float), scaled y position
               vx (float), scaled x velocity
@@ -109,16 +100,14 @@ def tot_acc(x , y , vx , vy , m):
 
         returns: ax , ay (array), scaled acceleration in x and y dir"""
     
-    px , py = pressure_radial(x , y , m) #decomposing pressure radiation force
-    gx , gy = gravity(x , y) #decomposing gravitational force
-    prx , pry = pr_drag(x , y , vx , vy , m) #decomposing Poynting-Robertson force
+    px , py = pressure_radial(x , y , m , particle_obj) #decomposing pressure radiation force
+    gx , gy = gravity(x , y , particle_obj) #decomposing gravitational force
+    prx , pry = pr_drag(x , y , vx , vy , m , particle_obj) #decomposing Poynting-Robertson force
 
     ax = px + gx + prx  #total acceleration in x dir
     ay = py + gy + pry  #total acceleration in y dir 
     
     return ax , ay
 
-if __name__ == "__main__":
-    x , y , vx , vy = init_cart_scaled
     
     

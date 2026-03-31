@@ -1,13 +1,13 @@
 import numpy as np 
 import time
 from tqdm import tqdm
-from config import mhat0 , t5 , t6 , t7 , init_cart_scaled , eps
-from forces_scaled import tot_acc, sputtering, betahat
+from constants import t5 , t6 , t7 , eps
+from forces_scaled import tot_acc , sputtering, betahat
 
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
     calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
     direction. All parameters are scaled."""
-def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , massloss = None , material = "Silicate"):
+def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon = None , massloss = None):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               
               acc_func (function), function calculating total scaled acceleration in x and y dir
@@ -25,10 +25,9 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
     x , y , vx , vy = initial_vals #unpack values from nested array
 
     dt , t_tot = time #unpack time values
-    t = 0 #initial time
     
-    mhat = mhat0 #initial scaled mass
-    bhat = betahat(mhat , material) #initial scaled beta
+    mhat = 1.0 #initial scaled mass
+    bhat = betahat(mhat , particle_obj) #initial scaled beta
 
     N = int(t_tot / dt) + 1 #number of timesteps
     lf_vals = np.zeros((N, 6)) #array to store leapfrogged values
@@ -37,7 +36,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
 
     lf_vals[0] = [x, y, vx, vy, mhat, bhat]
 
-    ax , ay = acc_func(x , y , vx , vy , mhat) #unpacking acceleration x and y vals 
+    ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj) #unpacking acceleration x and y vals 
 
     vx_half = vx + 0.5 * dt * ax #half-stepping x velocity
     vy_half = vy + 0.5 * dt * ay #half-stepping y velocity
@@ -55,9 +54,9 @@ def leapfrog_algorithm(initial_vals , acc_func , time , epsilon = None , masslos
             mhat = m_half + 0.5 * dt * massloss(m_half , epsilon) 
             m_half += dt * massloss(m_half , epsilon) #updating mass
 
-        bhat = betahat(mhat , material)
+        bhat = betahat(mhat , particle_obj)
             
-        ax , ay = acc_func(x , y , vx , vy , mhat) #acceleration calcs
+        ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj) #acceleration calcs
         
         vx_half += dt * ax #updating vx_half
         vy_half += dt * ay #updating vy_half

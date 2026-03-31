@@ -1,34 +1,48 @@
 import numpy as np
-from config import eps , B , rhat0 , K
+from config import sil_beta , car_beta , init_vals
 
-"""calculates up to first order of beta hat from analytical solution"""
-def betahat_analytical(t):
-    """input: t (array), scaled time to calculate for
+class perturbed_functions():
 
-       returns: bvals (array), contains all orders as well as their sum"""
+    def __init__(self , material , size , drag_coeff , particle , t):
+        self.material = material
+        self.size = size
+        self.r = init_vals[self.size]["r"]
+        self.B = init_vals[self.size]["B"][self.material.lower()]
+        self.K = drag_coeff
+        self.particle = particle
+        self.t = t
+        self.eps = self.particle.eps()
+        self.b_func = self.betahat_analytical()
+        self.c = self.C0()
+
+    """calculates up to first order of beta hat from analytical solution"""
+    def betahat_analytical(self):
+        """input: t (array), scaled time to calculate for
+
+        returns: bvals (array), contains all orders as well as their sum"""
     
-    bvals = 1 / (1 -  eps() * t / 3) #total expression
+        bvals = 1 / (1 -  self.eps * self.t / 3) #total expression
         
-    return bvals
+        return bvals
 
-###WITH DRAG###
-def C0(b_func):
+    ###WITH DRAG###
+    def C0(self):
 
-    first = -4 * B * K / (1 - B)**3
-    second = 3 * b_func**4 * B / 4 - 4 * B**3 * b_func**3 + 9 * B**2 * b_func**2 - 12 * B * b_func + 3 * np.log(b_func)
-    third = 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3)
+        first = -4 * self.B * self.K / (1 - self.B)**3
+        second = 3 * self.b_func**4 * self.B / 4 - 4 * self.B**3 * self.b_func**3 + 9 * self.B**2 * self.b_func**2 - 12 * self.B * self.b_func + 3 * np.log(self.b_func)
+        third = 1 + 4 * self.B * self.K / (1 - self.B)**3 * (9 * self.B**2 - 45 * self.B / 4 - 4 * self.B**3)
 
-    tot = first * second + third
+        tot = first * second + third
 
-    return tot**(1 / 4)
+        return tot**(1 / 4)
 
-def omega(t , beta_func , c):
-    omega0 = ((1 - B) / (1 - beta_func * B))**(-2) * c**(-3)
-    omega1 = -2 * omega0 / (((1 - B) / (1 - beta_func * B)) * c**2) * (-2 * K - B / (3 * (1 - B))) * np.sin(omega0 * t)
-    
-    omegatot = omega0 + eps() * omega1
+    def omega(self):
+        omega0 = ((1 - self.B) / (1 - self.b_func * self.B))**(-2) * self.c**(-3)
+        omega1 = -2 * omega0 / (((1 - self.B) / (1 - self.b_func * self.B)) * self.c**2) * (-2 * self.K - self.B / (3 * (1 - self.B))) * np.sin(omega0 * self.t)
 
-    return omegatot , omega0 , omega1
+        omegatot = omega0 + self.eps * omega1
+
+        return omegatot , omega0 , omega1
 
 def r(t , beta_func , c , om):
     _ , omega0 , _ = om
@@ -132,5 +146,6 @@ def omegahat_pert(t):
 
 if __name__== "__main__":
     1
+    #particle = dust_properties(material, sw, species, size)
 
     

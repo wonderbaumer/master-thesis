@@ -2,14 +2,14 @@ from scipy.integrate import solve_ivp
 import numpy as np
 from tqdm import tqdm
 from AstronomicalSilicate_modified import sputter
-from config import t5 , t6 , t7 , init_cart_scaled , mhat0 , eps , init_cart , M
+from constants import t5 , t6 , t7 ,  eps 
 from forces_scaled import tot_acc, sputtering, betahat 
 
 #Source for pbar is Lima, 2020
 
 """ode function that is put into particle motion ivp solver, on form
 dxdt, dydt, dvxdt, dvydt, dmdt"""
-def pos_vel(t , init , pbar , state , epsilon , massloss = True):
+def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
     """input: t (float), time in s
               init (array), initial conditions x, y, vx, vy, m
               massloss, default: True, specify False if massloss is not considered
@@ -30,14 +30,14 @@ def pos_vel(t , init , pbar , state , epsilon , massloss = True):
     
     x , y , vx , vy , m = init #initial conditions unpacked
     dmdt = sputtering(m , epsilon) if massloss else 0.0 #specify change in mass if massloss is considered
-    ax , ay = tot_acc(x , y , vx , vy , m) #acceleration calcs
+    ax , ay = tot_acc(x , y , vx , vy , m , particle_obj) #acceleration calcs
 
     variable_list = np.array([vx , vy , ax , ay , dmdt]) #variables for ivp solver
     
     return variable_list
     
 """particle motion solved using non-stiff solver in scipys solve_ivp"""
-def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , massloss = True):
+def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , particle_obj , massloss = True):
     """input: fun (func), system of ODEs to solve
               t_span (tuple), time start and end of integration
               y0 (array), initial conditions for pos and vel
@@ -47,19 +47,19 @@ def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , mass
     
     with tqdm(total = 1000) as pbar:
         sol = solve_ivp(fun , t_span , y0 , method = method ,
-                    t_eval = t_eval , args = (pbar , state , epsilon , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
+                    t_eval = t_eval , args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
     
     return sol
 
 """function that creates array of variables from solution object, same structure as leapfrog output"""
-def arr_variables(sol , material = "Silicate"):
+def arr_variables(sol , particle_obj):
     """input: sol (array_like), solution object from solve_ivp
        
        returns: new_arr (array), array containing x , y , vx , vy , m , beta values"""
     
     x , y , vx , vy , m = sol.y #unpacking solution object
     #beta = betahat(m) #calculating beta values from mass array
-    b = betahat(m , material)
+    b = betahat(m , particle_obj)
 
     new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
 

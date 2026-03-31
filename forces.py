@@ -1,7 +1,6 @@
 from scipy.constants import G , c
 import numpy as np
 from constants import S_s , q_pr , m_s , sw_flux , sputtering_yield , rho , au
-from config import init_cart
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun

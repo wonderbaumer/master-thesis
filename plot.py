@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
-from config import init_cart , m_range , eps , t5 , t6 , t7 , T , B , r_betatest
-from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit , C0 , r , omega , theta , vr
-from energy import tot_energy
-from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , M_ms , M_mc  
-from forces_scaled import betahat , beta_real
+#from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit , C0 , r , omega , theta , vr
+#from energy import tot_energy
+from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , t5 , t6 , t7
+from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 
 """plotting params to adjust font sizes"""
@@ -465,20 +464,22 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t5_carbon_slowsw_realbeta_test.npz")
+    rk = np.load("Files/rk45_t5_large_silicate_slowsw_realbeta_test.npz")
     x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
     dt , t_tot = t7
-    t = np.arange(0 , t_tot , dt)
-    b_func = betahat_analytical(t)
-    cst = C0(b_func)
-    om = omega(t , b_func , cst)
-    rad = r(t , b_func , cst , om)
-    x = np.linspace(0 , 100 , 30)
-    #b_plot(b1 , t5 , species = "Carbon")
+    # t = np.arange(0 , t_tot , dt)
+    # b_func = betahat_analytical(t)
+    # cst = C0(b_func)
+    # # om = omega(t , b_func , cst)
+    # rad = r(t , b_func , cst , om)
+    # x = np.linspace(0 , 100 , 30)
+    # #b_plot(b1 , t5 , species = "Carbon")
     #omegahat_comps(x1 , y1 , vx1 , vy1 , t5 , species = "Silicate")
-    rhat_comps(x1 , y1 , t5 , species = "Carbon")
+    #rhat_comps(x1 , y1 , t5 , species = "Carbon")
     #vhat_comps(x1 , y1 , t6 , vx1 , vy1 , species = "Carbon")
     #thetahat_comps(x1 , y1 , t6 , species = "Carbon")
+    plt.plot(x1,y1)
+    plt.show()
     
     
     
