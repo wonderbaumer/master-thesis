@@ -1,19 +1,28 @@
 import numpy as np
-from config import sil_beta , car_beta , init_vals
+from config import sil_beta , car_beta , init_vals 
+from scipy.constants import c
 
 class perturbed_functions():
 
-    def __init__(self , material , size , drag_coeff , particle , t):
-        self.material = material
-        self.size = size
-        self.r = init_vals[self.size]["r"]
-        self.B = init_vals[self.size]["B"][self.material.lower()]
-        self.K = drag_coeff
+    def __init__(self , drag_coeff , particle , t):
+
         self.particle = particle
-        self.t = t
-        self.eps = self.particle.eps()
-        self.b_func = self.betahat_analytical()
-        self.c = self.C0()
+        self.material = particle.material
+        self.size = particle.size
+
+        self.r = particle.r
+        self.B = particle.B
+        self.V = particle.V
+        
+
+        self.K = drag_coeff
+        dt , t_tot = t
+        self.time = np.arange(0 , t_tot , dt)
+        self.epsilon = particle.eps()
+        self.coeff3 = self.C3()
+        self.d0 = self.D0()
+
+        print(self.V / c / self.epsilon )
 
     """calculates up to first order of beta hat from analytical solution"""
     def betahat_analytical(self):
@@ -21,128 +30,104 @@ class perturbed_functions():
 
         returns: bvals (array), contains all orders as well as their sum"""
     
-        bvals = 1 / (1 -  self.eps * self.t / 3) #total expression
+        bvals = 1 / (1 -  self.epsilon * self.time / 3) #total expression
         
         return bvals
 
     ###WITH DRAG###
-    def C0(self):
+    def C0(self , b_func):
 
         first = -4 * self.B * self.K / (1 - self.B)**3
-        second = 3 * self.b_func**4 * self.B / 4 - 4 * self.B**3 * self.b_func**3 + 9 * self.B**2 * self.b_func**2 - 12 * self.B * self.b_func + 3 * np.log(self.b_func)
-        third = 1 + 4 * self.B * self.K / (1 - self.B)**3 * (9 * self.B**2 - 45 * self.B / 4 - 4 * self.B**3)
+        second = (3 * b_func**4 * self.B / 4 - 4 * self.B**3 * b_func**3 + 9 * self.B**2 * b_func**2 - 12 * self.B * b_func + 3 * np.log(b_func))
+        third = 1 + (4 * self.B * self.K / (1 - self.B)**3) * (9 * self.B**2 - 45 * self.B / 4 - 4 * self.B**3)
 
-        tot = first * second + third
+        tot = (first * second + third)**(1 / 4)
 
-        return tot**(1 / 4)
+        return tot
+    
+    def C0_prime(self , b_func):
+
+        numerator = -self.B * self.K * (-4 * self.B**3 * b_func**4 + 6 * self.B**2 * b_func**3 - 4 * self.B * b_func**2 + self.B * b_func**5 + b_func)
+        denom1 = 4 * self.B * self.K * (-4 * self.B**3 + 9 * self.B**2 - 45 * self.B / 4)
+        denom2 = -4 * self.B * self.K * (-4 * self.B**3 * b_func**3 + 9 * self.B**2 * b_func**2 - 12 * self.B * b_func + 3 * self.B * b_func**4 / 4 + 3 * np.log(b_func))
+        denom3 = (1 - self.B)**(-3)
+        tot_denom = (denom1 + denom2 + denom3)**(3 / 4)
+
+        tot = numerator / tot_denom
+        
+        return tot
+    
+    def C3(self):
+        first = -self.B / (3 * (1 - self.B))
+        second = -2 * self.B * self.K * (-4 * self.B**3 + 6 * self.B**2 - 3 * self.B + 1) / (1 - self.B)**3
+
+        tot = first + second
+
+        return tot
+    
+    def D0(self):
+        tot = -2 * self.epsilon * self.coeff3
+
+        return tot
 
     def omega(self):
-        omega0 = ((1 - self.B) / (1 - self.b_func * self.B))**(-2) * self.c**(-3)
-        omega1 = -2 * omega0 / (((1 - self.B) / (1 - self.b_func * self.B)) * self.c**2) * (-2 * self.K - self.B / (3 * (1 - self.B))) * np.sin(omega0 * self.t)
+        b_func = self.betahat_analytical()
+        coeff0 = self.C0(b_func)
 
-        omegatot = omega0 + self.eps * omega1
+        omega0 = ((1 - self.B) / (1 - b_func * self.B))**(-2) * coeff0**(-3)
+        omega1 = -2 * omega0 / (((1 - self.B) / (1 - b_func * self.B)) * coeff0**2) * self.coeff3 * np.sin(omega0 * self.time)
+
+        omegatot = omega0 + self.epsilon * omega1
 
         return omegatot , omega0 , omega1
 
-def r(t , beta_func , c , om):
-    _ , omega0 , _ = om
+    def rad(self):
+        _ , omega0 , _ = self.omega()
 
-    r0 = ((1 - B) / (1 - beta_func * B)) * c**2
-    r1 = (-2 * K - B / (3 * (1 - B))) * np.sin(omega0 * t)
+        b_func = self.betahat_analytical()
+        coeff0 = self.C0(b_func)
 
-    rtot = r0 + eps() * r1
+        r0 = (1 - self.B) / (1 - b_func * self.B) * coeff0**2
+        r1 = self.coeff3 * np.sin(omega0 * self.time)
 
-    return rtot
+        rtot = r0 + self.epsilon * r1
 
-def theta(t , beta_func):
-    theta0 = t
-    theta1 = -2 * B /(9 * (1 - B)) * (1 - ((1 - beta_func * B) / (1 - B))**(-1 / 3) * np.cos(t))
+        return rtot , r0 , r1
 
-    thetatot = theta0 + eps() * theta1
+    def theta(self):
+        b_func = self.betahat_analytical()
+        coeff0 = self.C0(b_func)
+        coeff0_prime = self.C0_prime(b_func)
+
+        _ , omega0 , _ = self.omega()
+        _ , r0 , _ = self.rad()
+
+        theta0 = ((1 - self.B) / (1 - self.B * b_func))**(-2) * coeff0**(-3) * self.time + self.d0
+        theta11 = -2 / r0 * self.coeff3 * np.cos(omega0 * self.time)
+        theta12 = -self.time**2 / 2 * coeff0**(-3) * ((1 - b_func * self.B) / (1 - self.B)**2) * (-2 * self.B * b_func**2 / 3 - 3 * (1 - b_func * self.B) * coeff0**(-3) * coeff0_prime)
+
+        theta1 = theta11 + theta12
+
+        thetatot = theta0 + self.epsilon * theta1
     
-    return thetatot
+        return thetatot
 
-def vr(t , beta_func):
-    vr0 = 0
-    vr1 = B / (9 * (1 - B)) * (np.cos(t) - beta_func**2 * ((1 - beta_func * B) / (1 - B))**(-2 / 3))
+    def vr(self):
+        b_func = self.betahat_analytical()
+        coeff0 = self.C0(b_func)
+        coeff0_prime = self.C0_prime(b_func)
 
-    vrtot = vr0 + eps() * vr1
+        _ , omega0 , _ = self.omega()
 
-    return vrtot
+        vr0 = 0
+        vr11 = omega0 * self.coeff3 * np.cos(omega0 * self.time)
+        vr12 = ((1 - self.B) / (1 - self.B * b_func)) * coeff0 * (b_func**2 * self.B * coeff0 / (3 * (1 - self.B)) + 2 * coeff0_prime)
+        vr1 = vr11 + vr12
 
-###WITHOUT DRAG###
+        vrtot = vr0 + self.epsilon * vr1
 
-"""calculates up to first order of betahat from perturbed expression"""
-def betahat_pert(t):
-    """input: t (array), scaled time to evaluate
+        return vrtot
 
-       returns: bvals (array), contain all orders as well as sum of orders """
-    
-    betahat_0 = 1 * np.ones_like(t) #zeroth order
-    betahat_1 = eps() * t / 3 #first order
-    betahat_tot = betahat_0 + betahat_1 #sum of orders
-
-    return betahat_tot
-
-"""calculates radial position up to first order in epsilon"""
-def rhat_pert(t):
-    """input: t (array), time (scaled) to calculate for
-
-       returns: r (array), radial position up to first order in epsilon"""
-
-    rhat_0 = rhat0 #zeroth order
-    rhat_1 = -B * np.sin(t) / (3 * (1 - B)) + B * t /(3 * (1 - B)) #first order
-    rhat = rhat_0 + eps() * rhat_1 #total expansion
-
-    return rhat
-
-"""calculates angular position up to first order in epsilon, perturbed expression"""
-def thetahat_pert(t):
-    """input: t (array), \time (scaled) to calculate for
-
-       returns: theta (array), angular position up to first order in epsilon"""
-
-    thetahat_0 = t #zeroth order 
-    thetahat_1 = -B * t**2 / (3 * (1 - B))  - 2 * B * np.cos(t) / (3 * (1 - B)) #first order
-    thetahat_tot = thetahat_0 + eps() * thetahat_1 #total expansion
-
-    return thetahat_tot
-
-"""calculates the total perturbed orbit in x and y coordinates"""
-def perturbed_orbit(t):
-    """input: t (array) , scaled time over which to plot the orbit
-        
-       returns: x,y (tuple), x and y coordinates"""
-
-    rhat = rhat_pert(t) #r calcs
-    thetahat = thetahat_pert(t) #theta calcs
-    x , y = rhat * np.cos(thetahat) , rhat * np.sin(thetahat) #converting to x and y
-
-    return x , y
- 
-"calculates perturbed velocity based on t hat"
-def vrhat_pert(t):
-    """input: t (array), t hat
-    
-       returns: v (array), v hat values"""
-    
-    vhat_0 = 0 #zeroth order v hat
-    vhat_1 = B / (3 * (1 - B)) - B * np.cos(t) / (3 * (1 - B)) #first order v hat
-    vhat_tot = vhat_0 + eps() * vhat_1 #tot v hat up to first order in epsilon
-
-    return vhat_tot
-
-"calculates perturbed angular velocity based on t hat"
-def omegahat_pert(t):
-    """input: t (array), t hat
-       
-       returns: omega (array), omega hat values"""
-    
-    omegahat_0 = 1 #zeroth order omega hat
-    omegahat_1 = 2 * B * np.sin(t) / (3 * (1 - B)) - 2 * B * t / (3 * (1 - B)) #first order omega hat
-    omegahat_tot = omegahat_0 + eps() * omegahat_1 #tot omega hat up to first order in epsilon
-
-    return omegahat_tot
 
 if __name__== "__main__":
     1

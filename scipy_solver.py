@@ -1,8 +1,7 @@
 from scipy.integrate import solve_ivp
 import numpy as np
 from tqdm import tqdm
-from AstronomicalSilicate_modified import sputter
-from constants import t5 , t6 , t7 ,  eps 
+from config import t5 , t6 , t7  
 from forces_scaled import tot_acc, sputtering, betahat 
 
 #Source for pbar is Lima, 2020
@@ -68,15 +67,15 @@ def arr_variables(sol , particle_obj):
 
 if __name__ == "__main__":
     dt , t_tot = t5
-    t = np.arange(0 , t_tot , dt)
-    state = [0 , t_tot / 1000]
-    y0 = np.append(init_cart_scaled , mhat0)
-    epsilon = eps()
+    # t = np.arange(0 , t_tot , dt)
+    # state = [0 , t_tot / 1000]
+    # y0 = np.append(init_cart_scaled , mhat0)
+    # epsilon = eps()
 
 
-    sol = particle_motion(pos_vel , (0 , t_tot) , y0 , "RK45" , t , state , epsilon , massloss = False)
-    lf_vals  = arr_variables(sol)
-    x , y , vx , vy , m , b = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
-    print(epsilon)
+    # sol = particle_motion(pos_vel , (0 , t_tot) , y0 , "RK45" , t , state , epsilon , massloss = False)
+    # lf_vals  = arr_variables(sol)
+    # x , y , vx , vy , m , b = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
+    # print(epsilon)
     
     

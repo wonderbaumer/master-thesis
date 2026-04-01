@@ -1,6 +1,6 @@
 from scipy.constants import G , c
 import numpy as np
-from constants import S_s , q_pr , m_s , sw_flux , sputtering_yield , rho , au
+from config import S_s , q_pr , m_s , rho , au
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -127,5 +127,4 @@ def tot_acc(x , y , vx , vy , m):
     return ax , ay
 
 
-if __name__ == "__main__":
-    x , y , vx , vy = init_cart
+

@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
-#from pert_functions import betahat_analytical , betahat_pert , rhat_pert , thetahat_pert , vrhat_pert ,omegahat_pert , perturbed_orbit , C0 , r , omega , theta , vr
-#from energy import tot_energy
-from constants import dat_to_arr , sil_beta , car_beta , sputtering_lifetime , sputtering_yield , sw_flux , r_vals , t5 , t6 , t7
+from dust_properties import dust_properties
+from pert_functions import perturbed_functions
+from energy import tot_energy
+from config import dat_to_arr , sil_beta , car_beta , r_vals , t5 , t6 , t7 , m_range , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
+from polar_to_cart import polar_to_cartesian
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -17,41 +19,34 @@ plt.rcParams.update({
     "legend.fontsize": 12,
 })
 
-"""plots B values for masses corresponding to a range of initial particle sizes, 
+"""plots B values for masses corresponding to a range of initial particle sizes, assuming beta=Frad/G, not real beta curve
 and epsilon calculated same range of masses"""
-def eps_init_beta():
+def eps_init_beta(particle_obj):
     """input: none
        
        returns: none"""
     
+    init_polar = np.array([R , 0 , 0 , particle_obj.V]) #initial polar coords
+    init_cart = polar_to_cartesian(init_polar) #initial cart coords
+
     x , y = init_cart[0] , init_cart[1] #unpacking initial, unscaled cartesian values
-    b_init_vals = beta(x , y , m_range)[1:] #calculating B values for mass range
+    b_init_vals = beta(x , y , m_range)[1:] #calculating B values for mass range må fikse denne hvis real beta
     
-    epsilon_slow = eps("silicate" , "slow" , "all" , m_range)[1:] #calculating epsilon for slow sw
-    #epsilon_slow = epsilon_slow * 10**5 #scaling for better labelling
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    eps_vals = []
 
-    epsilon_fast = eps("silicate" , "fast" , "all" , m_range)[1:] #calculating epsilon for fast sw
-    #epsilon_fast = epsilon_fast * 10**5 #scaling for better labelling
-
-    epsilon_cme = eps("silicate" , "CME" , "all" , m_range)[1:] #calculating epsilon for CME
-    #epsilon_cme = epsilon_cme * 10**5 #scaling for better labelling
-
-    epsilon_slowC = eps("carbon" , "slow" , "all" , m_range)[1:] #calculating epsilon for slow sw
-    #epsilon_slowC = epsilon_slow * 10**5 #scaling for better labelling
-
-    epsilon_fastC = eps("carbon" , "fast" , "all" , m_range)[1:] #calculating epsilon for fast sw
-    #epsilon_fastC = epsilon_fast * 10**5 #scaling for better labelling
-
-    epsilon_cmeC = eps("carbon" , "CME" , "all" , m_range)[1:] #calculating epsilon for CME
-    #epsilon_cmeC = epsilon_cme * 10**5 #scaling for better labelling
-
-    plt.plot(b_init_vals[::-1] , epsilon_slow[::-1] , color = "blue" , label = "Slow sw") #plots in reverse order
-    plt.plot(b_init_vals[::-1] , epsilon_fast[::-1] , color = "red" , label = "Fast sw") #plots in reverse order
-    plt.plot(b_init_vals[::-1] , epsilon_cme[::-1] , color = "green" , label = "CME") #plots in reverse order
-
-    plt.plot(b_init_vals[::-1] , epsilon_slowC[::-1] , linestyle = "--" , color = "blue" ) #plots in reverse order
-    plt.plot(b_init_vals[::-1] , epsilon_fastC[::-1] , linestyle = "--" , color = "red" ) #plots in reverse order
-    plt.plot(b_init_vals[::-1] , epsilon_cmeC[::-1] , linestyle = "--" , color = "green") #plots in reverse order
+    for m in material:
+        for sw in sw_conds:
+            eps = particle_obj.eps(m , sw)
+            eps_vals.append({"material" : m ,
+                             "sw_cond" : sw ,
+                             "eps" : eps})
+    
+    for i in eps_vals:
+        label = f"{i['material']} for {i['sw_cond']}"
+        vals = i["eps"]
+        plt.plot(b_init_vals[::10] , vals[::10] , label = label)
 
     plt.xlabel(r"$B$")
     plt.ylabel(r"${\epsilon}$")
@@ -61,7 +56,7 @@ def eps_init_beta():
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
-def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , species = None):
+def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , particle_obj = None , material = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), shape dt, t_tot for simulations
@@ -88,19 +83,20 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , spec
         plt.legend()
 
     """comparing thetahat from RK4(5) perturbed thetahat"""
-    if theta_per is not None:
+    if particle_obj is not None:
+        theta_per = particle_obj.theta()
         theta_per = np.unwrap(theta_per) #removing discontinuities
         plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
         plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
         plt.legend()
     
-    if species == "Silicate":
-        t = t[:31816510] #silicate slow sw impact sun, init r1
+    if material == "silicate":
+        #t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
     
-    if species == "Carbon":
+    if material == "carbon":
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
 
@@ -111,7 +107,7 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , theta_per = None , spec
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
 and perturbed rhat"""
-def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = None):
+def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , particle_obj = None , material = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), consisting of dt and t_tot, time of simulations
@@ -138,20 +134,23 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = No
         plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
         plt.legend()
 
-    if r_per is not None: #comparing RK4(5) with perturbed rhat
+    if particle_obj is not None: #comparing RK4(5) with perturbed rhat
+        r_per , _ , _ = particle_obj.rad()
+        rel_fw_err = np.abs(r1-r_per) / np.abs(r1)
+        print(f"relative fw err:",rel_fw_err)
         plt.plot(t[::10] , r1[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) and perturbed solution")
         plt.legend()
     
-    if species == "Silicate":
+    if material == "silicate":
         r = np.sqrt(x1**2 + y1**2)
         #t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
         
     
-    if species == "Carbon":
+    if material == "carbon":
         r = np.sqrt(x1**2 + y1**2)
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for carbon, real $\hat{\beta}$")
@@ -162,7 +161,7 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , r_per = None , species = No
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
-def vhat_comps(x , y , t , vx , vy , v_per = None, species = None):
+def vhat_comps(x , y , t , vx , vy , particle_obj = None, material = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -181,25 +180,24 @@ def vhat_comps(x , y , t , vx , vy , v_per = None, species = None):
 
     v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
     
-    if v_per is not None:
-        vrplot = v_r * 10**5 #scaling for better labelling
-        vperplot = v_per * 10**5 #scaling for better labelling
+    if particle_obj is not None:
+        v_per = particle_obj.vr()
     
-        plt.plot(t[::10] , vrplot[::10] , color = "blue" , label = r"RK4(5) $\hat{v}$")
-        plt.plot(t[::10] , vperplot[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
+        plt.plot(t[::10] , v_r[::10] , color = "blue" , label = r"RK4(5) $\hat{v}$")
+        plt.plot(t[::10] , v_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v} \times 10^5$")
         plt.legend()
         plt.title(r"RK4(5) and perturbed $\hat{v}$")
     
-    if species == "Silicate":
+    if material == "silicate":
         #t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , v_r[::10])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
         plt.title(r"$\hat{v}_r$ for silicate, real $\hat{\beta}$")
 
-    if species == "Carbon":
+    if material == "carbon":
         plt.plot(t[::10] , v_r[::10])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
@@ -208,7 +206,7 @@ def vhat_comps(x , y , t , vx , vy , v_per = None, species = None):
     plt.show()
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
-def omegahat_comps(x , y , vx , vy , t , angvel = None , species = None):
+def omegahat_comps(x , y , vx , vy , t , particle_obj = None , material = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -228,18 +226,19 @@ def omegahat_comps(x , y , vx , vy , t , angvel = None , species = None):
     t = np.arange(0 , t_tot , dt) #t hat
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
 
-    if angvel is not None:
+    if particle_obj is not None:
+        angvel , _ , _ = particle_obj.omega()
         plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
         plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
         plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
         plt.legend()
 
-    if species == "Silicate":
-        t = t[:31816510] #silicate slow sw impact sun, init r1
+    if material == "silicate":
+        #t = t[:31816510] #silicate slow sw impact sun, init r1
         plt.plot(t[::10] , angvel_num[::10])
         plt.title(r"$\hat{\omega}$ for silicate, real $\hat{\beta}$")
 
-    if species == "Carbon":
+    if material == "carbon":
         plt.plot(t[::10] , angvel_num[::10])
         plt.title(r"$\hat{\omega}$ for carbon, real $\hat{\beta}$")
 
@@ -249,7 +248,7 @@ def omegahat_comps(x , y , vx , vy , t , angvel = None , species = None):
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
 Can compare betahat values or relative forward error RK4(5)-perturbed and RK4(5)-analytical"""
-def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False , species = "Silicate"):
+def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False):
     """input: solver (.npz), RK4(5) solver file consisting of x, y, vx, vy, m, b
               b_per (array), betahat from perturbed expression
               b_analytical (array), betahat from analytical expression
@@ -306,23 +305,8 @@ def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False , specie
         plt.legend()
         plt.show()
 
-    if species == "Silicate":
-        #t = t[:22906716]
-        plt.plot(t[::10] , b_r[::10])
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.title(r"Real $\hat{\beta}$ for silicate")
-        plt.show()
-    
-    if species == "Carbon":
-        plt.plot(t[::10] , b_r[::10])
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.title(r"Real $\hat{\beta}$ for carbon")
-        plt.show()
-
 """plots and compares energies between RK4(5) and Leapfrog solver"""
-def energy_plot(solver1 , t , solver2 , fw_err = False):
+def energy_plot(solver1 , t , solver2 , particle_obj , fw_err = False):
     """input: solver1 (.npz), consisting of x1, y1 , vx1 , vx2 , m1 , b_vals1, RK4(5) solver
               t_arr (tuple), consisting of dt and t_tot, time at which solver1 and 2 have been 
                              evaluated
@@ -334,13 +318,13 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
     x2 , y2 , vx2 , vy2 , m2 , b_vals2 = [solver2[k] for k in ("x","y","vx","vy","m","b")] #unpacking solver2
     x1 , y1 , vx1 , vy1 , m1 , b_vals1 = solver1
     x2 , y2 , vx2 , vy2 , m2 , b_vals2 = solver2
-    totenergy1 = tot_energy(x1 , y1 , vx1 , vy1 , m1 , b_vals1) #total energy calcs for solver1
+    totenergy1 = tot_energy(x1 , y1 , vx1 , vy1 , m1 , b_vals1 , particle_obj) #total energy calcs for solver1
     kinetic1 , potential1 = totenergy1 #unpacking into kinetic and potential energy
     kinetic1 = kinetic1 
     potential1 = potential1  
     tot1 = kinetic1 + potential1 #summing kinetic and potential energy into total energy
     
-    totenergy2 = tot_energy(x2 , y2 , vx2 , vy2 , m2 , b_vals2) #total energy calcs solver2
+    totenergy2 = tot_energy(x2 , y2 , vx2 , vy2 , m2 , b_vals2 , particle_obj) #total energy calcs solver2
     kinetic2 , potential2 = totenergy2 #unpacking into kinetic and potential energy
     kinetic2 = kinetic2 
     potential2 = potential2 
@@ -368,18 +352,7 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         err_kin = np.abs(kinetic1 - kinetic2) / np.abs(kinetic1)
         err_pot = np.abs(potential1 - potential2) / np.abs(potential1)
         err_tot = np.abs(tot1 - tot2) / np.abs(tot1)
-
-        plt.figure()
-        plt.plot(t[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
-        plt.plot(t[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
-        plt.plot(t[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
-        plt.xlabel("Number of orbits")
-        plt.ylabel("Energy")
-        plt.title("RK4(5)")
-        plt.legend(loc = "upper right" ,
-               bbox_to_anchor = (1.0 , 0.9))
-        plt.show()
-        """
+        
         plt.figure()
         plt.plot(t[::10] , err_kin[::10] , label = "Error kinetic" , color = "blue" , linewidth = 2)
         plt.plot(t[::10] , err_pot[::10]  , label = "Error potential" , color = "orange" , linewidth = 2)
@@ -390,23 +363,23 @@ def energy_plot(solver1 , t , solver2 , fw_err = False):
         plt.legend(loc = "upper right" ,
                bbox_to_anchor = (1.0 , 0.9))
         plt.show()
-        """
+        
 
 """plots beta curves for silicate and carbon"""
-def beta_curves(interp = False , comp = False):
+def beta_curves(interp = False , comp = False , sample_pts = False):
     """input: None
     
        returns: None"""
     
-    sil_size , sil_betaval , _ = dat_to_arr(sil_beta) #fetching silicate size and beta values
-    car_size , car_betaval , _ = dat_to_arr(car_beta) #fetching carbon size and beta values
 
-    if interp == True: #compare interpolated function with true curve for silicate values
+    """compare interpolated function with true curve for silicate values"""
+    if interp == True: 
         interp = pchip(sil_size , sil_betaval)
 
         plt.plot(sil_size * 10**(-6) , sil_betaval , linestyle = "--" , label = "True curve")
         plt.plot(sil_size * 10**(-6) , interp(sil_size) , linestyle = "-" , label = "Interpolated function")
     
+    """comparing real silicate and carbon beta curve"""
     if comp == True:
 
         plt.xscale("log")
@@ -414,7 +387,8 @@ def beta_curves(interp = False , comp = False):
         plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
         plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
     
-    else:
+    """curve with sampling points"""
+    if sample_pts == True:
         plt.xscale("log")
         plt.yscale("log")
         plt.scatter([1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)] , [0.1235 , 0.8560 , 0.2098] , c = "g")
@@ -429,33 +403,37 @@ def beta_curves(interp = False , comp = False):
     plt.legend()
     plt.show()
 
-def PR_spu_lifetime():
+def PR_spu_lifetime(particle_obj):
     """input: None
     
     returns: None"""
-    
-    f_sw , s_sw , CME_sw = sw_flux("fast") , sw_flux("slow") , sw_flux("CME")
 
-    #Silicate
-    sil_size , _ , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and PR lifetime values
-    fs_spu , ss_spu , CMEs_spu = sputtering_yield("silicate" , "fast") , sputtering_yield("silicate" , "slow") , sputtering_yield("silicate" , "CME")
-    fs_lifetime , ss_lifetime , CMEs_lifetime = sputtering_lifetime(r_vals , f_sw , fs_spu , M_ms) , sputtering_lifetime(r_vals , s_sw , ss_spu , M_ms) , sputtering_lifetime(r_vals , CME_sw , CMEs_spu , M_ms)
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    tsp_vals = []
+    ls = {"silicate" : "-" , 
+          "carbon" : "--"}
+    cl = {"slow" : "green" ,
+          "fast" : "red" ,
+          "CME" : "blue"}
 
-    #Carbon
-    car_size , _ , car_PR = dat_to_arr(car_beta) #fetching carbon size and PR lifetime values
-    fc_spu , sc_spu , CMEc_spu = sputtering_yield("carbon" , "fast") , sputtering_yield("carbon" , "slow") , sputtering_yield("carbon" , "CME")
-    fc_lifetime , sc_lifetime , CMEc_lifetime = sputtering_lifetime(r_vals , f_sw , fc_spu , M_mc) , sputtering_lifetime(r_vals , s_sw , sc_spu , M_mc) , sputtering_lifetime(r_vals , CME_sw , CMEc_spu , M_mc)
+    for m in material:
+        for sw in sw_conds:
+            t_sp = particle_obj.sputtering_lifetime(m , sw)
+            tsp_vals.append({"material" : m ,
+                             "sw_cond" : sw ,
+                             "tsp" : t_sp})
+    for i in tsp_vals:
+        label = f"{i['material']} for {i['sw_cond']}"
+        vals = i["tsp"]
+        plt.plot(r_vals[::10] , vals[::10] , color = cl[i['sw']] , linestyle = ls[i['material']] , label = label)
+
 
     plt.xscale("log")
     plt.yscale("log")
     plt.plot(sil_size * 10**(-6) , sil_PR , color = "black" , linestyle = "-" , label = "PR lifetime")
     plt.plot(car_size * 10**(-6) , car_PR , color = "black" , linestyle = "--")
-    plt.plot(r_vals , fs_lifetime , color = "red" , linestyle = "-" , label = "Fast sw")
-    plt.plot(r_vals , fc_lifetime , color = "red" , linestyle = "--")
-    plt.plot(r_vals , ss_lifetime , color = "green" , linestyle = "-" , label = "Slow sw")
-    plt.plot(r_vals , sc_lifetime , color = "green" , linestyle = "--")
-    plt.plot(r_vals , CMEs_lifetime , color = "blue" , linestyle = "-" , label = "CME")
-    plt.plot(r_vals , CMEc_lifetime , color = "blue" , linestyle = "--")
+
 
     plt.title(r"Poynting-Robertson and sputtering lifetimes")
     plt.xlabel(r"Particle size (m)")
@@ -464,23 +442,16 @@ def PR_spu_lifetime():
     plt.show()
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t5_large_silicate_slowsw_realbeta_test.npz")
-    x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    dt , t_tot = t7
-    # t = np.arange(0 , t_tot , dt)
-    # b_func = betahat_analytical(t)
-    # cst = C0(b_func)
-    # # om = omega(t , b_func , cst)
-    # rad = r(t , b_func , cst , om)
-    # x = np.linspace(0 , 100 , 30)
-    # #b_plot(b1 , t5 , species = "Carbon")
-    #omegahat_comps(x1 , y1 , vx1 , vy1 , t5 , species = "Silicate")
-    #rhat_comps(x1 , y1 , t5 , species = "Carbon")
-    #vhat_comps(x1 , y1 , t6 , vx1 , vy1 , species = "Carbon")
-    #thetahat_comps(x1 , y1 , t6 , species = "Carbon")
-    plt.plot(x1,y1)
-    plt.show()
-    
+    res = np.load("Files/rk45_t5_large_silicate_slowsw.npz")
+    x , y , vx , vy , m , b = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
+
+    par = dust_properties("silicate" , "slow" , "all" , "large")
+    dt , t_tot = t5
+    t = np.arange(0 , t_tot , dt)
+
+    pert = perturbed_functions(drag_coeff = 13.238542083399384 , particle = par , t = t5)
+    #omegahat_comps(x , y , vx , vy , t5 , pert)
+    rhat_comps(x , y , t5 , particle_obj = pert)
     
     
     

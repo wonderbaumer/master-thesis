@@ -1,7 +1,7 @@
 import numpy as np 
 import time
 from tqdm import tqdm
-from constants import t5 , t6 , t7 , eps
+from config import t5 , t6 , t7
 from forces_scaled import tot_acc , sputtering, betahat
 
 """simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
@@ -72,10 +72,3 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
     
     return lf_vals 
     
-if __name__ == "__main__":
-    dt , t_tot = t6 
-    epsilon = eps()
-    lf_vals  = leapfrog_algorithm(init_cart_scaled , tot_acc , t6 , epsilon , sputtering)
-    x , y , vx , vy , m , beta = lf_vals[: , 0] , lf_vals[: , 1] , lf_vals[: , 2] , lf_vals[: , 3] , lf_vals[: , 4] , lf_vals[: , 5]
-    
-    #np.savez(f"Files/leapfrog_t6_masslossFalse_scaledeqs" , x = x , y = y , vx = vx , vy = vy , m = m , b = b_vals)

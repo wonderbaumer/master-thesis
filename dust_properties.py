@@ -1,6 +1,6 @@
-from config import sil_beta , car_beta , init_vals , rho , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , MA_C
+from config import sil_beta , car_beta , init_vals , rho , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C
 from AstronomicalSilicate_modified import sputter
-from scipy.constants import N_A , G
+from scipy.constants import N_A , G , c
 import numpy as np
 
 class dust_properties():
@@ -9,7 +9,7 @@ class dust_properties():
 
         self.material = material
         self.sw = sw
-        self.species = species
+        self.species = species #solar wind elements sputtering
         self.size = size
         self.r = init_vals[self.size]["r"]
         self.B = init_vals[self.size]["B"][self.material.lower()]
@@ -20,6 +20,8 @@ class dust_properties():
 
         self.Ytot = self.sputtering_yield()
         self.fsw = self.sw_flux()
+
+        self.delta = self.V / c
 
     def m(self):
         mass = 4 / 3 * np.pi * rho * (self.r)**3
@@ -85,6 +87,7 @@ class dust_properties():
                 M_m (float), molar mass of the material
 
         returns: t_sp (float), sputtering lifetime"""
+
         if self.material == "silicate":
             M_m = M_ms
 

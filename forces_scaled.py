@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator as pchip
-from constants import dat_to_arr, sil_beta , car_beta , c
+from config import dat_to_arr, sil_beta , car_beta
+from scipy.constants import c
 
 def inter_func(bval_file):
         size , betaval , _ = dat_to_arr(bval_file)

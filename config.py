@@ -1,5 +1,14 @@
 import numpy as np
 import pandas as pd
+from polar_to_cart import polar_to_cartesian
+
+"""radiation pressure"""
+rho = 2500 #kgm^-3
+S_s = 1361 #solar constant, in Wm^-2
+au = 149597871e3 #one astronomical unit, AU, in m
+q_pr = 1 #radiation pressure coefficient, unitless
+m_s = 1.98847e30  #mass of sun, in kg
+#c = 299792458 #speed of light, in ms^-1
 
 #values kept constant in simulations
 u = 1.66e-27 #1 atomic mass unit in kg
@@ -18,12 +27,23 @@ mA_C = m_C * u #total mass in kg, carbon
 
 R = 1 * au #initial radial position
 
+"""scaled initial parameters"""
+rhat0 = 1.0 #initial scaled radial position
+thetahat0 = 0 #initial scaled angular position
+vrhat0 = 0  #initial scaled radial velocity
+omegahat0 = 1.0 #initial scaled angular velocity
+betahat0 = 1.0 #initial scaled beta
+mhat0 = 1.0 #initial scaled mass
+
+init_polar_scaled = np.array([rhat0 , thetahat0 , vrhat0 , omegahat0]) #initial scaled polar coords
+init_cart_scaled = polar_to_cartesian(init_polar_scaled) #initial scaled cart coords
+
 sil_beta = "sil_radpr_prdrag_sun1au.dat" #Utilizing data sets provided by Li, A., 2026
 car_beta = "ac_radpr_prdrag_sun1au.dat" #Utilizing data sets provided by Li, A., 2026
 
 init_vals = {"large":{
             "r": 1.54079 * 10**(-6),
-            "B": {"silicate": 0.1235 , "carbon": 0.2646}
+            "B": {"silicate": 0.1235 , "carbon": 0.2646} 
             },
 
             "medium":{
@@ -44,14 +64,6 @@ r_vals = np.linspace(1e-9 , 50e-6 , 200) #size range corresponding to that for r
 
 yr = 60 * 60 * 24 * 365 #one year in s
 
-"""radiation pressure"""
-rho = 2500 #kgm^-3
-S_s = 1361 #solar constant, in Wm^-2
-au = 149597871e3 #one astronomical unit, AU, in m
-q_pr = 1 #radiation pressure coefficient, unitless
-m_s = 1.98847e30  #mass of sun, in kg
-c = 299792458 #speed of light, in ms^-1
-
 
 
 """converting .dat file to array with specified delimiter and column names"""
@@ -66,6 +78,9 @@ def dat_to_arr(file):
     dust_PRtime = dust["PR drag time (years)"].to_numpy() 
 
     return dust_size , dust_betaval , dust_PRtime
+
+sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
+car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
 
 """evaluating particle size against beta0"""
 r_vals = np.linspace(0.00100 * 10**(-6) , 50 * 10**(-6) , 200)
@@ -91,8 +106,7 @@ t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
     sil_size , sil_betaval , sil_PRtime = dat_to_arr(sil_beta)
-    fsw = sw_flux()
-    Ytot = sputtering_yield("silicate" , "slow" , "all")
+    
     
 
 
