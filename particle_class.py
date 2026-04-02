@@ -35,6 +35,7 @@ class particle_solver():
 
         self.init_cart_scaled = init_cart_scaled
         self.file = material_files[self.particle.material]
+        
         self.epsilon = par.eps()
         self.beta_func = inter_func(self.file) #interpolation function for beta values
     
@@ -57,7 +58,7 @@ class particle_solver():
             pos_and_vel1 = leapfrog_algorithm(self.init_cart_scaled , tot_acc
                      , self.sim_time , self) #leapfroging using initial cond
             
-        elif self.solver in ["RK45" , "RK23" , "DOP853"] and self.massloss == True: 
+        elif self.solver in ["Radau" , "RK45" , "RK23" , "DOP853"] and self.massloss == True: 
             pos_and_vel = particle_motion(
                 pos_vel,
                 t_span,
@@ -69,6 +70,9 @@ class particle_solver():
                 self,              
                 massloss=True
                 )
+
+            #print("Status:", pos_and_vel.status)
+            #print("Message:", pos_and_vel.message)
 
             pos_and_vel1 = arr_variables(pos_and_vel, self)
         
@@ -90,10 +94,10 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "slow" , "all" , "large")
-    p = particle_solver(t5 , par , "RK45" , massloss = True)
+    par = dust_properties("silicate" , "slow" , "all" , "small")
+    p = particle_solver(t7 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    np.savez("Files/rk45_t5_large_carbon_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    np.savez("Files/rk45_t7_small_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

@@ -95,7 +95,7 @@ class dust_properties():
             M_m = M_mc
 
         t_sp = (4 * self.r * N_A * rho) / (self.fsw * self.Ytot * M_m) #sputtering lifetime
-        self.t_sp = t_sp /yr
+        self.t_sp = t_sp / yr
 
         return self.t_sp
 
@@ -113,6 +113,6 @@ class dust_properties():
         elif self.material == "carbon": 
             mA = mA_C
     
-        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T #mass constant
+        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T 
 
         return eps

@@ -92,11 +92,20 @@ def thetahat_comps(x1 , y1 , t , x2 = None , y2 = None , particle_obj = None , m
         plt.legend()
     
     if material == "silicate":
-        #t = t[:31816510] #silicate slow sw impact sun, init r1
+        #t = t[:672160] #medium size, CME, impact Sun
+        #t = t[:564630] #small size, CME, outside range
+        #t = t[:2406880] #medium size, fast impact sun
+        #t = t[:2395160] #t6 medium size, slow impact sun
+        #t = t[:40535130] #t7 large, slow impact sun
+        #t = t[:40868940] #t7 large, fast impact sun
+        #t = t[:31398970] #t7 small, fast impact sun
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
     
     if material == "carbon":
+        #t = t[:17637390] #t6 large fast impact sun
+        #t = t[:17449500] #t6 large CME impact sun
+        #t = t[:17634720] #t6 large slow impact sun  
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
 
@@ -145,12 +154,21 @@ def rhat_comps(x1 , y1 , t , x2 = None , y2 = None , particle_obj = None , mater
     
     if material == "silicate":
         r = np.sqrt(x1**2 + y1**2)
-        #t = t[:31816510] #silicate slow sw impact sun, init r1
+        #t = t[:672160] #medium size, CME, impact Sun
+        #t = t[:564630] #small size, CME, outside range
+        #t = t[:2406880] #medium size, fast impact sun
+        #t = t[:2395160] #t6 medium size, slow impact sun
+        #t = t[:40535130] #t7 large, slow impact sun
+        #t = t[:40868940] #t7 large, fast impact sun
+        #t = t[:31398970] #t7 small, fast impact sun
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
         
     
     if material == "carbon":
+        #t = t[:17637390] #t6 large fast impact sun
+        #t = t[:17449500] #t6 large CME impact sun
+        #t = t[:17634720] #t6 large slow impact sun 
         r = np.sqrt(x1**2 + y1**2)
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for carbon, real $\hat{\beta}$")
@@ -191,13 +209,22 @@ def vhat_comps(x , y , t , vx , vy , particle_obj = None, material = None):
         plt.title(r"RK4(5) and perturbed $\hat{v}$")
     
     if material == "silicate":
-        #t = t[:31816510] #silicate slow sw impact sun, init r1
+        #t = t[:672160] #medium size, CME, impact Sun
+        #t = t[:564630] #small size, CME, outside range
+        #t = t[:2406880] #medium size, fast impact sun
+        #t = t[:2395160] #t6 medium size, slow impact sun
+        #t = t[:40535130] #t7 large, slow impact sun
+        #t = t[:40868940] #t7 large, fast impact sun
+        #t = t[:31398970] #t7 small, fast impact sun
         plt.plot(t[::10] , v_r[::10])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
         plt.title(r"$\hat{v}_r$ for silicate, real $\hat{\beta}$")
 
     if material == "carbon":
+        #t = t[:17637390] #t6 large fast impact sun
+        #t = t[:17449500] #t6 large CME impact sun
+        #t = t[:17634720] #t6 large slow impact sun 
         plt.plot(t[::10] , v_r[::10])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
@@ -234,11 +261,20 @@ def omegahat_comps(x , y , vx , vy , t , particle_obj = None , material = None):
         plt.legend()
 
     if material == "silicate":
-        #t = t[:31816510] #silicate slow sw impact sun, init r1
+        #t = t[:672160] #medium size, CME, impact Sun
+        #t = t[:564630] #small size, CME, outside range
+        #t = t[:2406880] #medium size, fast impact sun
+        #t = t[:2395160] #t6 medium size, slow impact sun
+        #t = t[:40535130] #t7 large, slow impact sun
+        #t = t[:40868940] #t7 large, fast impact sun
+        #t = t[:31398970] #t7 small, fast impact sun
         plt.plot(t[::10] , angvel_num[::10])
         plt.title(r"$\hat{\omega}$ for silicate, real $\hat{\beta}$")
 
     if material == "carbon":
+        #t = t[:17637390] #t6 large fast impact sun
+        #t = t[:17449500] #t6 large CME impact sun
+        #t = t[:17634720] #t6 large slow impact sun 
         plt.plot(t[::10] , angvel_num[::10])
         plt.title(r"$\hat{\omega}$ for carbon, real $\hat{\beta}$")
 
@@ -248,7 +284,7 @@ def omegahat_comps(x , y , vx , vy , t , particle_obj = None , material = None):
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
 Can compare betahat values or relative forward error RK4(5)-perturbed and RK4(5)-analytical"""
-def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False):
+def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False , material = None):
     """input: solver (.npz), RK4(5) solver file consisting of x, y, vx, vy, m, b
               b_per (array), betahat from perturbed expression
               b_analytical (array), betahat from analytical expression
@@ -286,7 +322,7 @@ def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False):
         plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical solution")
-        plt.xlabel("Number of orbits")
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
@@ -303,6 +339,30 @@ def b_plot(b_r , t , b_per = None , b_analytical = None, fw_err = False):
         plt.title("Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical")
 
         plt.legend()
+        plt.show()
+    
+    if material == "silicate":
+        #t = t[:672160] #t5 medium size, CME, impact Sun
+        #t = t[:564630] #t5 small size, CME outside range
+        #t = t[:2406880] #t6 medium size, fast impact sun
+        #t = t[:2395160] #t6 medium size, slow impact sun
+        #t = t[:40535130] #t7 large, slow impact sun
+        #t = t[:40868940] #t7 large, fast impact sun
+        #t = t[:31398970] #t7 small, fast impact sun
+        plt.plot(t[::10] , b_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.title(r"$\hat{\beta}$ silicate")
+        plt.show()
+    
+    if material == "carbon":
+        #t = t[:17637390] #t6 large fast impact sun
+        #t = t[:17449500] #t6 large CME impact sun
+        #t = t[:17634720] #t6 large slow impact sun 
+        plt.plot(t[::10] , b_r[::10])
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.title(r"$\hat{\beta}$ carbon")
         plt.show()
 
 """plots and compares energies between RK4(5) and Leapfrog solver"""
@@ -364,7 +424,6 @@ def energy_plot(solver1 , t , solver2 , particle_obj , fw_err = False):
                bbox_to_anchor = (1.0 , 0.9))
         plt.show()
         
-
 """plots beta curves for silicate and carbon"""
 def beta_curves(interp = False , comp = False , sample_pts = False):
     """input: None
@@ -442,16 +501,21 @@ def PR_spu_lifetime(particle_obj):
     plt.show()
 
 if __name__ == "__main__":
-    res = np.load("Files/rk45_t5_large_silicate_slowsw.npz")
+    res = np.load("Files/rk45_t7_small_silicate_slowsw.npz")
     x , y , vx , vy , m , b = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    dt , t_tot = t5
-    t = np.arange(0 , t_tot , dt)
-
-    pert = perturbed_functions(drag_coeff = 13.238542083399384 , particle = par , t = t5)
-    #omegahat_comps(x , y , vx , vy , t5 , pert)
-    rhat_comps(x , y , t5 , particle_obj = pert)
+    #thetahat_comps(x , y , t7 , material = "silicate")
+    #omegahat_comps(x , y , vx , vy , t7 , material = "silicate")
+    #vhat_comps(x , y , t7 , vx , vy , material = "silicate")
+    #rhat_comps(x , y , t7 , material = "silicate")
+    b_plot(b , t7 , material = "silicate")
+    
+    # par = dust_properties("silicate" , "slow" , "all" , "large")
+    # dt , t_tot = t5
+    # t = np.arange(0 , t_tot , dt)
+    
+    # pert = perturbed_functions(drag_coeff = 13.238542083399384 , particle = par , t = t5)
+    # #omegahat_comps(x , y , vx , vy , t5 , pert)
+    # rhat_comps(x , y , t5 , particle_obj = pert)
     
     
     

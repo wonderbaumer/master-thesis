@@ -8,7 +8,7 @@ def inter_func(bval_file):
         size , betaval , _ = dat_to_arr(bval_file)
         size = np.asarray(size).copy()
         size *= 1e-6 
-        beta_val = pchip(size , betaval)
+        beta_val = pchip(size , betaval , extrapolate = False)
 
         return beta_val
 
@@ -48,6 +48,9 @@ def betahat(m , particle_obj):
     #b = m**(-1 / 3) #scaled betahat
     r_physical = r * particle_obj.r
     b = particle_obj.beta_func(r_physical) / particle_obj.B
+
+    if not np.all(np.isfinite(b)):
+        raise ValueError(f"Value outside interpolation range")
 
     return b
 
