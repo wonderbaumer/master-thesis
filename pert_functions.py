@@ -4,7 +4,7 @@ from scipy.constants import c
 
 class perturbed_functions():
 
-    def __init__(self , drag_coeff , particle , t):
+    def __init__(self , particle , t):
 
         self.particle = particle
         self.material = particle.material
@@ -14,15 +14,15 @@ class perturbed_functions():
         self.B = particle.B
         self.V = particle.V
         
-
-        self.K = drag_coeff
-        dt , t_tot = t
-        self.time = np.arange(0 , t_tot , dt)
+        #dt , t_tot = t
+        #self.time = np.arange(0 , t_tot , dt)
+        self.time = t
         self.epsilon = particle.eps()
+        self.K = self.V / c / self.epsilon
         self.coeff3 = self.C3()
         self.d0 = self.D0()
 
-        print(self.V / c / self.epsilon )
+        
 
     """calculates up to first order of beta hat from analytical solution"""
     def betahat_analytical(self):

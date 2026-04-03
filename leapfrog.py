@@ -30,11 +30,13 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
     bhat = betahat(mhat , particle_obj) #initial scaled beta
 
     N = int(t_tot / dt) + 1 #number of timesteps
-    lf_vals = np.zeros((N, 6)) #array to store leapfrogged values
+    lf_vals = np.zeros((N, 7)) #array to store leapfrogged values
+
+    t = 0.0
 
     pbar = tqdm(total = N)
 
-    lf_vals[0] = [x, y, vx, vy, mhat, bhat]
+    lf_vals[0] = [x, y, vx, vy, mhat, bhat , t]
 
     ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj) #unpacking acceleration x and y vals 
 
@@ -46,6 +48,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
         m_half = mhat + 0.5 * dt * massloss(mhat , epsilon) 
 
     for i in range(1 , N):
+        t+=dt
         x += dt * vx_half #pos x calcs
         y += dt * vy_half #pos y calcs
 
@@ -64,7 +67,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
         vx = vx_half - 0.5 * dt * ax #updating vx
         vy = vy_half - 0.5 * dt * ay #updating vy
 
-        lf_vals[i] = [x, y, vx, vy, mhat, bhat] #leapfroged_values 
+        lf_vals[i] = [x, y, vx, vy, mhat, bhat , t] #leapfroged_values 
 
         pbar.update(1)
 
