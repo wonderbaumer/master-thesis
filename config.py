@@ -89,17 +89,17 @@ m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits
-dt5 = 3.16e3 / 6834848 #original T
+dt5 = 3.16e3 #/ 6834848 #original T
 t_tot5 = 1000
 t5 = (dt5 , t_tot5)
 
 #10000 orbits
-dt6 = 3.16e3 / 6834848
+dt6 = 3.16e3 #/ 6834848
 t_tot6 = 10000
 t6 = (dt6 , t_tot6)
 
 #20000 orbits
-dt7 = 3.16e3 / 6834848
+dt7 = 3.16e3 #/ 6834848
 t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 

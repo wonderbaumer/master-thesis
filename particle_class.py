@@ -30,6 +30,7 @@ class particle_solver():
         self.r = par.r
         self.B = par.B
         self.V = par.V
+        self.T = par.T
         self.mhat0 = mhat0
         self.betahat0 = betahat0
 
@@ -44,7 +45,7 @@ class particle_solver():
     def pos_vel_calcs(self):
         y0 = np.append(self.init_cart_scaled, self.mhat0) #initial values for scipy ivp solver
         dt , t_tot = self.sim_time #dt and t_tot unpacking
-        
+        dt = dt / self.T
         t_span = (0 , t_tot) #time for simulations
         t_eval = np.arange(0 , t_tot , dt) #setting number of timesteps scipy solver
 

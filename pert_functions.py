@@ -14,15 +14,11 @@ class perturbed_functions():
         self.B = particle.B
         self.V = particle.V
         
-        #dt , t_tot = t
-        #self.time = np.arange(0 , t_tot , dt)
         self.time = t
         self.epsilon = particle.eps()
         self.K = self.V / c / self.epsilon
         self.coeff3 = self.C3()
         self.d0 = self.D0()
-
-        
 
     """calculates up to first order of beta hat from analytical solution"""
     def betahat_analytical(self):
@@ -41,7 +37,10 @@ class perturbed_functions():
         second = (3 * b_func**4 * self.B / 4 - 4 * self.B**3 * b_func**3 + 9 * self.B**2 * b_func**2 - 12 * self.B * b_func + 3 * np.log(b_func))
         third = 1 + (4 * self.B * self.K / (1 - self.B)**3) * (9 * self.B**2 - 45 * self.B / 4 - 4 * self.B**3)
 
-        tot = (first * second + third)**(1 / 4)
+        terms = first * second + third
+        terms = np.where(terms <= 0 , 0.0000001 , terms)
+
+        tot = terms**(1 / 4)
 
         return tot
     
@@ -71,6 +70,7 @@ class perturbed_functions():
         return tot
 
     def omega(self):
+        
         b_func = self.betahat_analytical()
         coeff0 = self.C0(b_func)
 
@@ -103,8 +103,8 @@ class perturbed_functions():
         _ , r0 , _ = self.rad()
 
         theta0 = ((1 - self.B) / (1 - self.B * b_func))**(-2) * coeff0**(-3) * self.time + self.d0
-        theta11 = -2 / r0 * self.coeff3 * np.cos(omega0 * self.time)
-        theta12 = -self.time**2 / 2 * coeff0**(-3) * ((1 - b_func * self.B) / (1 - self.B)**2) * (-2 * self.B * b_func**2 / 3 - 3 * (1 - b_func * self.B) * coeff0**(-3) * coeff0_prime)
+        theta11 = 2 / r0 * self.coeff3 * np.cos(omega0 * self.time)
+        theta12 = -self.time**2 / 2 * coeff0**(-3) * ((1 - b_func * self.B) / (1 - self.B)**2) * (-2 * self.B * b_func**2 / 3 - 3 * (1 - b_func * self.B) * coeff0**(-1) * coeff0_prime)
 
         theta1 = theta11 + theta12
 
