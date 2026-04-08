@@ -4,7 +4,7 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import dat_to_arr , sil_beta , car_beta , r_vals , t5 , t6 , t7 , m_range , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR
+from config import dat_to_arr , sil_beta , car_beta , r_vals , t5 , t6 , t7 , m_range , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -586,12 +586,13 @@ if __name__ == "__main__":
     # dt , t_tot = t5
     # t = np.arange(0 , t_tot , dt)
     
-    thetahat_comps(res , pert = True)
-    omegahat_comps(res , pert = True)
-    rhat_comps(res , pert = True)
-    vhat_comps(res , pert = True)
-    v_theta(res , pert = True)
-    b_plot(res , b_per = True)
+    # thetahat_comps(res , pert = True)
+    # omegahat_comps(res , pert = True)
+    # rhat_comps(res , pert = True)
+    # vhat_comps(res , pert = True)
+    # v_theta(res , pert = True)
+    # b_plot(res , b_per = True)
+    beta_curves(interp = True)
     
     
     

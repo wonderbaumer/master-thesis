@@ -23,9 +23,7 @@ dt1_omega0 = sp.diff(omega0_exp , t1)
 
 C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3))**(1 / 4)
 dt1_C0 = sp.diff(C0_exp , t1)
-print(dt1_C0)
 
-"""
 #defining the hatted variables
 t = sp.Symbol("t") #time
 r_0 = sp.Function("r_0")(t) #r0
@@ -99,7 +97,7 @@ omega_dot = omegadot_0 + epsilon * omegadot_10 + delta * omegadot_01 + epsilon *
 
 #radial equation
 rad_eq = sp.Eq((vr_dot - r * omega**2) * (1 - B) * r**2 , 
-               (-1 + B * beta) * (1 - (2 * vr * delta))) #radial eq of motion
+               -1 + beta * B - 2 * beta * B * vr * delta) #radial eq of motion
 
 #up to second order expressions
 req_lhs = sp.series(rad_eq.lhs , epsilon , 0 , 3).removeO() #removing O(epsilon^3) lhs
@@ -125,7 +123,7 @@ vrdot20_sol = sp.solve(rad_eq_20 , vrdot_20) #second order, solving for vdot20
 vrdot02_sol = sp.solve(rad_eq_02 , vrdot_02) #second order, solving for vdot02
 
 #angular equation
-ang_eq = sp.Eq(r**2 * (1 - B) * (r * omega_dot + 2 * vr * omega) , (1 - B * beta) * r * omega * delta) #angular eq of motion
+ang_eq = sp.Eq(r * (1 - B) * (r * omega_dot + 2 * vr * omega) , - B * beta * omega * delta) #angular eq of motion
 
 #second order sols
 angeq_lhs = sp.series(ang_eq.lhs , epsilon , 0 , 3).removeO() #removing O(epsilon^3) lhs
@@ -148,6 +146,12 @@ omegadot_01 = sp.solve(angeq_01 , omegadot_01) #first order, omegadot01
 omegadot_11 = sp.solve(angeq_11 , omegadot_11) #second order, omegadot11
 omegadot_20 = sp.solve(angeq_20 , omegadot_20) #second order, omegadot20
 omegadot_02 = sp.solve(angeq_02 , omegadot_02) #second order, omegadot02
+
+lhs_angeq_0 = angeq_lhs.expand().coeff(epsilon , 0).coeff(delta , 0)
+lhs_angeq_10 = angeq_lhs.expand().coeff(epsilon , 1).coeff(delta , 0)
+lhs_angeq_01 = angeq_lhs.expand().coeff(epsilon , 0).coeff(delta , 1)
+
+print(omegadot_10)
 """
 
 vr1 = sp.Function("vr1")
@@ -210,7 +214,7 @@ eqs = [Derivative(r1(t0) , t0) - vr1(t0) + dt1_r0 , Derivative(theta1(t0) , t0) 
 sol = dsolve(eqs , [r1(t0) , theta1(t0) , vr1(t0) , omega1(t0)])
 
 
-"""
+
 #Legg inn enkle løsninger av førsteorden her, få med t0,t1 dep
 omega0 = symbols("omega0")
 r1_sol = C2 * R + C3 * S + C1 / q 

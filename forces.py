@@ -1,6 +1,6 @@
 from scipy.constants import G , c
 import numpy as np
-from config import S_s , q_pr , m_s , rho , au
+from config import S_s , q_pr , m_s , rho_s , rho_c , au
 
 """calculates acceleration of the particle in x and y direction
     based on gravitational force between the particle and the sun
@@ -35,7 +35,7 @@ def radius(m):
        
        returns: r (float), radius of particle in m"""
        
-    r = (3 * m / (4 * rho * np.pi))**(1 / 3) #radius based on perfect sphere assumptions, in m
+    r = (3 * m / (4 * rho_s * np.pi))**(1 / 3) #radius based on perfect sphere assumptions, in m SILICATE ONLY
     
     return r
 

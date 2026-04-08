@@ -3,7 +3,8 @@ import pandas as pd
 from polar_to_cart import polar_to_cartesian
 
 """radiation pressure"""
-rho = 2500 #kgm^-3
+rho_s = 2500 #kgm^-3 silicate
+rho_c = 1400 #kgm^-3 carbon
 S_s = 1361 #solar constant, in Wm^-2
 au = 149597871e3 #one astronomical unit, AU, in m
 q_pr = 1 #radiation pressure coefficient, unitless
@@ -79,13 +80,26 @@ def dat_to_arr(file):
 
     return dust_size , dust_betaval , dust_PRtime
 
-sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
-car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
+def size_to_mass(r , material):
+    if material == "silicate":
+        rho = rho_s
+
+    else: 
+        rho = rho_c
+
+    m = 4 / 3 * np.pi * rho * r**3
+
+    return m
 
 """evaluating particle size against beta0"""
 r_vals = np.linspace(0.00100 * 10**(-6) , 50 * 10**(-6) , 200)
 r_betatest = np.linspace(0.00100 , 50 , 200)
-m_range = 4 / 3 * np.pi * rho * r_vals**3 #masses corresponding to size range
+m_range = size_to_mass(r_vals , "silicate") #masses corresponding to size range silicate
+
+sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
+sil_mass = size_to_mass(sil_size * 1e-6 , "silicate")
+car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
+car_mass = size_to_mass(car_size * 1e-6 , "carbon")
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits

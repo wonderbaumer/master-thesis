@@ -1,4 +1,4 @@
-from config import sil_beta , car_beta , init_vals , rho , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C
+from config import sil_beta , car_beta , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
 from AstronomicalSilicate_modified import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
@@ -13,7 +13,7 @@ class dust_properties():
         self.size = size
         self.r = init_vals[self.size]["r"]
         self.B = init_vals[self.size]["B"][self.material.lower()]
-        self.m0 = self.m()
+        self.m0 = size_to_mass(self.r , self.material)
 
         self.V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
         self.T = round(np.sqrt(R**3 / (G * m_s * (1 - self.B))))
@@ -22,11 +22,6 @@ class dust_properties():
         self.fsw = self.sw_flux()
 
         self.delta = self.V / c
-
-    def m(self):
-        mass = 4 / 3 * np.pi * rho * (self.r)**3
-
-        return mass
 
     #Solar wind flux
     def sw_flux(self):
@@ -90,9 +85,11 @@ class dust_properties():
 
         if self.material == "silicate":
             M_m = M_ms
+            rho = rho_s
 
         elif self.material == "carbon":
             M_m = M_mc
+            rho = rho_c
 
         t_sp = (4 * self.r * N_A * rho) / (self.fsw * self.Ytot * M_m) #sputtering lifetime
         self.t_sp = t_sp / yr
@@ -109,9 +106,11 @@ class dust_properties():
     
         if self.material == "silicate":
             mA = mA_S
+            rho = rho_s
     
         elif self.material == "carbon": 
             mA = mA_C
+            rho = rho_c
     
         eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T 
 
