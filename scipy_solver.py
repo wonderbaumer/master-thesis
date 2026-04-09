@@ -15,7 +15,7 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
               
         returns: variable_list (list), 
         list of calculated variables for ivp solver, dxdt, dydt, dvxdt, dvydt, dmdt"""
-    
+
     last_t, dt = state
     
     # let's subdivide t_span into 1000 parts
@@ -27,8 +27,10 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
     # this we need to take into account that n is a rounded number.
     state[0] = last_t + dt * n
     
-    x , y , vx , vy , m = init #initial conditions unpacked
+    x , y , vx , vy , m  = init #initial conditions unpacked
+
     dmdt = sputtering(m , epsilon) if massloss else 0.0 #specify change in mass if massloss is considered
+
     ax , ay = tot_acc(x , y , vx , vy , m , particle_obj) #acceleration calcs
 
     variable_list = np.array([vx , vy , ax , ay , dmdt]) #variables for ivp solver
@@ -58,7 +60,6 @@ def arr_variables(sol , particle_obj):
        returns: new_arr (array), array containing x , y , vx , vy , m , beta values"""
     
     x , y , vx , vy , m = sol.y #unpacking solution object
-    #beta = betahat(m) #calculating beta values from mass array
     b = betahat(m , particle_obj)
 
     new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     dt , t_tot = t5
     # t = np.arange(0 , t_tot , dt)
     # state = [0 , t_tot / 1000]
-    # y0 = np.append(init_cart_scaled , mhat0)
+    #y0 = np.append(init_cart_scaled , mhat0)
     # epsilon = eps()
 
 

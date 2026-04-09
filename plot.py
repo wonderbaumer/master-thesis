@@ -58,7 +58,7 @@ def eps_init_beta(particle_obj):
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
-def thetahat_comps(file_path , file_path_comp = None , pert = False , material = None):
+def thetahat_comps(file_path , file_path_comp = None , pert = None , material = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), shape dt, t_tot for simulations
@@ -93,11 +93,10 @@ def thetahat_comps(file_path , file_path_comp = None , pert = False , material =
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
 
     """comparing thetahat from RK4(5) perturbed thetahat"""
-    if pert == True:
+    if pert is not None:
+        pr = np.load(pert)
+        _ , _ , theta_per , _ , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
         save_path2 = f"Plots/{base_name}_theta_vs_perturbed.png"
-        pert_par = perturbed_functions(par , t)
-
-        theta_per = pert_par.theta()
         theta_per = np.unwrap(theta_per) #removing discontinuities
 
         plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
@@ -125,7 +124,7 @@ def thetahat_comps(file_path , file_path_comp = None , pert = False , material =
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
 and perturbed rhat"""
-def rhat_comps(file_path , file_path_comp = None , pert = False , material = None):
+def rhat_comps(file_path , file_path_comp = None , pert = None , material = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), consisting of dt and t_tot, time of simulations
@@ -140,24 +139,20 @@ def rhat_comps(file_path , file_path_comp = None , pert = False , material = Non
     
     r = np.sqrt(x**2 + y**2) #r hat
 
-    t_tot = len(t)
-
-    orbit = round(len(t) / t_tot)
-    orbit *=10
-
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_r.png"
 
     """comparing RK4(5) and Leapfrog rhat"""
     if file_path_comp is not None:
-        res1 = np.load(file_path)
+        res1 = np.load(file_path_comp)
         x1 , y1 , _ , _ , _ , _ , t = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
         base_name1 = os.path.splitext(os.path.basename(file_path_comp))[0]
         save_path1 = f"Plots/{base_name}_r_vs_{base_name1}.png"
 
         r1 = np.sqrt(x1**2 + y1**2) #r hat
-
+        r = np.maximum(r , 0.05)
+        r1 = np.maximum(r1 , 0.05)
         plt.plot(t[::10] , r[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r1[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
@@ -166,11 +161,12 @@ def rhat_comps(file_path , file_path_comp = None , pert = False , material = Non
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
 
 
-    if pert == True: #comparing RK4(5) with perturbed rhat
-        pert_par = perturbed_functions(par , t)
-        r_per , _ , _ = pert_par.rad()
+    if pert is not None: #comparing RK4(5) with perturbed rhat
+        pr = np.load(pert)
+        _ , r_per , _ , _ , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
 
         rel_fw_err = np.abs(r - r_per) / np.abs(r)
+        #print(rel_fw_err)
         save_path2 = f"Plots/{base_name}_r_vs_perturbed.png"
         plt.plot(t[::10] , r[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
@@ -197,7 +193,7 @@ def rhat_comps(file_path , file_path_comp = None , pert = False , material = Non
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
-def vhat_comps(file_path , pert = False , material = None):
+def vhat_comps(file_path , pert = None , material = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -218,9 +214,9 @@ def vhat_comps(file_path , pert = False , material = None):
 
     v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
     
-    if pert == True:
-        part = perturbed_functions(par , t)
-        v_per = part.vr()
+    if pert is not None:
+        pr = np.load(pert)
+        _ , _ , _ , v_per , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
 
         save_path1 = f"Plots/{base_name}_vr_vs_perturbed.png"
         plt.plot(t[::100] , v_r[::100] , color = "blue" , label = r"RK4(5) $\hat{v}$")
@@ -248,7 +244,7 @@ def vhat_comps(file_path , pert = False , material = None):
     plt.show()
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
-def omegahat_comps(file_path , pert = False , material = None):
+def omegahat_comps(file_path , pert = None , material = None):
     """input: x (array), RK4(5) x vals
               y (array), RK4(5) y vals
               vx (array), RK4(5) vx vals
@@ -271,9 +267,9 @@ def omegahat_comps(file_path , pert = False , material = None):
 
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
 
-    if pert == True:
-        part = perturbed_functions(par , t)
-        angvel , _ , _ = part.omega()
+    if pert is not None:
+        pr = np.load(pert)
+        angvel , _ , _ , _ , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
         plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
         plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
         plt.xlabel(r"$\hat{t}$")
@@ -300,7 +296,7 @@ def omegahat_comps(file_path , pert = False , material = None):
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
 Can compare betahat values or relative forward error RK4(5)-perturbed and RK4(5)-analytical"""
-def b_plot(file_path , b_per = False , b_analytical = None, fw_err = False , material = None):
+def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , material = None):
     """input: solver (.npz), RK4(5) solver file consisting of x, y, vx, vy, m, b
               b_per (array), betahat from perturbed expression
               b_analytical (array), betahat from analytical expression
@@ -316,9 +312,10 @@ def b_plot(file_path , b_per = False , b_analytical = None, fw_err = False , mat
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path2 = f"Plots/{base_name}_beta.png"
 
-    if fw_err == False and b_per == True and b_analytical is None:
-        part = perturbed_functions(par , t)
-        b_pert = part.betahat_analytical()
+    if fw_err == False and b_per is not None and b_analytical is None:
+        pr = np.load(b_per)
+        _ , _ , _ , _ , _ , b_pert , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
+
         save_path3 = f"Plots/{base_name}_beta_interp_vs_expression.png"
         plt.plot(t[::10] , b_pert[::10] , color = "red" , linestyle = "--" , label = r"$\hat{\beta}$ expression")
         plt.plot(t[::10] , b[::10] , color = "blue" , label = r"Interpolated $\hat{\beta}$ curve")
@@ -332,10 +329,13 @@ def b_plot(file_path , b_per = False , b_analytical = None, fw_err = False , mat
 
     """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
     if fw_err == False and b_per is not None and b_analytical is not None:
+        pr = np.load(b_per)
+        _ , _ , _ , _ , _ , b_pert , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
+
         save_path = f"Plots/{base_name}_beta_vs_analytical_perturbed.png"
         plt.figure()
         plt.plot(t[::10] , b[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
+        plt.plot(t[::10] , b_pert[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed solution")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
@@ -353,7 +353,7 @@ def b_plot(file_path , b_per = False , b_analytical = None, fw_err = False , mat
         
         plt.figure()
         plt.plot(t[::10] , b[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[::10] , b_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
+        plt.plot(t[::10] , b_pert[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
         plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
         plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical solution")
         plt.xlabel(r"$\hat{t}$")
@@ -365,8 +365,11 @@ def b_plot(file_path , b_per = False , b_analytical = None, fw_err = False , mat
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
     if fw_err == True and b_per is not None and b_analytical is not None:
+        pr = np.load(b_per)
+        _ , _ , _ , _ , _ , b_pert , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
+
         save_path1 = f"Plots/{base_name}_beta_rel_fw_err.png"
-        fw_err_RK45_per = np.abs(b - b_per) / np.abs(b)
+        fw_err_RK45_per = np.abs(b - b_pert) / np.abs(b)
         fw_err_RK45_analytical = np.abs(b - b_analytical) / np.abs(b)
         plt.plot(t[::10] , fw_err_RK45_per[::10] , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
         plt.plot(t[::10] , fw_err_RK45_analytical[::10] , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
@@ -403,8 +406,11 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
 
        returns: none"""
     
-    x1 , y1 , vx1 , vy1 , m1 , b_vals1 , t = [solver1[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver1
-    x2 , y2 , vx2 , vy2 , m2 , b_vals2 , _ = [solver2[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver2
+    res1 = np.load(solver1)
+    x1 , y1 , vx1 , vy1 , m1 , b_vals1 , t = [res1[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver1
+
+    res2 = np.load(solver2)
+    x2 , y2 , vx2 , vy2 , m2 , b_vals2 , _ = [res2[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver2
 
     base_name = os.path.splitext(os.path.basename(solver1))[0]
     save_path = f"Plots/{base_name}_energy_solver_comps.png"
@@ -532,7 +538,7 @@ def PR_spu_lifetime(particle_obj):
     plt.legend()
     plt.show()
 
-def v_theta(file_path , pert = False , material = None):
+def v_theta(file_path , pert = None , material = None):
 
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t = [res[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
@@ -544,10 +550,10 @@ def v_theta(file_path , pert = False , material = None):
 
     vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
 
-    if pert == True:
-        pert_par = perturbed_functions(par , t)
-        angvel , _ , _ = pert_par.omega()
-        r , _ , _ = pert_par.rad()
+    if pert is not None:
+        pr = np.load(pert)
+        angvel , r , _ , _ , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
+
         vtheta_pert = angvel * r
         save_path1 = f"Plots/{base_name}_vtheta_pert_comps.png"
 
@@ -574,25 +580,33 @@ def v_theta(file_path , pert = False , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    res = "Files/rk45_t6_large_silicate_slowsw.npz"
-    #x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
-    #thetahat_comps(x , y , t7 , material = "silicate")
-    #omegahat_comps(x , y , vx , vy , t7 , material = "silicate")
-    #vhat_comps(x , y , t7 , vx , vy , material = "silicate")
-    #rhat_comps(x , y , t7 , material = "silicate")
-    #b_plot(b , t7 , material = "silicate")
+    res = "Files/rk45_t6_large_carbon_slowsw.npz"
+    per = "Files/pert_t6_large_carbon_slowsw.npz"
     
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    # dt , t_tot = t5
-    # t = np.arange(0 , t_tot , dt)
+    """
+    re = np.load(res)
+    _ , _ , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
     
-    # thetahat_comps(res , pert = True)
-    # omegahat_comps(res , pert = True)
-    # rhat_comps(res , pert = True)
-    # vhat_comps(res , pert = True)
-    # v_theta(res , pert = True)
-    # b_plot(res , b_per = True)
-    beta_curves(interp = True)
+    for i in range(len(b)-1):
+
+        x0 , x1 = t[i] , t[i+1]
+        y0 , y1 = b[i] , b[i+1]
+
+        m = (y1 - y0) / (x1 - x0)
+        be = y0 - m * x0
+
+        m_arr = np.array(m)
+        barr = np.array(be)
+
+    print(f"y = {m_arr}x + {barr}")
+    """
+    # thetahat_comps(res , pert = per)
+    # omegahat_comps(res , pert = per)
+    rhat_comps(res , pert = per)
+    # vhat_comps(res , pert = per)
+    # v_theta(res , pert = per)
+    #b_plot(res , b_per = per)
+    #beta_curves(interp = True)
     
     
     

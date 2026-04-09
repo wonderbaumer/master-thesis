@@ -3,8 +3,8 @@ import pandas as pd
 from polar_to_cart import polar_to_cartesian
 
 """radiation pressure"""
-rho_s = 2500 #kgm^-3 silicate
-rho_c = 1400 #kgm^-3 carbon
+rho_s = 3500 #kgm^-3 silicate
+rho_c = 1800 #kgm^-3 carbon
 S_s = 1361 #solar constant, in Wm^-2
 au = 149597871e3 #one astronomical unit, AU, in m
 q_pr = 1 #radiation pressure coefficient, unitless

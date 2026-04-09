@@ -38,12 +38,14 @@ class particle_solver():
         self.file = material_files[self.particle.material]
         
         self.epsilon = par.eps()
+        self.K = par.K
         self.beta_func = inter_func(self.file) #interpolation function for beta values
-    
 
+        print(self.K , self.B)
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
-        y0 = np.append(self.init_cart_scaled, self.mhat0) #initial values for scipy ivp solver
+        y0 = np.concatenate((self.init_cart_scaled, [self.mhat0])) #initial values for scipy ivp solver
+        
         dt , t_tot = self.sim_time #dt and t_tot unpacking
         dt = dt / self.T
         t_span = (0 , t_tot) #time for simulations
@@ -95,10 +97,10 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "small")
-    p = particle_solver(t7 , par , "RK45" , massloss = True)
-    vals = p.pos_vel_calcs()
-    x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
+    par = dust_properties("silicate" , "slow" , "all" , "large")
+    p = particle_solver(t6 , par , "RK45" , massloss = True)
+    #vals = p.pos_vel_calcs()
+    #x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    np.savez("Files/rk45_t7_small_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    #np.savez("Files/rk45_t6_large_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

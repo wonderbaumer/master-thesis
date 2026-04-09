@@ -20,8 +20,10 @@ class dust_properties():
 
         self.Ytot = self.sputtering_yield()
         self.fsw = self.sw_flux()
+        self.epsilon = self.eps()
 
         self.delta = self.V / c
+        self.K = self.delta / self.epsilon
 
     #Solar wind flux
     def sw_flux(self):
