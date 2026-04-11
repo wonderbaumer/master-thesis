@@ -55,6 +55,21 @@ init_vals = {"large":{
             "small":{
             "r": 0.04259 * 10**(-6),
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
+            },
+
+            "50micron": {
+                "r" : 50 * 10**(-6),
+                "B": {"silicate": 0.0032 , "carbon": 0.0063}
+            },
+
+            "47micron": {
+                "r" : 47.35405 * 10**(-6),
+                "B": {"silicate": 0.0034 , "carbon": 0.0066}
+            },
+
+            "44micron":{
+                "r": 44.84811 * 10**(-6),
+                "B":{"silicate": 0.0036 , "carbon": 0.0070}
             }
 
         }
@@ -95,11 +110,13 @@ def size_to_mass(r , material):
 r_vals = np.linspace(0.00100 * 10**(-6) , 50 * 10**(-6) , 200)
 r_betatest = np.linspace(0.00100 , 50 , 200)
 m_range = size_to_mass(r_vals , "silicate") #masses corresponding to size range silicate
+machine_eps = 1e-8
 
 sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
 sil_mass = size_to_mass(sil_size * 1e-6 , "silicate")
 car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
 car_mass = size_to_mass(car_size * 1e-6 , "carbon")
+car_betaval_bound = [float(i) for i in car_betaval if 1 - i > machine_eps]
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits
@@ -119,8 +136,7 @@ t7 = (dt7 , t_tot7)
 
 
 if __name__ == "__main__":
-    sil_size , sil_betaval , sil_PRtime = dat_to_arr(sil_beta)
-    
-    
+    1
+    print(car_betaval_bound , sil_betaval)
 
 

@@ -97,10 +97,10 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
+    par = dust_properties("silicate" , "slow" , "all" , "50micron")
     p = particle_solver(t6 , par , "RK45" , massloss = True)
-    #vals = p.pos_vel_calcs()
-    #x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
+    vals = p.pos_vel_calcs()
+    x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    #np.savez("Files/rk45_t6_large_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    np.savez("Files/rk45_t6_50micron_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

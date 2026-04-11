@@ -580,8 +580,8 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    res = "Files/rk45_t6_large_carbon_slowsw.npz"
-    per = "Files/pert_t6_large_carbon_slowsw.npz"
+    res = "Files/rk45_t6_50micron_silicate_slowsw.npz"
+    per = "Files/pert_t6_50micron_silicate_slowsw.npz"
     
     """
     re = np.load(res)

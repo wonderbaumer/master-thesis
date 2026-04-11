@@ -1,6 +1,6 @@
 import numpy as np
-from config import sil_beta , car_beta , init_vals , material_files
-from scipy.constants import c
+from config import sil_betaval , car_betaval_bound , init_vals , material_files , m_s , R
+from scipy.constants import c , G
 from forces_scaled import inter_func
 from dust_properties import dust_properties
 from scipy.integrate import solve_ivp
@@ -8,7 +8,7 @@ from scipy.interpolate import PchipInterpolator as pchip
 
 class perturbed_functions():
 
-    def __init__(self , particle , t , beta):
+    def __init__(self , particle , t , beta , find_k = False):
 
         self.particle = particle
         self.material = particle.material
@@ -17,37 +17,41 @@ class perturbed_functions():
         self.r = particle.r
         self.B = particle.B
         self.V = particle.V
+        self.T = particle.T
         
         self.time = t
         self.barr = beta
         self.epsilon = particle.eps()
-        self.K = self.V / c / self.epsilon
+        self.K = self.V / (c * self.epsilon)
         self.coeff3 = self.C3()
         self.d0 = self.D0()
+        self.find_k = find_k
+        if self.find_k:
+            self.kb_comb()
         #self.beta_func = pchip(self.time , self.barr , extrapolate = False)
         # self.C0_0 = 1.0
         # self.c0 = None
         # self.c0_func = None
         # self.beta_vals = None
         #print(self.epsilon / 2.6031255888589655) #1.9279315785095778e-06)
-        
     
+    """
     def betahat_analytical(self):
         bvals = self.epsilon * self.time / 2.6031255888589655 + 0.9996231879878003
         return bvals
     
-    """
+    """ 
     #calculates up to first order of beta hat from analytical solution
-    def betahat_analytical(self):
-        ""input: t (array), scaled time to calculate for
+    def betahat_analytical(self , eps):
+        """input: t (array), scaled time to calculate for
 
-        returns: bvals (array), contains all orders as well as their sum""
+        returns: bvals (array), contains all orders as well as their sum"""
     
-        bvals = 1 / (1 -  self.epsilon * self.time / 3) #total expression
+        bvals = 1 / (1 -  eps * self.time / 3) #total expression
         
         return bvals
     
-    
+    """
     def du(self , t , u):
         #c0 = c0[0]
         #c0_safe = max(c0, 1e-12)
@@ -67,14 +71,14 @@ class perturbed_functions():
         self.c0 = self.u**(1 / 4)
 
         return self.c0
-    
+    """
     
     ###WITH DRAG###
-    def C0(self , beta_func):
+    def C0(self , beta_func , b0 , k):
         #beta_func = self.betahat_analytical()
-        first = -4 * self.B * self.K / (1 - self.B)**3
-        second = (3 * beta_func**4 * self.B / 4 - 4 * self.B**3 * beta_func**3 + 9 * self.B**2 * beta_func**2 - 12 * self.B * beta_func + 3 * np.log(beta_func))
-        third = 1 + (4 * self.B * self.K / (1 - self.B)**3) * (9 * self.B**2 - 45 * self.B / 4 - 4 * self.B**3)
+        first = -4 * b0 * k / (1 - b0)**3
+        second = (3 * beta_func**4 * b0 / 4 - 4 * b0**3 * beta_func**3 + 9 * b0**2 * beta_func**2 - 12 * b0 * beta_func + 3 * np.log(beta_func))
+        third = 1 + (4 * b0 * k / (1 - b0)**3) * (9 * b0**2 - 45 * b0 / 4 - 4 * b0**3)
 
         terms = first * second + third
         terms = np.where(terms <= 0 , 0.0000001 , terms)
@@ -82,6 +86,47 @@ class perturbed_functions():
         tot = terms**(1 / 4)
 
         return tot
+    
+    def kb_comb(self):
+        b_func_test = self.betahat_analytical(self.epsilon)[::10]
+        
+        if self.material == "silicate":
+           Bvals = sil_betaval
+        
+        if self.material == "carbon":
+            Bvals = car_betaval_bound
+
+        b_arr = np.zeros(len(Bvals))
+        k_arr = np.zeros(len(Bvals))
+        r0_arr = np.zeros((len(Bvals) , len(b_func_test)))
+        # T_arr = np.zeros(len(Bvals))
+        # V_arr = np.zeros(len(Bvals))
+        # eps_arr = np.zeros(len(Bvals))
+
+        
+        for idx , i in enumerate(Bvals):
+            T = round(np.sqrt(R**3 / (G * m_s * (1 - i))))
+            
+            self.particle.T = T
+            epsilon = self.particle.eps()
+            b_func = self.betahat_analytical(epsilon)[::10]
+
+            V = np.sqrt((G * m_s * (1 - i)) / R)
+            K = V / (c * epsilon)
+
+            coeff0 = self.C0(b_func , i , K)
+        
+            r0 = (1 - i) / (1 - b_func * i) * coeff0**2
+        
+            b_arr[idx] = i
+            k_arr[idx] = K
+            r0_arr[idx , :] = r0
+            # T_arr[idx] = i
+            # V_arr[idx] = i
+            # eps_arr[idx] = i
+
+        return b_arr , k_arr , r0_arr #, T_arr , V_arr , eps_arr
+
     """
     def C0(self , b_func):
         beta0 = 0.9996231879878003
@@ -108,7 +153,7 @@ class perturbed_functions():
         tot = numerator / tot_denom
         
         return tot
-    """
+    
     def C3(self):
         first = -self.B / (3 * (1 - self.B))
         second = -2 * self.B * self.K * (-4 * self.B**3 + 6 * self.B**2 - 3 * self.B + 1) / (1 - self.B)**3
@@ -124,7 +169,7 @@ class perturbed_functions():
 
     def omega(self):
         b_func = self.betahat_analytical()
-        coeff0 = self.C0(b_func)
+        coeff0 = self.C0(b_func , self.B , self.K)
 
         omega0 = ((1 - self.B) / (1 - b_func * self.B))**(-2) * coeff0**(-3)
         omega1 = -2 * omega0 / (((1 - self.B) / (1 - b_func * self.B)) * coeff0**2) * self.coeff3 * np.sin(omega0 * self.time)
@@ -137,7 +182,7 @@ class perturbed_functions():
         _ , omega0 , _ = self.omega()
 
         b_func = self.betahat_analytical()
-        coeff0 = self.C0(b_func)
+        coeff0 = self.C0(b_func , self.B , self.K)
 
         r0 = (1 - self.B) / (1 - b_func * self.B) * coeff0**2
         r1 = self.coeff3 * np.sin(omega0 * self.time)
@@ -148,8 +193,9 @@ class perturbed_functions():
 
     def theta(self):
         b_func = self.betahat_analytical()
-        coeff0 = self.C0(b_func)
-        coeff0_prime = 1.0 #self.C0_prime(b_func)
+        coeff0 = self.C0(b_func , self.B , self.K)
+        coeff0_prime = self.C0_prime(b_func)
+        #coeff0_prime = 1.0
 
         _ , omega0 , _ = self.omega()
         _ , r0 , _ = self.rad()
@@ -166,9 +212,9 @@ class perturbed_functions():
 
     def vr(self):
         b_func = self.betahat_analytical()
-        coeff0 = self.C0(b_func)
-        #coeff0_prime = self.C0_prime(b_func)
-        coeff0_prime = 1.0
+        coeff0 = self.C0(b_func , self.B , self.K)
+        coeff0_prime = self.C0_prime(b_func)
+        #coeff0_prime = 1.0
 
         _ , omega0 , _ = self.omega()
 
@@ -181,21 +227,47 @@ class perturbed_functions():
 
         return vrtot
 
+def dust_cloud(file_path):
+    file = np.load(file_path)
+    threshold = 5e-9 #9e-9 #
+    b , k , r = [file[i] for i in ("b" , "k" , "r0")]
+
+    diffs = np.diff(r , axis = 1)
+    conv = np.all(np.abs(diffs) <= threshold , axis = 1)
+    B_conv = b[conv]
+    k_conv = k[conv]
+    r_conv = r[conv]
+
+    # B_csts , r0_csts  = np.where(diffs < threshold)
+    # Bcst_vals = b[B_csts]
+    # kcst_vals = k[B_csts]
+    # r0cst_vals = r[B_csts , r0_csts]
+
+    return B_conv , k_conv , r_conv
+    
+        
 
 if __name__== "__main__":
-    par = dust_properties("carbon" , "slow" , "all" , "large")
-    res = np.load("Files/rk45_t6_large_carbon_slowsw.npz")
-    _ , _ , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    # par = dust_properties("silicate" , "slow" , "all" , "50micron")
+    # res = np.load("Files/rk45_t6_50micron_silicate_slowsw.npz")
+    # _ , _ , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
-    p = perturbed_functions(par , t , b)
+    #p = perturbed_functions(par , t , b , find_k = True)
+    #b_arr , k_arr , r0_arr = p.kb_comb()
+    #print(r0_arr[-1])
+    # beta = p.betahat_analytical()
+    # c0 = p.C0(beta , p.B , p.K)
+    #print(f"r:" ,p.rad() , "beta:" ,beta ,"c0:", c0)
+    #np.savez("Files/rk45_t6_50micron_silicate_slowsw.npz" , b = b_arr , k = k_arr , r0 = r0_arr)
+    ts = np.load("Files/rk45_t6_50micron_silicate_slowsw.npz")
+    b , k , r = [ts[i] for i in ("b" , "k" , "r0")]
+    print(k)
+    # Bcst , Kcst , r0 = dust_cloud("Files/rk45_t6_50micron_silicate_slowsw.npz")
+    # print(Bcst , Kcst)
     
-    beta = p.betahat_analytical()
-    c0 = p.C0(beta)
-    print(f"r:" ,p.rad() , "beta:" ,beta ,"c0:", c0)
-    
-    omegatot , rtot , theta , vr , c0 , beta = p.omega() , p.rad() , p.theta() , p.vr() , c0 , beta
-    omega , _ , _ = omegatot
-    r , _ , _ = rtot
-    np.savez("Files/pert_t6_large_carbon_slowsw.npz" , omega = omega , r = r , theta = theta , vr = vr , c0 = c0 , b = beta , t = t)
+    # omegatot , rtot , theta , vr , c0 , beta = p.omega() , p.rad() , p.theta() , p.vr() , c0 , beta
+    # omega , _ , _ = omegatot
+    # r , _ , _ = rtot
+    #np.savez("Files/pert_t6_50micron_silicate_slowsw.npz" , omega = omega , r = r , theta = theta , vr = vr , c0 = c0 , b = beta , t = t)
 
     
