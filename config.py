@@ -57,22 +57,11 @@ init_vals = {"large":{
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
             },
 
-            "50micron": {
-                "r" : 50 * 10**(-6),
-                "B": {"silicate": 0.0032 , "carbon": 0.0063}
-            },
-
-            "47micron": {
-                "r" : 47.35405 * 10**(-6),
-                "B": {"silicate": 0.0034 , "carbon": 0.0066}
-            },
-
-            "44micron":{
-                "r": 44.84811 * 10**(-6),
-                "B":{"silicate": 0.0036 , "carbon": 0.0070}
-            }
-
-        }
+            "50micron":{
+            "r":50 * 10**(-6),
+            "B":{"silicate": 0.0032 , "carbon": 0.0063}
+            }}
+            
 
 material_files = {"silicate": sil_beta , "carbon": car_beta}
 
@@ -117,6 +106,8 @@ sil_mass = size_to_mass(sil_size * 1e-6 , "silicate")
 car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
 car_mass = size_to_mass(car_size * 1e-6 , "carbon")
 car_betaval_bound = [float(i) for i in car_betaval if 1 - i > machine_eps]
+car_size_bound = car_size[:len(car_betaval_bound)]
+car_mass_bound = size_to_mass(car_size_bound * 1e-6 , "carbon")
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits

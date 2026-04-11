@@ -41,7 +41,6 @@ class particle_solver():
         self.K = par.K
         self.beta_func = inter_func(self.file) #interpolation function for beta values
 
-        print(self.K , self.B)
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
         y0 = np.concatenate((self.init_cart_scaled, [self.mhat0])) #initial values for scipy ivp solver
@@ -97,10 +96,10 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "50micron")
-    p = particle_solver(t6 , par , "RK45" , massloss = True)
+    par = dust_properties("carbon" , "slow" , "all" , "50micron")
+    p = particle_solver(t5 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
 
-    np.savez("Files/rk45_t6_50micron_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    np.savez("Files/rk45_t5_50micron_carbon_slowsw_K10_R005.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
     

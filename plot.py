@@ -580,12 +580,16 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    res = "Files/rk45_t6_50micron_silicate_slowsw.npz"
-    per = "Files/pert_t6_50micron_silicate_slowsw.npz"
+    res = "Files/rk45_t5_50micron_carbon_slowsw_K10_R005.npz"
+    per = "Files/PERT_BKTESTsols.npz"
     
-    """
     re = np.load(res)
-    _ , _ , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
+    x , y , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
+    r = np.sqrt(x**2 + y**2)
+    plt.plot(t , r)
+    #plt.ylim(0.99999 , 1.0001)
+    plt.show()
+    """
     
     for i in range(len(b)-1):
 
@@ -602,7 +606,7 @@ if __name__ == "__main__":
     """
     # thetahat_comps(res , pert = per)
     # omegahat_comps(res , pert = per)
-    rhat_comps(res , pert = per)
+    #rhat_comps(res , pert = per)
     # vhat_comps(res , pert = per)
     # v_theta(res , pert = per)
     #b_plot(res , b_per = per)

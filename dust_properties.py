@@ -24,6 +24,7 @@ class dust_properties():
 
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
+        #self.K = 10.0
 
     #Solar wind flux
     def sw_flux(self):
@@ -117,3 +118,7 @@ class dust_properties():
         eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T 
 
         return eps
+
+if __name__ == "__main__":
+    par = dust_properties("silicate" , "slow" , "all" , "50micron")
+    print(par.eps() , par.K , par.B , par.m0)
