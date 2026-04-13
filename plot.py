@@ -4,11 +4,12 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import dat_to_arr , sil_beta , car_beta , r_vals , t5 , t6 , t7 , m_range , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass
+from config import m_s , mA_S , sil_beta , car_beta , r_vals , t5 , t6 , t7 , m_range , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
 import os
+from scipy.constants import G
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -48,6 +49,42 @@ def eps_init_beta(particle_obj):
         label = f"{i['material']} for {i['sw_cond']}"
         vals = i["eps"]
         plt.plot(b_init_vals[::10] , vals[::10] , label = label)
+
+    plt.xlabel(r"$B$")
+    plt.ylabel(r"${\epsilon}$")
+    plt.yscale("log")
+    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
+    plt.legend(loc = "lower right")
+    plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
+    plt.show()
+    
+"""plots B values for masses corresponding to a range of initial particle sizes, assuming real beta curve
+and epsilon calculated same range of masses"""
+def eps_init_betareal():
+    """input: none
+       
+       returns: none"""
+    
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    eps_vals = []
+
+    for m in material:
+        for sw in sw_conds:
+            par = dust_properties(m , sw , "all" , None)
+            epsilon = par.eps()
+            eps_vals.append({"material" : m ,
+                             "sw_cond" : sw ,
+                             "eps" : epsilon ,
+                             "B" : par.B})
+    
+    for item in eps_vals:
+        m = item["material"]
+        sw = item["sw_cond"]
+        epsilon = item["eps"]
+        Bval = item["B"]
+
+        plt.plot(Bval[::10], epsilon[::10], label=f"{m} for {sw}")
 
     plt.xlabel(r"$B$")
     plt.ylabel(r"${\epsilon}$")
@@ -580,15 +617,16 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    res = "Files/rk45_t5_50micron_carbon_slowsw_K10_R005.npz"
-    per = "Files/PERT_BKTESTsols.npz"
+    eps_init_betareal()
+    # res = "Files/rk45_t5_50micron_carbon_slowsw_K10_R005.npz"
+    # per = "Files/PERT_BKTESTsols.npz"
     
-    re = np.load(res)
-    x , y , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
-    r = np.sqrt(x**2 + y**2)
-    plt.plot(t , r)
-    #plt.ylim(0.99999 , 1.0001)
-    plt.show()
+    # re = np.load(res)
+    # x , y , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
+    # r = np.sqrt(x**2 + y**2)
+    # plt.plot(t , r)
+    # #plt.ylim(0.99999 , 1.0001)
+    # plt.show()
     """
     
     for i in range(len(b)-1):

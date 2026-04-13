@@ -105,9 +105,14 @@ sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size a
 sil_mass = size_to_mass(sil_size * 1e-6 , "silicate")
 car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
 car_mass = size_to_mass(car_size * 1e-6 , "carbon")
+
 car_betaval_bound = [float(i) for i in car_betaval if 1 - i > machine_eps]
 car_size_bound = car_size[:len(car_betaval_bound)]
+car_PR_bound = car_PR[:len(car_betaval_bound)]
 car_mass_bound = size_to_mass(car_size_bound * 1e-6 , "carbon")
+
+material_files_bound = {"silicate": (np.array(sil_size) , np.array(sil_betaval) , np.array(sil_PR)) , 
+                        "carbon": (np.array(car_size_bound) , np.array(car_betaval_bound) , np.array(car_PR_bound))}
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits

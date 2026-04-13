@@ -1,4 +1,4 @@
-from config import sil_beta , car_beta , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
+from config import material_files_bound , dat_to_arr , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
 from AstronomicalSilicate_modified import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
@@ -8,15 +8,22 @@ class dust_properties():
     def __init__(self , material , sw , species , size):
 
         self.material = material
+        self.file = material_files_bound[self.material]
         self.sw = sw
         self.species = species #solar wind elements sputtering
-        self.size = size
-        self.r = init_vals[self.size]["r"]
-        self.B = init_vals[self.size]["B"][self.material.lower()]
+
+        if size is type(str):
+            self.size = size
+            self.r = init_vals[self.size]["r"]
+            self.B = init_vals[self.size]["B"][self.material.lower()]
+        
+        elif size is None:
+            self.r , self.B , _ = self.file
+
         self.m0 = size_to_mass(self.r , self.material)
 
         self.V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
-        self.T = round(np.sqrt(R**3 / (G * m_s * (1 - self.B))))
+        self.T = np.sqrt(R**3 / (G * m_s * (1 - self.B)))
 
         self.Ytot = self.sputtering_yield()
         self.fsw = self.sw_flux()
