@@ -102,14 +102,19 @@ m_range = size_to_mass(r_vals , "silicate") #masses corresponding to size range 
 machine_eps = 1e-8
 
 sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
-sil_mass = size_to_mass(sil_size * 1e-6 , "silicate")
+sil_size = sil_size * 1e-6
+sil_mass = size_to_mass(sil_size , "silicate")
 car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
-car_mass = size_to_mass(car_size * 1e-6 , "carbon")
+car_size = car_size * 1e-6
+car_mass = size_to_mass(car_size , "carbon")
 
-car_betaval_bound = [float(i) for i in car_betaval if 1 - i > machine_eps]
-car_size_bound = car_size[:len(car_betaval_bound)]
-car_PR_bound = car_PR[:len(car_betaval_bound)]
-car_mass_bound = size_to_mass(car_size_bound * 1e-6 , "carbon")
+mask = (1 - car_betaval) > machine_eps
+
+car_betaval_bound = car_betaval[mask]
+car_size_bound = car_size[mask]
+car_PR_bound = car_PR[mask]
+
+car_mass_bound = size_to_mass(car_size_bound , "carbon")
 
 material_files_bound = {"silicate": (np.array(sil_size) , np.array(sil_betaval) , np.array(sil_PR)) , 
                         "carbon": (np.array(car_size_bound) , np.array(car_betaval_bound) , np.array(car_PR_bound))}
@@ -133,6 +138,6 @@ t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
     1
-    print(car_betaval_bound , sil_betaval)
+    print(car_size_bound)
 
 

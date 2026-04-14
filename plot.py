@@ -21,43 +21,6 @@ plt.rcParams.update({
     "legend.fontsize": 12,
 })
 
-"""plots B values for masses corresponding to a range of initial particle sizes, assuming beta=Frad/G, not real beta curve
-and epsilon calculated same range of masses"""
-def eps_init_beta(particle_obj):
-    """input: none
-       
-       returns: none"""
-    
-    init_polar = np.array([R , 0 , 0 , particle_obj.V]) #initial polar coords
-    init_cart = polar_to_cartesian(init_polar) #initial cart coords
-
-    x , y = init_cart[0] , init_cart[1] #unpacking initial, unscaled cartesian values
-    b_init_vals = beta(x , y , m_range)[1:] #calculating B values for mass range 
-    
-    material = ["silicate" , "carbon"]
-    sw_conds = ["slow" , "fast" , "CME"]
-    eps_vals = []
-
-    for m in material:
-        for sw in sw_conds:
-            eps = particle_obj.eps(m , sw)
-            eps_vals.append({"material" : m ,
-                             "sw_cond" : sw ,
-                             "eps" : eps})
-    
-    for i in eps_vals:
-        label = f"{i['material']} for {i['sw_cond']}"
-        vals = i["eps"]
-        plt.plot(b_init_vals[::10] , vals[::10] , label = label)
-
-    plt.xlabel(r"$B$")
-    plt.ylabel(r"${\epsilon}$")
-    plt.yscale("log")
-    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    plt.legend(loc = "lower right")
-    plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
-    plt.show()
-    
 """plots B values for masses corresponding to a range of initial particle sizes, assuming real beta curve
 and epsilon calculated same range of masses"""
 def eps_init_betareal():
@@ -65,33 +28,98 @@ def eps_init_betareal():
        
        returns: none"""
     
-    material = ["silicate" , "carbon"]
+    material = {"silicate" : "-" , 
+                "carbon" : "--"}
+    
+    material = {"silicate" : "-" , 
+                "carbon" : "--"}
+    
     sw_conds = ["slow" , "fast" , "CME"]
     eps_vals = []
+    delta_vals = []
 
-    for m in material:
+    for key , value in material.items():
+        par = dust_properties(key , "slow" , "all" , None)
+        delta_vals.append({"material" : key ,
+                           "delta": par.delta ,
+                           "line" : value ,
+                           "B" : par.B})
+        
         for sw in sw_conds:
-            par = dust_properties(m , sw , "all" , None)
-            epsilon = par.eps()
-            eps_vals.append({"material" : m ,
+            par = dust_properties(key , sw , "all" , None)
+            eps = par.epsilon
+            drag_cst = par.K
+            eps_vals.append({"material" : key ,
                              "sw_cond" : sw ,
-                             "eps" : epsilon ,
-                             "B" : par.B})
-    
+                             "eps" : eps ,
+                             "B" : par.B ,
+                             "line" : value , 
+                             "K" : drag_cst ,
+                             "delta" : par.delta})   
+        
+    plt.figure()
+
     for item in eps_vals:
         m = item["material"]
         sw = item["sw_cond"]
         epsilon = item["eps"]
         Bval = item["B"]
+        linestyle = item["line"]
+        drag_cst = item["K"]
+        dragtot = item["delta"]
 
-        plt.plot(Bval[::10], epsilon[::10], label=f"{m} for {sw}")
+        # mask = np.abs((dragtot - epsilon/5)) < 0.000001
 
+        # print(m,sw)
+        # print(f"B {Bval[mask]},K {drag_cst[mask]}, epsilon {epsilon[mask]} , delta {dragtot[mask]}")
+        plt.plot(Bval , epsilon , linestyle = linestyle , label=f"{m}, {sw} sw")
     plt.xlabel(r"$B$")
     plt.ylabel(r"${\epsilon}$")
     plt.yscale("log")
     plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    plt.legend(loc = "lower right")
+    plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
     plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
+
+    plt.figure()
+    for item in delta_vals:
+        m = item["material"]
+        drag_term = item["delta"]
+        Bval = item["B"]
+        linestyle = item["line"]
+
+        plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}")
+    plt.xlabel(r"$B$")
+    plt.ylabel(r"${\delta}$")
+    plt.yscale("log")
+    plt.title(r"${\delta}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
+    plt.legend(loc = "lower left")
+    plt.savefig("Plots/delta_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
+
+    plt.figure()
+    for i in eps_vals:
+        Bval = i["B"]
+        m = i["material"]
+        epsilon = i["eps"]
+        sw = i["sw_cond"]
+        linestyle = i["line"]
+
+        plt.plot(Bval , epsilon , linestyle = linestyle , label = f"{m}, {sw} sw eps")
+
+    for j in delta_vals:
+        drag_term = j["delta"]
+        Bval = j["B"]
+        linestyle = j["line"]
+        m = j["material"]
+
+        plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}, {sw} sw delta")
+        
+    plt.xlabel(r"$B$")
+    plt.ylabel("Magnitude")
+    plt.yscale("log")
+    plt.title(r"${\delta}$ and ${\epsilon}$ comparison, silicate and carbon")
+    plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
+    plt.savefig("Plots/delta_vs_epsilon.png" , dpi = 300 , bbox_inches = 'tight')
+    
     plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""

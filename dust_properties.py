@@ -2,36 +2,48 @@ from config import material_files_bound , dat_to_arr , init_vals , rho_s , rho_c
 from AstronomicalSilicate_modified import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
+from forces import beta
 
 class dust_properties():
 
-    def __init__(self , material , sw , species , size):
+    def __init__(self , material , sw , species , size = None):
 
         self.material = material
         self.file = material_files_bound[self.material]
         self.sw = sw
         self.species = species #solar wind elements sputtering
 
-        if size is type(str):
+        if isinstance(size , str):
             self.size = size
             self.r = init_vals[self.size]["r"]
             self.B = init_vals[self.size]["B"][self.material.lower()]
         
         elif size is None:
             self.r , self.B , _ = self.file
-
+        
         self.m0 = size_to_mass(self.r , self.material)
-
-        self.V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
-        self.T = np.sqrt(R**3 / (G * m_s * (1 - self.B)))
 
         self.Ytot = self.sputtering_yield()
         self.fsw = self.sw_flux()
+
+        self.V = self.calc_V()
+        self.T = self.calc_T()
+
         self.epsilon = self.eps()
 
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
         #self.K = 10.0
+
+    def calc_V(self):
+        V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
+
+        return V
+
+    def calc_T(self):
+        T = np.sqrt(R**3 / (G * m_s * (1 - self.B)))
+
+        return T
 
     #Solar wind flux
     def sw_flux(self):
@@ -123,9 +135,9 @@ class dust_properties():
             rho = rho_c
     
         eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T 
-
+        
         return eps
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "50micron")
-    print(par.eps() , par.K , par.B , par.m0)
+    par = dust_properties("silicate" , "slow" , "all" , None)
+    #print(par.V)

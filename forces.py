@@ -50,7 +50,7 @@ def pressure_radial(x , y , m):
         
     r = np.sqrt(x**2 + y**2) #radial distance of particle from Sun in m
     r_par = radius(m) #radius of the particle in m
-    
+
     A = np.pi * r_par**2 #cross section area of particle in m^2
     
     s = S_s * (au / r)**2 #radiation flux density at distance r from Sun, in Wm^-2
