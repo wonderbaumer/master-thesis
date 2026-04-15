@@ -23,6 +23,7 @@ dt1_omega0 = sp.diff(omega0_exp , t1)
 
 C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3))**(1 / 4)
 dt1_C0 = sp.diff(C0_exp , t1)
+print(dt1_C0)
 
 #defining the hatted variables
 t = sp.Symbol("t") #time

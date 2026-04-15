@@ -30,19 +30,7 @@ class perturbed_functions():
         if self.find_k:
             self.kb_comb()
             #self.K_variation()
-        #self.beta_func = pchip(self.time , self.barr , extrapolate = False)
-        # self.C0_0 = 1.0
-        # self.c0 = None
-        # self.c0_func = None
-        # self.beta_vals = None
-        #print(self.epsilon / 2.6031255888589655) #1.9279315785095778e-06)
-    
-    """
-    def betahat_analytical(self):
-        bvals = self.epsilon * self.time / 2.6031255888589655 + 0.9996231879878003
-        return bvals
-    
-    """ 
+        
     #calculates up to first order of beta hat from analytical solution
     def betahat_analytical(self , eps):
         """input: t (array), scaled time to calculate for
@@ -53,31 +41,10 @@ class perturbed_functions():
         
         return bvals
     
-    """
-    def du(self , t , u):
-        #c0 = c0[0]
-        #c0_safe = max(c0, 1e-12)
-        beta = self.beta_func(t)
-        tot = np.array([-4 * self.B * self.K * beta * (1 - beta * self.B)**4 / ((1 - self.B)**3)])
-
-        return tot
-    
-    def solve_c0(self):
-
-        ttot = (self.time[0] , self.time[-1])
-
-        sol = solve_ivp(self.du , ttot , [self.C0_0**4] , method = "Radau" , t_eval = self.time , rtol=1e-9 , atol=1e-12)
-
-        self.u = sol.y[0]
-        self.beta_vals = self.beta_func(self.time)
-        self.c0 = self.u**(1 / 4)
-
-        return self.c0
-    """
     
     ###WITH DRAG###
     def C0(self , beta_func , b0 , k):
-        #beta_func = self.betahat_analytical()
+        #beta_func = self.betahat_analytical(self.epsilon)
         first = -4 * b0 * k / (1 - b0)**3
         beta_safe = np.where(beta_func > 0, beta_func, np.nan)
 
@@ -85,15 +52,16 @@ class perturbed_functions():
         third = 1 + (4 * b0 * k / (1 - b0)**3) * (9 * b0**2 - 45 * b0 / 4 - 4 * b0**3)
 
         terms = first * second + third
-        #terms = np.where(terms <= 0 , 0.0000001 , terms)
+        invalid = np.where(terms <= 0)
+        terms[invalid] = 0.0000001
 
-        #tot = terms**(1 / 4)
+        tot = terms**(1 / 4)
 
-        terms = np.where(np.isfinite(terms) & (terms > 0), terms, np.nan)
+        # terms = np.where(np.isfinite(terms) & (terms > 0), terms, np.nan)
 
-        tot = np.full_like(terms, np.nan, dtype=float)
-        mask = terms > 0
-        tot[mask] = terms[mask]**0.25
+        # tot = np.full_like(terms, np.nan, dtype=float)
+        # mask = terms > 0
+        # tot[mask] = terms[mask]**0.25
 
         return tot
     
@@ -198,6 +166,8 @@ class perturbed_functions():
         return b_arr , k_arr , betaval , eps_arr
 
     """
+
+
     def C0(self , b_func):
         beta0 = 0.9996231879878003
         a = 2.6031255888589655
@@ -218,12 +188,28 @@ class perturbed_functions():
         denom1 = 4 * self.B * self.K * (-4 * self.B**3 + 9 * self.B**2 - 45 * self.B / 4)
         denom2 = -4 * self.B * self.K * (-4 * self.B**3 * b_func**3 + 9 * self.B**2 * b_func**2 - 12 * self.B * b_func + 3 * self.B * b_func**4 / 4 + 3 * np.log(b_func))
         denom3 = (1 - self.B)**(-3)
-        tot_denom = (denom1 + denom2 + denom3)**(3 / 4)
+        tot_denom = (denom1 + denom2) * denom3 + 1.0
+        invalid = np.where(tot_denom <= 0)
+        tot_denom[invalid] = 0.0000001
+        tot_denom = (tot_denom)**(3 / 4)
 
         tot = numerator / tot_denom
         
         return tot
     
+    def K_calc(self):
+        b_func = self.betahat_analytical(self.epsilon)
+        
+        num = b_func**2 * (1 - self.B)**3
+        denom1 = 6 * (1 - self.B)**4 * (-4 * self.B**3 * b_func**4 + 6 * self.B**2 * b_func**3 - 4 * self.B * b_func**2 + self.B * b_func**2 + self.B * b_func**5 + b_func)
+        denom2 = 4 * self.B * b_func**2 * (3 * b_func**4 * self.B / 4 - 4 * self.B**3 * b_func**3 + 9 * self.B**2 * b_func**2 - 12 * self.B * b_func + 3 * np.log(b_func) - 9 * self.B**2 + 4 * self.B**3 + 45 * self.B / 4)
+        denom_tot = denom1 + denom2
+
+        tot = num / denom_tot
+
+        return tot
+
+
     def C3(self):
         first = -self.B / (3 * (1 - self.B))
         second = -2 * self.B * self.K * (-4 * self.B**3 + 6 * self.B**2 - 3 * self.B + 1) / (1 - self.B)**3
@@ -321,21 +307,20 @@ def dust_cloud(file_path):
     conv_mask = np.any(window_sums == window, axis=1)
 
     return b[conv_mask], k[conv_mask], r[conv_mask]
-    
-        
+         
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    res = np.load("Files/rk45_t6_large_silicate_slowsw.npz")
+    par = dust_properties("silicate" , "slow" , "all" , "02micron")
+    res = np.load("Files/rk45_t6_02micron_silicate_slowsw.npz")
     _ , _ , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
-    #p = perturbed_functions(par , t , b , find_k = True)
+    p = perturbed_functions(par , t , b , find_k = False)
     # b_arr , k_arr , betaval , epsilon = p.K_variation()
     #b_arr , k_arr , r0_arr = p.kb_comb()
     #print(k_arr[-1 , :])
 
-    # beta = p.betahat_analytical(p.epsilon)
-    # c0 = p.C0(beta , p.B , p.K)
+    beta = p.betahat_analytical(p.epsilon)
+    c0 = p.C0(beta , p.B , p.K)
     #print(p.B , p.K)
     #print(f"r:" ,p.rad() , "beta:" ,beta ,"c0:", c0)
     #np.savez("Files/BKTEST_kbcomb1.npz" , b = b_arr , k = k_arr , r0 = r0_arr) #, betaval = betaval)
@@ -347,12 +332,13 @@ if __name__== "__main__":
     # print(k_arr[-1])
     
 
-    Bcst , Kcst , r0 = dust_cloud("Files/BKTEST_kbcomb1.npz")
-    print(Bcst[-1] , len(Kcst[-1 , :]) , len(r0[-1 , :]))
+    # Bcst , Kcst , r0 = dust_cloud("Files/BKTEST_kbcomb1.npz")
+    # print(Bcst[-1] , len(Kcst[-1 , :]) , len(r0[-1 , :]))
     
-    # omegatot , rtot , theta , vr , c0 , beta = p.omega() , p.rad() , p.theta() , p.vr() , c0 , beta
-    # omega , _ , _ = omegatot
-    # r , _ , _ = rtot
-    # np.savez("Files/PERT_BKTESTsols.npz" , omega = omega , r = r , theta = theta , vr = vr , c0 = c0 , b = beta , t = t)
+    omegatot , rtot , theta , vr , c0 , beta = p.omega() , p.rad() , p.theta() , p.vr() , c0 , beta
+    omega , _ , _ = omegatot
+    r , _ , _ = rtot
+    np.savez("Files/multiscale_t6_02micron_silicate_slowsw.npz" , omega = omega , r = r , theta = theta , vr = vr , c0 = c0 , b = beta , t = t)
+    #np.savez("Files/kvals_02micron_slowsw.npz" , k = p.K_calc() , t = t)
 
     

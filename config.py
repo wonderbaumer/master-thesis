@@ -57,9 +57,13 @@ init_vals = {"large":{
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
             },
 
-            "50micron":{
-            "r":50 * 10**(-6),
-            "B":{"silicate": 0.0032 , "carbon": 0.0063}
+            "02micron":{
+            "r":0.04259 * 10**(-6),
+            "B":{"silicate": 0.2098 , "carbon": 1.6179}
+            } ,
+            "07micron":{
+                "r":7.745e-08 ,
+                "B": {"silicate": 0.5123 , "carbon": 2.8217}
             }}
             
 
@@ -102,10 +106,15 @@ m_range = size_to_mass(r_vals , "silicate") #masses corresponding to size range 
 machine_eps = 1e-8
 
 sil_size , sil_betaval , sil_PR = dat_to_arr(sil_beta) #fetching silicate size and beta values
-sil_size = sil_size * 1e-6
+sil_size = np.array(sil_size * 1e-6)
+sil_betaval = np.array(sil_betaval)
+sil_PR = np.array(sil_PR)
+
 sil_mass = size_to_mass(sil_size , "silicate")
 car_size , car_betaval , car_PR = dat_to_arr(car_beta) #fetching carbon size and beta values
-car_size = car_size * 1e-6
+car_size = np.array(car_size * 1e-6)
+car_betaval = np.array(car_betaval)
+car_PR = np.array(car_PR)
 car_mass = size_to_mass(car_size , "carbon")
 
 mask = (1 - car_betaval) > machine_eps
@@ -116,8 +125,12 @@ car_PR_bound = car_PR[mask]
 
 car_mass_bound = size_to_mass(car_size_bound , "carbon")
 
-material_files_bound = {"silicate": (np.array(sil_size) , np.array(sil_betaval) , np.array(sil_PR)) , 
-                        "carbon": (np.array(car_size_bound) , np.array(car_betaval_bound) , np.array(car_PR_bound))}
+material_files_bound = {"silicate": (sil_size , sil_betaval , sil_PR) , 
+                        "carbon": (car_size_bound , car_betaval_bound , car_PR_bound)}
+
+diffs = np.diff(sil_betaval)
+diffs_max = np.argmax(diffs)
+
 
 """t hat combinations used, dt timestep, t_tot total simulation time"""
 #1000 orbits
@@ -138,6 +151,6 @@ t7 = (dt7 , t_tot7)
 
 if __name__ == "__main__":
     1
-    print(car_size_bound)
+    print(diffs[diffs_max] , sil_size[diffs_max] , sil_betaval[diffs_max])
 
 

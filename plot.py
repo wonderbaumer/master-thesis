@@ -68,59 +68,59 @@ def eps_init_betareal():
         drag_cst = item["K"]
         dragtot = item["delta"]
 
-        # mask = np.abs((dragtot - epsilon/5)) < 0.000001
+        mask = np.abs((dragtot - epsilon / 5)) < 0.0000009
 
-        # print(m,sw)
-        # print(f"B {Bval[mask]},K {drag_cst[mask]}, epsilon {epsilon[mask]} , delta {dragtot[mask]}")
-        plt.plot(Bval , epsilon , linestyle = linestyle , label=f"{m}, {sw} sw")
-    plt.xlabel(r"$B$")
-    plt.ylabel(r"${\epsilon}$")
-    plt.yscale("log")
-    plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
-    plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
+        print(m,sw)
+        print(f"B {Bval[mask]},K {drag_cst[mask]}, epsilon {epsilon[mask]} , delta {dragtot[mask]}")
+    #     plt.plot(Bval , epsilon , linestyle = linestyle , label=f"{m}, {sw} sw")
+    # plt.xlabel(r"$B$")
+    # plt.ylabel(r"${\epsilon}$")
+    # plt.yscale("log")
+    # plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
+    # plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
+    # plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
 
-    plt.figure()
-    for item in delta_vals:
-        m = item["material"]
-        drag_term = item["delta"]
-        Bval = item["B"]
-        linestyle = item["line"]
+    # plt.figure()
+    # for item in delta_vals:
+    #     m = item["material"]
+    #     drag_term = item["delta"]
+    #     Bval = item["B"]
+    #     linestyle = item["line"]
 
-        plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}")
-    plt.xlabel(r"$B$")
-    plt.ylabel(r"${\delta}$")
-    plt.yscale("log")
-    plt.title(r"${\delta}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    plt.legend(loc = "lower left")
-    plt.savefig("Plots/delta_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
+    #     plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}")
+    # plt.xlabel(r"$B$")
+    # plt.ylabel(r"${\delta}$")
+    # plt.yscale("log")
+    # plt.title(r"${\delta}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
+    # plt.legend(loc = "lower left")
+    # plt.savefig("Plots/delta_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
 
-    plt.figure()
-    for i in eps_vals:
-        Bval = i["B"]
-        m = i["material"]
-        epsilon = i["eps"]
-        sw = i["sw_cond"]
-        linestyle = i["line"]
+    # plt.figure()
+    # for i in eps_vals:
+    #     Bval = i["B"]
+    #     m = i["material"]
+    #     epsilon = i["eps"]
+    #     sw = i["sw_cond"]
+    #     linestyle = i["line"]
 
-        plt.plot(Bval , epsilon , linestyle = linestyle , label = f"{m}, {sw} sw eps")
+    #     plt.plot(Bval , epsilon , linestyle = linestyle , label = f"{m}, {sw} sw eps")
 
-    for j in delta_vals:
-        drag_term = j["delta"]
-        Bval = j["B"]
-        linestyle = j["line"]
-        m = j["material"]
+    # for j in delta_vals:
+    #     drag_term = j["delta"]
+    #     Bval = j["B"]
+    #     linestyle = j["line"]
+    #     m = j["material"]
 
-        plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}, {sw} sw delta")
+    #     plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}, {sw} sw delta")
         
-    plt.xlabel(r"$B$")
-    plt.ylabel("Magnitude")
-    plt.yscale("log")
-    plt.title(r"${\delta}$ and ${\epsilon}$ comparison, silicate and carbon")
-    plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
-    plt.savefig("Plots/delta_vs_epsilon.png" , dpi = 300 , bbox_inches = 'tight')
+    # plt.xlabel(r"$B$")
+    # plt.ylabel("Magnitude")
+    # plt.yscale("log")
+    # plt.title(r"${\delta}$ and ${\epsilon}$ comparison, silicate and carbon")
+    # plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
+    # plt.savefig("Plots/delta_vs_epsilon.png" , dpi = 300 , bbox_inches = 'tight')
     
-    plt.show()
+    # plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
 def thetahat_comps(file_path , file_path_comp = None , pert = None , material = None):
@@ -135,6 +135,8 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
     
     res = np.load(file_path)
     x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    r = np.sqrt(x**2 + y**2)
+    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_theta.png"
@@ -166,6 +168,13 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
 
         plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
         plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
+
+        if theta1[ymin][0] < theta_per[ymin][0]:
+            plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
+        
+        else:
+            plt.ylim(theta_per[ymin][0] , theta_per[ymax][-1])
+
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
@@ -174,17 +183,18 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
     
     if material == "silicate":
         plt.plot(t[::10] , theta1[::10])
+        plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
         plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
     
     if material == "carbon":
         plt.plot(t[::10] , theta1[::10])
         plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
+        plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{\theta}$")
-
     plt.show()
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
@@ -216,8 +226,6 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         save_path1 = f"Plots/{base_name}_r_vs_{base_name1}.png"
 
         r1 = np.sqrt(x1**2 + y1**2) #r hat
-        r = np.maximum(r , 0.05)
-        r1 = np.maximum(r1 , 0.05)
         plt.plot(t[::10] , r[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r1[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
@@ -254,7 +262,7 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         
     plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{r}$")
-    
+    plt.ylim(0.05 , 1.1)
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
@@ -270,6 +278,8 @@ def vhat_comps(file_path , pert = None , material = None):
 
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t= [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    r = np.sqrt(x**2 + y**2)
+    ymin , ymax = np.where(r >= 0.05) , np.where(r <= 1)
 
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
@@ -288,12 +298,19 @@ def vhat_comps(file_path , pert = None , material = None):
         plt.plot(t[::100] , v_per[::100] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
+        if v_r[ymin][-1] < v_per[ymin][-1]:
+            plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
+        
+        else:
+            plt.ylim(v_per[ymin][-1] , v_per[ymax][0])
+
         plt.legend()
         plt.title(r"RK4(5) and perturbed $\hat{v}_r$")
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
     
     if material == "silicate":
         plt.plot(t[::100] , v_r[::100])
+        plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
         plt.title(r"$\hat{v}_r$ for silicate, real $\hat{\beta}$")
@@ -301,6 +318,7 @@ def vhat_comps(file_path , pert = None , material = None):
 
     if material == "carbon":
         plt.plot(t[::100] , v_r[::100])
+        plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
         plt.title(r"$\hat{v}_r$ for carbon, real $\hat{\beta}$")
@@ -321,14 +339,14 @@ def omegahat_comps(file_path , pert = None , material = None):
     
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    r = np.sqrt(x**2 + y**2)
+    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_omega.png"
     
     theta_num = np.atan2(y , x) #thetahat RK4(5)
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
-
-    r = np.sqrt(x**2 + y**2) #r hat RK4(5)
 
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
 
@@ -341,17 +359,25 @@ def omegahat_comps(file_path , pert = None , material = None):
         plt.ylabel(r"$\hat{\omega}$")
         plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
 
+        if angvel_num[ymax][-1] < angvel[ymax][-1]:
+            plt.ylim(angvel_num[ymin][0] , angvel[ymax][-1])
+        
+        else:
+            plt.ylim(angvel_num[ymin][0] , angvel[ymax][-1])
+
         plt.legend()
         save_path = f"Plots/{base_name}_omega_vs_perturbed.png"
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     if material == "silicate":
         plt.plot(t[::10] , angvel_num[::10])
+        plt.ylim(angvel_num[ymin][0] , angvel_num[ymax][-1])
         plt.title(r"$\hat{\omega}$ for silicate, real $\hat{\beta}$")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     if material == "carbon":
         plt.plot(t[::10] , angvel_num[::10])
+        plt.ylim(angvel_num[ymin][0] , angvel_num[ymax][-1])
         plt.title(r"$\hat{\omega}$ for carbon, real $\hat{\beta}$")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
@@ -615,6 +641,9 @@ def v_theta(file_path , pert = None , material = None):
 
     vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
 
+    r = np.sqrt(x**2 + y**2)
+    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
+
     if pert is not None:
         pr = np.load(pert)
         angvel , r , _ , _ , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
@@ -624,6 +653,13 @@ def v_theta(file_path , pert = None , material = None):
 
         plt.plot(t[::10] , vtheta_pert[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
         plt.plot(t[::10] , vtheta[::10] , color = "blue" , linestyle = "-" , label = "RK4(5)")
+
+        if vtheta[ymax][-1] > vtheta_pert[ymax][-1]:
+            plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
+        
+        else:
+            plt.ylim(vtheta_pert[ymin][0] , vtheta_pert[ymax][-1])
+
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_{\theta}$")
         plt.title(r"Perturbed and numerical $\hat{v}_{\theta}$")
@@ -632,11 +668,13 @@ def v_theta(file_path , pert = None , material = None):
     
     if material == "silicate":
         plt.plot(t[::10] , vtheta[::10])
+        plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
         plt.title(r"$\hat{v}_{\theta}$ silicate")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
     
     if material == "carbon":
         plt.plot(t[::10] , vtheta[::10])
+        plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
         plt.title(r"$\hat{v}_{\theta}$ carbon")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
     
@@ -645,10 +683,14 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    eps_init_betareal()
-    # res = "Files/rk45_t5_50micron_carbon_slowsw_K10_R005.npz"
-    # per = "Files/PERT_BKTESTsols.npz"
+    res = "Files/rk45_t6_02micron_silicate_slowsw.npz"
+    per = "Files/multiscale_t6_02micron_silicate_slowsw.npz"
     
+    # kvals = np.load("Files/kvals_02micron_slowsw.npz")
+    # K , t = [kvals[i] for i in ("k" , "t")]
+    #plt.plot(t , K)
+    #plt.show()
+    #eps_init_betareal()
     # re = np.load(res)
     # x , y , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
     # r = np.sqrt(x**2 + y**2)
@@ -672,11 +714,11 @@ if __name__ == "__main__":
     """
     # thetahat_comps(res , pert = per)
     # omegahat_comps(res , pert = per)
-    #rhat_comps(res , pert = per)
+    rhat_comps(res , pert = per)
     # vhat_comps(res , pert = per)
     # v_theta(res , pert = per)
-    #b_plot(res , b_per = per)
-    #beta_curves(interp = True)
+    # b_plot(res , b_per = per)
+    # beta_curves(interp = True)
     
     
     
