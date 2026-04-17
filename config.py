@@ -57,13 +57,9 @@ init_vals = {"large":{
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
             },
 
-            "02micron":{
-            "r":0.04259 * 10**(-6),
-            "B":{"silicate": 0.2098 , "carbon": 1.6179}
-            } ,
-            "07micron":{
-                "r":7.745e-08 ,
-                "B": {"silicate": 0.5123 , "carbon": 2.8217}
+            "biggest":{
+                "r": 50.00000 * 10**(-6) ,
+                "B": {"silicate": 0.0032 , "carbon": 0.0063}
             }}
             
 
@@ -128,7 +124,7 @@ car_mass_bound = size_to_mass(car_size_bound , "carbon")
 material_files_bound = {"silicate": (sil_size , sil_betaval , sil_PR) , 
                         "carbon": (car_size_bound , car_betaval_bound , car_PR_bound)}
 
-diffs = np.diff(sil_betaval)
+diffs = np.diff(sil_betaval[100:])
 diffs_max = np.argmax(diffs)
 
 

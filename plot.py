@@ -683,20 +683,19 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 if __name__ == "__main__":
-    res = "Files/rk45_t6_02micron_silicate_slowsw.npz"
-    per = "Files/multiscale_t6_02micron_silicate_slowsw.npz"
-    
-    # kvals = np.load("Files/kvals_02micron_slowsw.npz")
-    # K , t = [kvals[i] for i in ("k" , "t")]
-    #plt.plot(t , K)
-    #plt.show()
-    #eps_init_betareal()
-    # re = np.load(res)
-    # x , y , _ , _ , _ , b , t = [re[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
-    # r = np.sqrt(x**2 + y**2)
-    # plt.plot(t , r)
-    # #plt.ylim(0.99999 , 1.0001)
-    # plt.show()
+    res = np.load("Files/rk45_t5_small_silicate_slowsw.npz")
+    x , y , _ , _ , _ , bnum , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+
+    per = np.load("Files/multiscale_t5_079micron_silicate_slowsw.npz")
+    omega , r , theta , vr , c0 , k , b , t = [per[i] for i in ("omega" , "r" , "theta" , "vr" , "c0" , "k" , "b" , "t")]
+    #print(r[0] , r[29])
+    # plt.plot(t , np.sqrt(x**2+y**2) , label = "rk45")
+    # plt.plot(t , r , label = "pert")
+    # plt.plot(t , b , label = "perturbed")
+    # plt.plot(t , bnum , label = "RK45")
+    plt.plot(t[1:] , k[1:])
+    # plt.legend()
+    plt.show()
     """
     
     for i in range(len(b)-1):
@@ -714,7 +713,7 @@ if __name__ == "__main__":
     """
     # thetahat_comps(res , pert = per)
     # omegahat_comps(res , pert = per)
-    rhat_comps(res , pert = per)
+    # rhat_comps(res , pert = per)
     # vhat_comps(res , pert = per)
     # v_theta(res , pert = per)
     # b_plot(res , b_per = per)

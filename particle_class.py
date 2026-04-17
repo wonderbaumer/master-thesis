@@ -6,6 +6,7 @@ from config import t5 , t6 , t7 , material_files , betahat0 , mhat0 , init_cart_
 from scipy.constants import G
 from polar_to_cart import polar_to_cartesian
 from dust_properties import dust_properties
+import matplotlib.pyplot as plt
 
 """class solving scaled equations of motion for a particle using user-specified numerical solver"""
 class particle_solver():
@@ -31,6 +32,7 @@ class particle_solver():
         self.B = par.B
         self.V = par.V
         self.T = par.T
+        self.epsilon = par.epsilon
         self.mhat0 = mhat0
         self.betahat0 = betahat0
 
@@ -46,10 +48,10 @@ class particle_solver():
         y0 = np.concatenate((self.init_cart_scaled, [self.mhat0])) #initial values for scipy ivp solver
         
         dt , t_tot = self.sim_time #dt and t_tot unpacking
-        dt = dt / self.T
+        dt = dt / self.T 
+        t_tot = t_tot
         t_span = (0 , t_tot) #time for simulations
         t_eval = np.arange(0 , t_tot , dt) #setting number of timesteps scipy solver
-
         state = [0 , t_tot / 1000]
         
         if self.solver == "LEAPFROG" and self.massloss == True:
@@ -96,10 +98,15 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "02micron")
-    p = particle_solver(t6 , par , "RK45" , massloss = True)
+    par = dust_properties("silicate" , "slow" , "all" , "large")
+    p = particle_solver(t5 , par , "RK45" , massloss = False)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
+    print(np.sqrt(x**2+y**2))
+    # np.savez("Files/rk45_t5_biggest_silicate_CMEsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
 
-    np.savez("Files/rk45_t6_02micron_silicate_slowsw.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    res = np.load("Files/rk45_t6_large_silicate_CMEsw.npz")
+    x , y , vx , vy , m , bnum , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    plt.plot(t , np.sqrt(x**2+y**2))
+    plt.show()
     

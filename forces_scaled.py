@@ -7,7 +7,7 @@ from scipy.constants import c
 def inter_func(bval_file):
         size , betaval , _ = dat_to_arr(bval_file)
         size = np.asarray(size).copy()
-        size *= 1e-6 
+        size *= 1e-6  ###
         beta_val = pchip(size , betaval , extrapolate = False)
 
         return beta_val
@@ -34,7 +34,7 @@ def sputtering(m , epsilon):
 
     #dmdt = 0.0
     dmdt = - epsilon * m**(2 / 3)
-    
+
     return dmdt
 
 """function that calculates betahat, based on scaled equations"""
@@ -86,7 +86,7 @@ def pr_drag(x , y , vx , vy , m , particle_obj):
     theta = np.atan2(y , x)
 
     A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.V / ((1 - particle_obj.B) * r**3 * c)
-    #A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.K * particle_obj.epsilon / ((1 - particle_obj.B) * r**3)
+    #A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.delta / ((1 - particle_obj.B) * r**3)
     x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
     y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)
 

@@ -32,6 +32,7 @@ class dust_properties():
         self.epsilon = self.eps()
 
         self.delta = self.V / c
+        #self.delta = self.epsilon
         self.K = self.delta / self.epsilon
         #self.K = 10.0
 
@@ -139,5 +140,5 @@ class dust_properties():
         return eps
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , None)
-    #print(par.V)
+    par = dust_properties("silicate" , "fast" , "all" , "large")
+    print(par.T , par.delta , par.epsilon)
