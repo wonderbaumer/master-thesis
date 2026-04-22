@@ -50,14 +50,14 @@ class perturbed_functions():
         beta = self.betahat_analytical()
         t1 = self.time * self.epsilon
         
-        cst = -4 * self.K * self.B / (1 - self.B)**3
+        cst = -4 * k * self.B / (1 - self.B)**3
         
 
         var = beta * (1 - self.B * beta)**4
         init = 1 / cst
         
-        b_int = it.cumulative_simpson(var , x = t1 , initial = init)
-        terms = b_int * cst
+        b_int = it.cumulative_simpson(var , x = t1 , initial = 0)
+        terms = 1.0 + b_int * cst
 
         z = np.log(-1 / beta + 0j)
         first = -3 * z.real 
@@ -65,131 +65,25 @@ class perturbed_functions():
         
         denominator = 4 * t1**4 - 48 * t1**3 + 216 * t1**2 - 432 * t1 + 324
 
-        c = 1 - 4 * self.K * self.B**2 / (1 - self.B)**3 * (1296 * self.B**2 - 2916 * self.B - 243 * self.B**3 + 3888) / 324
+        c = 1 - 4 * k * self.B**2 / (1 - self.B)**3 * (1296 * self.B**2 - 2916 * self.B - 243 * self.B**3 + 3888) / 324
 
         term_manual = cst * (first + second / denominator) + c
 
-        """
-        first = -4 * self.B * self.K / (1 - self.B)**3 *(3 * beta**4 * self.B / 4 - 4 * self.B**3 * beta**3 + 9 * self.B**2 * beta**2 - 12 * self.B * beta + 3 * np.log(beta))
-        second = 1 + 4 * self.B * self.K / (1 - self.B)**3 * (9 * self.B**2 - 4 * self.B**3 - 45 * self.B / 4)
-        terms_man = first + second
-        """
-
-        # invalid = np.where(terms <= 0)
-        # terms[invalid] = 0.0000001
+        invalid = np.where(terms <= 0)
+        terms[invalid] = 0.0000001
         
-        # C0_tot = terms**(1 / 4)
+        C0_tot = terms**(1 / 4)
 
-        return terms , term_manual
-        
-    def kb_comb(self):
-        b_func_test = self.betahat_analytical(self.epsilon)[::10]
-        
-        if self.material == "silicate":
-           Bvals = sil_betaval
-           r_vals = sil_size * 1e-6
-           m_vals = size_to_mass(r_vals , "silicate")
-        
-        if self.material == "carbon":
-            Bvals = car_betaval_bound
-            r_vals = car_size_bound * 1e-6
-            m_vals = size_to_mass(r_vals , "carbon")
-
-        B0 = self.particle.B
-        T0 = self.particle.T
-        r0 = self.particle.r
-        m0 = self.particle.m0
-
-        b_arr = np.zeros(len(Bvals))
-        k_vals = np.linspace(0 , 100 , len(b_func_test))
-        k_arr = np.zeros((len(Bvals) , len(b_func_test)))
-        r0_arr = np.zeros((len(Bvals) , len(b_func_test)))
-        #betaval = np.zeros(len(b_func_test))
-        # T_arr = np.zeros(len(Bvals))
-        # V_arr = np.zeros(len(Bvals))
-        # eps_arr = np.zeros(len(Bvals))
-        
-        for idx , (i , r_i, m_i) in enumerate(zip(Bvals , r_vals, m_vals)):
-            T = round(np.sqrt(R**3 / (G * m_s * (1 - i))))
-
-            self.particle.B = i
-            self.particle.r = r_i
-            self.particle.m0 = m_i
-            self.particle.T = T
-            epsilon = self.particle.eps()
-            b_func = self.betahat_analytical(epsilon)[::10]
-
-            V = np.sqrt((G * m_s * (1 - i)) / R)
-            #K = V / (c * epsilon)
-            K = np.linspace(0 , 100 , len(Bvals))
-            coeff0 = self.C0(b_func , i , k_vals)
-        
-            r0 = (1 - i) / (1 - b_func * i) * coeff0**2
-        
-            b_arr[idx] = i
-            k_arr[idx , :] = k_vals
-            r0_arr[idx , :] = r0
-            #betaval[idx] = b_func
-            # T_arr[idx] = i
-            # V_arr[idx] = i
-            # eps_arr[idx] = i
-
-        return b_arr , k_arr , r0_arr #, betaval #, T_arr , V_arr , eps_arr
-
-    def K_variation(self):
-        b_func_test = self.betahat_analytical(self.epsilon)[::10]
-        
-        if self.material == "silicate":
-           Bvals = sil_betaval
-           r_vals = sil_size * 1e-6
-           m_vals = size_to_mass(r_vals , "silicate")
-        
-        if self.material == "carbon":
-            Bvals = car_betaval_bound
-            r_vals = car_size_bound * 1e-6
-            m_vals = size_to_mass(r_vals , "carbon")
-
-        B0 = self.particle.B
-        T0 = self.particle.T
-        r0 = self.particle.r
-        m0 = self.particle.m0
-
-        b_arr = np.zeros(len(Bvals))
-        k_arr = np.zeros((len(Bvals) , len(b_func_test)))
-        betaval = np.zeros(len(b_func_test))
-        eps_arr = np.zeros(len(Bvals))
-
-        for idx , (i, r_i, m_i) in enumerate(zip(Bvals, r_vals, m_vals)):
-            T = round(np.sqrt(R**3 / (G * m_s * (1 - i))))
-
-            self.particle.B = i
-            self.particle.r = r_i
-            self.particle.m0 = m_i
-            self.particle.T = T
-            epsilon = self.particle.eps()
-            b_func = self.betahat_analytical(epsilon)[::10]
-            b_func = np.where(b_func <= 0 , 0.0000001 , b_func)
-            num = (((1 - i * b_func) / (1 - i))**2 - 1) * (1 - i)**3
-            denom = -3 * b_func**4 * i / 4 + 4 * i**3 * b_func**3 - 9 * i**2 * b_func**2 + 12 * i * b_func - 3 * np.log(b_func) - 4 * i**3 + 9 * i**2 - 45 * i / 4
-
-            K = num / (4 * i * denom)
-                
-
-            b_arr[idx] = i
-            k_arr[idx , :] = K
-            betaval[:] = b_func
-            eps_arr[idx] = epsilon
-
-        return b_arr , k_arr , betaval , eps_arr
+        return C0_tot
 
     def C0_prime(self , k):
 
         cst = -4 * self.B * k / (1 - self.B)**3
-
+        init = 1 / cst
         
         var = self.barr * (1 - self.B * self.barr)**4
-        b_int = it.cumulative_trapezoid(var , self.time , initial = 0)
-        terms = 1.0 + cst * b_int * self.epsilon
+        b_int = it.cumulative_simpson(var , self.time * self.epsilon , initial = 0)
+        terms = 1.0 + cst * b_int
         invalid = np.where(terms <= 0)
         terms[invalid] = 0.0000001
 
@@ -213,10 +107,10 @@ class perturbed_functions():
 
         return tot
 
-    def omega(self):
+    def omega(self , k):
         beta = self.betahat_analytical()
-        coeff0 = self.C0(self.K)
-        c3 = self.C3(self.K)
+        coeff0 = self.C0(k)
+        c3 = self.C3(k)
 
         omega0 = ((1 - self.B) / (1 - beta * self.B))**(-2) * coeff0**(-3)
         omega1 = -2 * omega0 / (((1 - self.B) / (1 - beta * self.B)) * coeff0**2) * c3 * np.sin(omega0 * self.time)
@@ -225,12 +119,12 @@ class perturbed_functions():
 
         return omegatot , omega0 , omega1
 
-    def rad(self):
+    def rad(self , k):
         beta = self.betahat_analytical()
-        _ , omega0 , _ = self.omega()
+        _ , omega0 , _ = self.omega(k)
 
-        coeff0 = self.C0(self.K)
-        coeff3 = self.C3(self.K)
+        coeff0 = self.C0(k)
+        coeff3 = self.C3(k)
         
         r0 = (1 - self.B) / (1 - beta * self.B) * coeff0**2
         r1 = coeff3 * np.sin(omega0 * self.time)
@@ -276,19 +170,22 @@ class perturbed_functions():
         return vrtot    
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    res = np.load("Files/rk45_t6_large_silicate_slowsw_betaderivation.npz")
+    par = dust_properties("silicate" , "CME" , "all" , "large")
+    res = np.load("Files/rk45_t6_large_silicate_CMEsw_betaderivation.npz")
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     rnum = np.sqrt(x**2+y**2)
     p = perturbed_functions(par , t , b , find_k = False)
     
     beta = p.betahat_analytical()
-    c0 , c0_manual = p.C0(p.K)
-    # om = p.omega()
-    # r , _ , _ = p.rad()
-    print(c0 , c0_manual)
-    # plt.plot(t[::10] , c0[::10] , label = r"C_0^4 based on integration of analytical $\hat{\beta}$")
+    kfunc = (1 - p.B)**5 / (6 * beta * (1 - beta * p.B)**7)
+    kav = 0.21692924504018662
+    c0  = p.C0(p.K)
+    
+    om = p.omega(p.K)
+    _ , r , _ = p.rad(p.K)
+    print(p.K , np.mean(kfunc))
+    # plt.plot(t[::10] , r[::10] , label = r"r with K function, K average")
     # plt.legend()
     # plt.show()
     # plt.plot(t[::10] , b[::10] , label = r"Numerical $\hat{\beta}$")

@@ -142,5 +142,5 @@ class dust_properties():
         return eps
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    print(f"R:{R} , eps:{par.eps()}")
+    par = dust_properties("silicate" , "CME" , "all" , "large")
+    print(f"K:{par.K} , eps:{par.eps()}")
