@@ -29,7 +29,7 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
     
     x , y , vx , vy , m  = init #initial conditions unpacked
 
-    dmdt = sputtering(m , epsilon) if massloss else 0.0 #specify change in mass if massloss is considered
+    dmdt = sputtering(m , epsilon , x , y) if massloss else 0.0 #specify change in mass if massloss is considered
 
     ax , ay = tot_acc(x , y , vx , vy , m , particle_obj) #acceleration calcs
 

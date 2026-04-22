@@ -1,4 +1,4 @@
-from config import material_files_bound , dat_to_arr , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
+from config import material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
 from AstronomicalSilicate_modified import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
@@ -134,11 +134,13 @@ class dust_properties():
         elif self.material == "carbon": 
             mA = mA_C
             rho = rho_c
+        
+        x = R / au
     
-        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T 
+        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T  
         
         return eps
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "fast" , "all" , "large")
-    print(par.T , par.delta , par.epsilon)
+    par = dust_properties("silicate" , "slow" , "all" , "large")
+    print(f"R:{R} , eps:{par.eps()}")

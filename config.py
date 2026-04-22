@@ -144,9 +144,13 @@ dt7 = 3.16e3 #/ 6834848
 t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
+dt8 = 3.16e3
+t_tot8 = 12000
+t8 = (dt8 , t_tot8)
+
 
 if __name__ == "__main__":
     1
-    print(diffs[diffs_max] , sil_size[diffs_max] , sil_betaval[diffs_max])
+    print(4/3*np.pi*3500*(2.419656616e-13)**3)
 
 

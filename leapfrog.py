@@ -45,7 +45,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
 
     #half-stepping mass calcs if massloss is considered
     if massloss is not None:
-        m_half = mhat + 0.5 * dt * massloss(mhat , epsilon) 
+        m_half = mhat + 0.5 * dt * massloss(mhat , epsilon , x , y) 
 
     for i in range(1 , N):
         t+=dt
@@ -54,8 +54,8 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
 
         #updating mass if massloss is considered
         if massloss is not None:
-            mhat = m_half + 0.5 * dt * massloss(m_half , epsilon) 
-            m_half += dt * massloss(m_half , epsilon) #updating mass
+            mhat = m_half + 0.5 * dt * massloss(m_half , epsilon , x , y) 
+            m_half += dt * massloss(m_half , epsilon , x , y) #updating mass
 
         bhat = betahat(mhat , particle_obj)
             

@@ -1,5 +1,5 @@
 import sympy as sp
-from sympy import symbols , abc , dsolve , Derivative
+from sympy import symbols , abc , dsolve , Derivative , integrate
 from sympy.abc import a , b , c , g , e , d , f , h , i , j , k , l , m , n , o , p , q , r
 from sympy.solvers.ode.systems import dsolve_system
 from config import rhat0 , betahat0
@@ -14,6 +14,10 @@ B = symbols("B")
 K = symbols("K")
 
 beta = 1 / (1 - t1 / 3)
+totc0beta = beta + B **4 * beta**5 - 4 * B**3 * beta**4 + 6 * B**2 * beta**3 - 4 * B * beta**2
+betaint = integrate(totc0beta , t1)
+print(betaint)
+
 r0_exp = ((1-B) / (1 - beta * B)) * c0**2
 
 dt1_r0 = sp.diff(r0_exp , t1)
@@ -24,8 +28,9 @@ dt1_omega0 = sp.diff(omega0_exp , t1)
 C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3))**(1 / 4)
 #C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1)**(1 / 4)
 dt1_C0 = sp.diff(C0_exp , t1)
-print(dt1_C0)
 
+
+"""
 #defining the hatted variables
 t = sp.Symbol("t") #time
 r_0 = sp.Function("r_0")(t) #r0
@@ -154,7 +159,7 @@ lhs_angeq_10 = angeq_lhs.expand().coeff(epsilon , 1).coeff(delta , 0)
 lhs_angeq_01 = angeq_lhs.expand().coeff(epsilon , 0).coeff(delta , 1)
 
 #print(omegadot_10)
-"""
+
 
 vr1 = sp.Function("vr1")
 vr2 = sp.Function("vr2")

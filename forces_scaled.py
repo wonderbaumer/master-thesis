@@ -27,13 +27,14 @@ def gravity(x , y , particle_obj):
     return acc_x , acc_y 
 
 """calculates mass change from sputtering based on scaled parameters"""
-def sputtering(m , epsilon):
+def sputtering(m , epsilon , x , y):
     """input: m (float), scaled mass
         
        return: dmdt (float), mass change as function of time"""
 
     #dmdt = 0.0
-    dmdt = - epsilon * m**(2 / 3)
+    r = np.sqrt(x**2 + y**2)
+    dmdt = - epsilon * m**(2 / 3) #* r**(-2)
 
     return dmdt
 
@@ -43,14 +44,15 @@ def betahat(m , particle_obj):
 
        returns: betahat(float), scaled betahat """
 
-    r = m**(1/3)
+    #size = m**(1/3)
 
-    #b = m**(-1 / 3) #scaled betahat
-    r_physical = r * particle_obj.r
-    b = particle_obj.beta_func(r_physical) / particle_obj.B
+    b = m**(-1 / 3) #scaled betahat
+    #r_physical = size * particle_obj.r
+    #b = particle_obj.beta_func(r_physical) / particle_obj.B
 
-    if not np.all(np.isfinite(b)):
-        raise ValueError(f"Value outside interpolation range")
+    # r_physmin = 1e-9
+    # if (r_physical < r_physmin).any():
+    #     raise ValueError(f"Value outside interpolation range")
 
     return b
 
