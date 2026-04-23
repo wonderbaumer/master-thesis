@@ -53,21 +53,20 @@ class perturbed_functions():
         cst = -4 * k * self.B / (1 - self.B)**3
         
 
-        var = beta * (1 - self.B * beta)**4
+        var = beta * (1 - self.B * beta)**2
         init = 1 / cst
         
         b_int = it.cumulative_simpson(var , x = t1 , initial = 0)
         terms = 1.0 + b_int * cst
 
+        """
         z = np.log(-1 / beta + 0j)
         first = -3 * z.real 
-        second = -(-243 * self.B**4 + 1296 * self.B**3 - 2916 * self.B**2 - 144 * self.B * t1**3 + 3888 * self.B + t1**2 * (-324 * self.B**2 + 1296 * self.B) + t1 * (-432 * self.B**3 + 1944 * self.B**2 - 3888 * self.B))
-        
-        denominator = 4 * t1**4 - 48 * t1**3 + 216 * t1**2 - 432 * t1 + 324
+        second = -(-27 * self.B**2 - 36 * self.B * t1 + 108 * self.B) / (2 * t1**2 - 12 * t1 + 18)
 
-        c = 1 - 4 * k * self.B**2 / (1 - self.B)**3 * (1296 * self.B**2 - 2916 * self.B - 243 * self.B**3 + 3888) / 324
-
-        term_manual = cst * (first + second / denominator) + c
+        c = 1 - 2 * self.B**2 * k / (9 * (1 - self.B)**3) * (108 - 27 * self.B)
+        terms_man= cst * (first + second) + c
+        """
 
         invalid = np.where(terms <= 0)
         terms[invalid] = 0.0000001
@@ -77,22 +76,12 @@ class perturbed_functions():
         return C0_tot
 
     def C0_prime(self , k):
+        beta = self.betahat_analytical()
+        c0 = self.C0(k)
 
-        cst = -4 * self.B * k / (1 - self.B)**3
-        init = 1 / cst
-        
-        var = self.barr * (1 - self.B * self.barr)**4
-        b_int = it.cumulative_simpson(var , self.time * self.epsilon , initial = 0)
-        terms = 1.0 + cst * b_int
-        invalid = np.where(terms <= 0)
-        terms[invalid] = 0.0000001
+        C0primetot = -4 * self.B * k / (1 - self.B)**3 * beta * (1 - self.B * beta)**2 * c0**(-3)
 
-        first = terms**(-3 / 4)
-
-        second = cst * self.barr * (1 - self.B * self.barr)**4
-        tot = 1 / 4 * first * second
-
-        return tot
+        return C0primetot
     
     def C3(self , k):
         first = -self.B / (3 * (1 - self.B))
@@ -170,21 +159,23 @@ class perturbed_functions():
         return vrtot    
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "CME" , "all" , "large")
-    res = np.load("Files/rk45_t6_large_silicate_CMEsw_betaderivation.npz")
+    par = dust_properties("silicate" , "slow" , "all" , "large")
+    res = np.load("Files/rk45_t6_large_silicate_slowsw_betaderivation.npz")
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     rnum = np.sqrt(x**2+y**2)
     p = perturbed_functions(par , t , b , find_k = False)
     
     beta = p.betahat_analytical()
-    kfunc = (1 - p.B)**5 / (6 * beta * (1 - beta * p.B)**7)
-    kav = 0.21692924504018662
-    c0  = p.C0(p.K)
+    kfunc = beta * (1 - p.B) / (6 * (1 - beta * p.B))
+    #kav = 0.21692924504018662
+    c0 = p.C0(p.K)
     
-    om = p.omega(p.K)
-    _ , r , _ = p.rad(p.K)
-    print(p.K , np.mean(kfunc))
+    plt.plot(t[::10] , kfunc[::10])
+    plt.show()
+    # om = p.omega(p.K)
+    # _ , r , _ = p.rad(p.K)
+    
     # plt.plot(t[::10] , r[::10] , label = r"r with K function, K average")
     # plt.legend()
     # plt.show()

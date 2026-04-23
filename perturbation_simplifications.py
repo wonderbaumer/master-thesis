@@ -14,19 +14,19 @@ B = symbols("B")
 K = symbols("K")
 
 beta = 1 / (1 - t1 / 3)
-totc0beta = beta + B **4 * beta**5 - 4 * B**3 * beta**4 + 6 * B**2 * beta**3 - 4 * B * beta**2
-betaint = integrate(totc0beta , t1)
-print(betaint)
+totc0beta = beta * (1 - beta * B)**2
+totc0int = integrate(totc0beta , t1)
+print(totc0int)
 
-r0_exp = ((1-B) / (1 - beta * B)) * c0**2
-
+r0_exp = ((1 - B) / (1 - beta * B)) * c0**2
 dt1_r0 = sp.diff(r0_exp , t1)
 
-omega0_exp = ((1-B) / (1 - beta * B))**(-2) * c0**(-3)
+omega0_exp = ((1 - B) / (1 - beta * B))**(-2) * c0**(-3)
 dt1_omega0 = sp.diff(omega0_exp , t1)
 
+
 C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1 + 4 * B * K / (1 - B)**3 * (9 * B**2 - 45 * B / 4 - 4 * B**3))**(1 / 4)
-#C0_exp = (-4 * B * K / (1 - B)**3 *(3 * beta**4 * B / 4 - 4 * B**3 * beta**3 + 9 * B**2 * beta**2 - 12 * B * beta + 3 * sp.log(beta)) + 1)**(1 / 4)
+
 dt1_C0 = sp.diff(C0_exp , t1)
 
 
