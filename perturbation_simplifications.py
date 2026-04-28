@@ -12,14 +12,18 @@ b = symbols("b")
 c0 = sp.Function("c0")(t1)
 B = symbols("B")
 K = symbols("K")
+d0 = sp.Function("d0")(t1)
 
 beta = 1 / (1 - t1 / 3)
 totc0beta = beta * (1 - beta * B)**2
 totc0int = integrate(totc0beta , t1)
-print(totc0int)
+
+theta0 = ((1 - B) / (1 - beta * B))**(-2) * c0**(-3) * t0 + d0
+dt1_theta0 = sp.diff(theta0 , t1)
 
 r0_exp = ((1 - B) / (1 - beta * B)) * c0**2
 dt1_r0 = sp.diff(r0_exp , t1)
+print(dt1_r0)
 
 omega0_exp = ((1 - B) / (1 - beta * B))**(-2) * c0**(-3)
 dt1_omega0 = sp.diff(omega0_exp , t1)

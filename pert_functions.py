@@ -9,7 +9,6 @@ from numpy.lib.stride_tricks import sliding_window_view
 from config import t6 , t5
 import scipy.integrate as it
 import matplotlib.pyplot as plt
-import cmath
 
 class perturbed_functions():
 
@@ -29,16 +28,11 @@ class perturbed_functions():
         self.epsilon = particle.eps()
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
-        # self.coeff3 = self.C3()
-        # self.d0 = self.D0()
-        self.find_k = find_k
-        if self.find_k:
-            self.kb_comb()
-            #self.K_variation()
+
     
     def K_calc(self):
         
-        tot = (1 - self.B)**5 / (6 * self.barr * (1 - self.barr * self.B)**7)
+        tot = self.barr * (1 - self.B)**3 / (6 * (1 - b * self.B))
 
         return tot
     
@@ -47,7 +41,8 @@ class perturbed_functions():
     
     ###WITH DRAG###
     def C0(self , k):
-        beta = self.betahat_analytical()
+        # beta = self.betahat_analytical()
+        beta = self.barr
         t1 = self.time * self.epsilon
         
         cst = -4 * k * self.B / (1 - self.B)**3
@@ -76,10 +71,11 @@ class perturbed_functions():
         return C0_tot
 
     def C0_prime(self , k):
-        beta = self.betahat_analytical()
+        # beta = self.betahat_analytical()
+        beta = self.barr
         c0 = self.C0(k)
 
-        C0primetot = -4 * self.B * k / (1 - self.B)**3 * beta * (1 - self.B * beta)**2 * c0**(-3)
+        C0primetot = -self.B * k / (1 - self.B)**3 * beta * (1 - self.B * beta)**2 * c0**(-3)
 
         return C0primetot
     
@@ -97,7 +93,7 @@ class perturbed_functions():
         return tot
 
     def omega(self , k):
-        beta = self.betahat_analytical()
+        beta = self.barr
         coeff0 = self.C0(k)
         c3 = self.C3(k)
 
@@ -109,7 +105,8 @@ class perturbed_functions():
         return omegatot , omega0 , omega1
 
     def rad(self , k):
-        beta = self.betahat_analytical()
+        # beta = self.betahat_analytical()
+        beta = self.barr
         _ , omega0 , _ = self.omega(k)
 
         coeff0 = self.C0(k)
@@ -122,17 +119,17 @@ class perturbed_functions():
 
         return rtot , r0 , r1
 
-    def theta(self):
-        coeff0 = self.C0(self.K)
-        coeff0_prime = self.C0_prime(self.K)
-        c3 = self.C3(self.K)
+    def theta(self , k):
+        coeff0 = self.C0(k)
+        coeff0_prime = self.C0_prime(k)
+        c3 = self.C3(k)
         d0 = self.D0(c3)
 
-        _ , omega0 , _ = self.omega()
-        _ , r0 , _ = self.rad()
+        _ , omega0 , _ = self.omega(k)
+        _ , r0 , _ = self.rad(k)
 
         theta0 = ((1 - self.B) / (1 - self.B * self.barr))**(-2) * coeff0**(-3) * self.time + d0
-        theta11 = 2 / r0 * c3 * np.cos(omega0 * self.time)
+        theta11 = 2 * omega0 / r0 * c3 * np.cos(omega0 * self.time)
         theta12 = -self.time**2 / 2 * coeff0**(-3) * ((1 - self.barr * self.B) / (1 - self.B)**2) * (-2 * self.B * self.barr**2 / 3 - 3 * (1 - self.barr * self.B) * coeff0**(-1) * coeff0_prime)
 
         theta1 = theta11 + theta12
@@ -141,10 +138,10 @@ class perturbed_functions():
     
         return thetatot
 
-    def vr(self):
-        coeff0 = self.C0(self.K)
-        coeff0_prime = self.C0_prime(self.K)
-        c3 = self.C3(self.K)
+    def vr(self , k):
+        coeff0 = self.C0(k)
+        coeff0_prime = self.C0_prime(k)
+        c3 = self.C3(k)
         
 
         _ , omega0 , _ = self.omega()
@@ -159,39 +156,27 @@ class perturbed_functions():
         return vrtot    
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
-    res = np.load("Files/rk45_t6_large_silicate_slowsw_betaderivation.npz")
+    par = dust_properties("silicate" , "slow" , "small")
+    res = np.load("Files/rk45_t6_small_silicate_slowsw.npz")
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     rnum = np.sqrt(x**2+y**2)
     p = perturbed_functions(par , t , b , find_k = False)
     
-    beta = p.betahat_analytical()
-    kfunc = beta * (1 - p.B) / (6 * (1 - beta * p.B))
-    #kav = 0.21692924504018662
-    c0 = p.C0(p.K)
+    # c0 = p.C0(p.K)
     
-    plt.plot(t[::10] , kfunc[::10])
-    plt.show()
-    # om = p.omega(p.K)
-    # _ , r , _ = p.rad(p.K)
     
-    # plt.plot(t[::10] , r[::10] , label = r"r with K function, K average")
-    # plt.legend()
-    # plt.show()
-    # plt.plot(t[::10] , b[::10] , label = r"Numerical $\hat{\beta}$")
-    # plt.plot(t[::10] , beta[::10] , label = r"Perturbed $\hat{\beta}$" , linestyle = "--")
-    # plt.xlabel(r"$\hat{t}$")
-    # plt.ylabel(r"$\hat{\beta}$")
-    # plt.title(r"$\hat{\beta}$ numerical and perturbed, $\hat{\beta}=m^{-1/3}$")
+    
+    # om , _ , _ = p.omega(p.K)
+    # r , _ , _ = p.rad(p.K)
 
-    # plt.plot(t[::10] , rnum[::10] , label = r"Numerical $\hat{r}$")
-    # plt.plot(t[::10] , r[::10] , label = r"Perturbed $\hat{r}$" , linestyle = "--")
-    # plt.xlabel(r"$\hat{t}$")
-    # plt.ylabel(r"$\hat{r}$")
-    # plt.title(r"$\hat{r}$ numerical and perturbed, $\hat{\beta}=m^{-1/3}$")
-    # plt.legend()
-    # plt.show()
+
+    
+    
+
+    
+    
+    
     
     
    

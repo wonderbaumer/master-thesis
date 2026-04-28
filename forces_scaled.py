@@ -34,6 +34,7 @@ def sputtering(m , epsilon , x , y):
 
     #dmdt = 0.0
     r = np.sqrt(x**2 + y**2)
+
     dmdt = - epsilon * m**(2 / 3) #* r**(-2)
 
     return dmdt
@@ -44,15 +45,15 @@ def betahat(m , particle_obj):
 
        returns: betahat(float), scaled betahat """
 
-    #size = m**(1/3)
+    size = m**(1/3)
 
-    b = m**(-1 / 3) #scaled betahat
-    #r_physical = size * particle_obj.r
-    #b = particle_obj.beta_func(r_physical) / particle_obj.B
+    
+    r_physical = size * particle_obj.r
+    b = particle_obj.beta_func(r_physical) / particle_obj.B
 
-    # r_physmin = 1e-9
-    # if (r_physical < r_physmin).any():
-    #     raise ValueError(f"Value outside interpolation range")
+    r_physmin = 1e-9
+    if (r_physical < r_physmin).any():
+        raise ValueError(f"Value outside interpolation range")
 
     return b
 
@@ -87,7 +88,7 @@ def pr_drag(x , y , vx , vy , m , particle_obj):
 
     theta = np.atan2(y , x)
 
-    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.V / ((1 - particle_obj.B) * r**3 * c)
+    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.K * particle_obj.epsilon / ((1 - particle_obj.B) * r**3)
     #A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.delta / ((1 - particle_obj.B) * r**3)
     x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
     y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)

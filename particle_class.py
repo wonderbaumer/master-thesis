@@ -2,21 +2,24 @@ import numpy as np
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc , sputtering , inter_func
-from config import t5 , t6 , t7 , t8 , material_files , betahat0 , mhat0 , init_cart_scaled
+from config import t5 , t6 , t7 , material_files , betahat0 , mhat0 , init_cart_scaled
 from scipy.constants import G
 from polar_to_cart import polar_to_cartesian
 from dust_properties import dust_properties
 import matplotlib.pyplot as plt
 
-"""class solving scaled equations of motion for a particle using user-specified numerical solver"""
+""""""
 class particle_solver():
-    """attributes:                
+    """class solving scaled equations of motion for a particle using user-specified numerical solver
+    
+    Attributes:                
        sim_time (tuple), consisting of dt and t_tot
         
        solver (string), user-specified solver for equation of motion. 
                         Default:LEAPFROG, else RK45, RK23 or DOP853
 
        massloss (boolean), optional. default:True if massloss considered, False if not
+
                    
        methods: 
        
@@ -32,6 +35,8 @@ class particle_solver():
         self.B = par.B
         self.V = par.V
         self.T = par.T
+        self.K = par.K
+        self.delta = par.delta
         self.epsilon = par.epsilon
         self.mhat0 = mhat0
         self.betahat0 = betahat0
@@ -39,8 +44,6 @@ class particle_solver():
         self.init_cart_scaled = init_cart_scaled
         self.file = material_files[self.particle.material]
         
-        self.epsilon = par.eps()
-        self.K = par.K
         self.beta_func = inter_func(self.file) #interpolation function for beta values
 
     """calculates position, velocity and other parameters using different solvers"""
@@ -98,14 +101,14 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "all" , "large")
+    par = dust_properties("silicate" , "slow" , "large")
     p = particle_solver(t6 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
     
-    np.savez("Files/rk45_t6_large_silicate_slowsw_betaderivation.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b , t = t)
+    np.savez("Files/rk45_t6_large_silicate_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     
-    # plt.show()
+    
     
     
     

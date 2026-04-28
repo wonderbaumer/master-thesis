@@ -1,11 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from config import B , t6 
-from pert_functions import vrhat_pert , thetahat_pert , omegahat_pert , rhat_pert , betahat_pert
+# from config import B , t6 
+# from pert_functions import vrhat_pert , thetahat_pert , omegahat_pert , rhat_pert , betahat_pert
 
-"""func calculating scaled eccentricity using scaled/hatted values from numerical solver"""
+
+"""
+#func calculating scaled eccentricity using scaled/hatted values from numerical solver
 def eccentricity_sc(x , y , vx , vy , beta , t , type = "numerical"):
-    """input: x (array), x position 
+    """"""input: x (array), x position 
               y (array), y position 
               vx (array), x velocity 
               vy (array), y velocity 
@@ -14,7 +16,7 @@ def eccentricity_sc(x , y , vx , vy , beta , t , type = "numerical"):
               type (str), default: "numerical", if using numerical solved params
               else "perturbed", if using perturbed params
 
-       returns: ecc (arr), scaled eccentricity values"""
+       returns: ecc (arr), scaled eccentricity values""""""
     
     dt , t_tot = t
     that = np.arange(0 , t_tot , dt)
@@ -53,9 +55,10 @@ def eccentricity_sc(x , y , vx , vy , beta , t , type = "numerical"):
     ecc = np.sqrt(ecc_sq) #eccentricity
 
     return ecc
+"""
 
 """calculates eccentricity for each orbit based on mathematical definitions"""
-def ecc_math(x , y , t , ecc_sc):
+def ecc_math(x , y , t , ecc_sc = None):
     """input: t (tuple), on the form dt, t_tot
               x (array), scaled x position 
               y (array), scaled y position
@@ -67,9 +70,9 @@ def ecc_math(x , y , t , ecc_sc):
 
     r = np.sqrt(x**2 + y**2) #radial distance
 
-    dt , t_tot = t
-    that = np.arange(0 , t_tot , dt)
-  
+    # dt , t_tot = t
+    # that = np.arange(0 , t_tot , dt)
+    that = t
     orbit_index = np.floor(theta_cont / (2 * np.pi)) #defining orbit in terms of angle
     full_orbit = np.where(np.diff(orbit_index) > 0)[0] + 1 #indexing orbits 
 
@@ -89,13 +92,14 @@ def ecc_math(x , y , t , ecc_sc):
 
     ecce_filled = eccearr_filled[: , 2]
 
-    return ecce_filled , that , ecc_sc
+    return ecce_filled , that #, ecc_sc
 
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t6_masslossTrue_scaledeqs.npz")
-    x1 , y1 , vx1 , vy1 , m1 , b1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-    ecc = eccentricity_sc(x1 , y1 , vx1 , vy1 , b1 , t6 , type = "perturbed")
+    rk = np.load("Files/rk45_t6_large_silicate_slowsw_realbeta.npz")
+    x1 , y1 , vx1 , vy1 , m1 , b1 , t1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    ecc , _ = ecc_math(x1 , y1 , t1)
+    print(ecc)
     
     
     

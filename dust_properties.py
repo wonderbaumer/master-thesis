@@ -1,25 +1,36 @@
-from config import material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , u , m_Mg , m_Si , m_O , m_Fe , m_C , R , M_ms , M_mc , mA_S , mA_C , size_to_mass
-from AstronomicalSilicate_modified import sputter
+from config import (material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , sil_size ,
+                     sil_betaval , car_betaval_bound , car_size_bound , R , M_ms , M_mc , mA_S , mA_C , size_to_mass)
+from sputtering_dict import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
-from forces import beta
 
 class dust_properties():
+    """Calculating properties of particle given speicified material, solar wind conditions and initial size
+    
+    Attributes: material (string), "silicate" or "carbon", indicating particle material
+                m0 (float), initial particle mass, in kg
+                Ytot (float), total sputtering yield, unitless
+                fsw (float), solar wind flux, in kgm^-3
+                V (float), initial orbital velocity, in ms^-1
+                T (float), initial orbital period, in s
 
-    def __init__(self , material , sw , species , size = None):
+                """
+    def __init__(self , material , sw , size = None , size_range = None):
+        """input: 
+                  sw (string), "fast", "slow" or "CME", indicating solar wind conditions
+                  size (string), default: None, "small", "large" or "medium", indicating particle initial size
+                  size_range (tuple), default: None, else tuple consisting of a set of size values, beta values"""
 
         self.material = material
-        self.file = material_files_bound[self.material]
         self.sw = sw
-        self.species = species #solar wind elements sputtering
 
         if isinstance(size , str):
             self.size = size
             self.r = init_vals[self.size]["r"]
             self.B = init_vals[self.size]["B"][self.material.lower()]
         
-        elif size is None:
-            self.r , self.B , _ = self.file
+        if size_range is not None:
+            self.r , self.B = size_range
         
         self.m0 = size_to_mass(self.r , self.material)
 
@@ -32,9 +43,8 @@ class dust_properties():
         self.epsilon = self.eps()
 
         self.delta = self.V / c
-        #self.delta = self.epsilon
         self.K = self.delta / self.epsilon
-        #self.K = 10.0
+        
 
     def calc_V(self):
         V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
@@ -76,25 +86,20 @@ class dust_properties():
         
             returns: Ytot (array), total sputtering yield"""
     
-        if self.species == "all":
-            H = np.sum(sputter[self.material][self.sw]["H"]) #total sputtering yield hydrogen
-            He = np.sum(sputter[self.material][self.sw]["He"]) #total sputtering yield helium
-            C = np.sum(sputter[self.material][self.sw]["C"]) #total sputtering yield carbon
-            O = np.sum(sputter[self.material][self.sw]["O"]) #total sputtering yield oxygen
-            N = np.sum(sputter[self.material][self.sw]["N"]) #total sputtering yield nitrogen
-            Fe = np.sum(sputter[self.material][self.sw]["Fe"]) #total sputtering yield iron
-            Ne = np.sum(sputter[self.material][self.sw]["Ne"]) #total sputtering yield neon
-            Mg = np.sum(sputter[self.material][self.sw]["Mg"]) #total sputtering yield magnesium
-            Si = np.sum(sputter[self.material][self.sw]["Si"]) #total sputtering yield silicon
-            S = np.sum(sputter[self.material][self.sw]["S"]) #total sputtering yield sulfur
+        H = np.sum(sputter[self.material][self.sw]["H"]) #total sputtering yield hydrogen
+        He = np.sum(sputter[self.material][self.sw]["He"]) #total sputtering yield helium
+        C = np.sum(sputter[self.material][self.sw]["C"]) #total sputtering yield carbon
+        O = np.sum(sputter[self.material][self.sw]["O"]) #total sputtering yield oxygen
+        N = np.sum(sputter[self.material][self.sw]["N"]) #total sputtering yield nitrogen
+        Fe = np.sum(sputter[self.material][self.sw]["Fe"]) #total sputtering yield iron
+        Ne = np.sum(sputter[self.material][self.sw]["Ne"]) #total sputtering yield neon
+        Mg = np.sum(sputter[self.material][self.sw]["Mg"]) #total sputtering yield magnesium
+        Si = np.sum(sputter[self.material][self.sw]["Si"]) #total sputtering yield silicon
+        S = np.sum(sputter[self.material][self.sw]["S"]) #total sputtering yield sulfur
 
-            Ytot = H + He + C + O + N + Fe + Ne + Mg + Si + S #total sputtering yield 
-    
-        else:
-            spec = np.sum(sputter[self.material][self.sw][self.species]) #total sputtering yield specified species
+        Ytot = H + He + C + O + N + Fe + Ne + Mg + Si + S #total sputtering yield 
 
-            Ytot = spec #total sputtering yield
-
+            
         return Ytot
 
     """sputtering lifetime calcs"""
@@ -141,6 +146,22 @@ class dust_properties():
         
         return eps
 
+    def K_cst_r(self):
+        Kcst = (1 - self.B)**2 / 6
+
+        tol = 1e-5
+        
+        vals = np.zeros((3 , len(Kcst)))
+
+        for i in range(len(self.K)):
+            
+            if self.K[i] - Kcst[i] < tol:
+                vals[: , i] = [self.K[i] , self.B[i] , self.r[i]]
+
+        return vals
+    
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "CME" , "all" , "large")
-    print(f"K:{par.K} , eps:{par.eps()}")
+    
+    par = dust_properties("silicate" , "slow" , size = "large")
+    print(f"K:{par.K}")
+    
