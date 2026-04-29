@@ -136,7 +136,7 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
     res = np.load(file_path)
     x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     r = np.sqrt(x**2 + y**2)
-    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
+    ymin , ymax = np.where(r <= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_theta.png"
@@ -173,12 +173,12 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
         
         # else:
         #     plt.ylim(theta_per[ymin][0] , theta_per[ymax][-1])
-
+        
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
         plt.legend()
-        plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
     
     if material == "silicate":
         plt.plot(t[::10] , theta1[::10])
@@ -212,6 +212,23 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
     x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     r = np.sqrt(x**2 + y**2) #r hat
+    num_orbits = int(t[-1] / (2 * np.pi))
+    t_index = int(len(t) / num_orbits)
+    t_numtot = t[::t_index]
+    r_numtot = r[::t_index]
+    r_betw = np.zeros((len(r_numtot) - 1 , t_index))
+    amp = np.zeros((len(r_betw)))
+
+    for i in range(len(r_numtot) - 1):
+        r_betw[i, :] = r[i*t_index:(i+1)*t_index]
+    
+    for i , row in enumerate(r_betw):
+        max_ind = np.argmax(i)
+        min_ind = np.argmin(i)
+
+        amp[i] = (np.abs(row[max_ind]) + np.abs(row[min_ind])) / 2
+
+    # print(amp)  
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_r.png"
@@ -236,8 +253,9 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
     if pert is not None: #comparing RK4(5) with perturbed rhat
         r_per = pert
         rel_fw_err = np.abs(r - r_per) / np.abs(r)
-        print(rel_fw_err)
+        # print(rel_fw_err)
         save_path2 = f"Plots/{base_name}_r_vs_perturbed.png"
+        # plt.scatter(t_numtot , r_numtot , color = "black" , label = "Orbits")
         plt.plot(t[::10] , r[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.xlabel(r"$\hat{t}$")
@@ -337,7 +355,7 @@ def omegahat_comps(file_path , pert = None , material = None):
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     r = np.sqrt(x**2 + y**2)
-    # ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
+    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_omega.png"
@@ -363,6 +381,7 @@ def omegahat_comps(file_path , pert = None , material = None):
 
         plt.legend()
         save_path = f"Plots/{base_name}_omega_vs_perturbed.png"
+        
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     if material == "silicate":
@@ -681,9 +700,9 @@ def v_theta(file_path , pert = None , material = None):
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , "large")
-    file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
+    file_path = "Files/rk45_t6_large_silicate_slowsw_1AU_swalt.npz"
     res = np.load(file_path)
-    x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     p = perturbed_functions(par , t , b , find_k = False)
     c0 = p.C0(p.K)
@@ -692,14 +711,14 @@ if __name__ == "__main__":
     thetaval = p.theta(p.K)
     betas = p.barr
     vthetapert = om * r
-
-    # rhat = rhat_comps(file_path , file_path_comp = None , pert = r)
+    
+    rhat = rhat_comps(file_path , file_path_comp = None , pert = r)
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)
     # betahats = b_plot(file_path , betas)
-    vtheta = v_theta(file_path , vthetapert)
+    # vtheta = v_theta(file_path , vthetapert)
 
-
+    
 
 
     

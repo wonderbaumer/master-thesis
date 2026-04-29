@@ -48,7 +48,9 @@ def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , part
     
     with tqdm(total = 1000) as pbar:
         sol = solve_ivp(fun , t_span , y0 , method = method ,
-                    t_eval = t_eval , args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
+                      args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
+        # sol = solve_ivp(fun , t_span , y0 , method = method ,
+        #             t_eval = t_eval , args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
 
     
     return sol

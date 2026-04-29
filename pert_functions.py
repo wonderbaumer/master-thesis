@@ -28,11 +28,12 @@ class perturbed_functions():
         self.epsilon = particle.eps()
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
+        self.K_theoretical = self.K_calc()
 
     
     def K_calc(self):
         
-        tot = self.barr * (1 - self.B)**3 / (6 * (1 - b * self.B))
+        tot = self.barr * (1 - self.B)**3 / (6 * (1 - self.barr * self.B))
 
         return tot
     
@@ -80,10 +81,7 @@ class perturbed_functions():
         return C0primetot
     
     def C3(self , k):
-        first = -self.B / (3 * (1 - self.B))
-        second = -2 * self.B * k * (-4 * self.B**3 + 6 * self.B**2 - 3 * self.B + 1) / (1 - self.B)**3
-
-        tot = first + second
+        tot = self.B * (24 * k - 1) / (3 * (1 - self.B))
 
         return tot
     
@@ -130,7 +128,7 @@ class perturbed_functions():
 
         theta0 = ((1 - self.B) / (1 - self.B * self.barr))**(-2) * coeff0**(-3) * self.time + d0
         theta11 = 2 * omega0 / r0 * c3 * np.cos(omega0 * self.time)
-        theta12 = -self.time**2 / 2 * coeff0**(-3) * ((1 - self.barr * self.B) / (1 - self.B)**2) * (-2 * self.B * self.barr**2 / 3 - 3 * (1 - self.barr * self.B) * coeff0**(-1) * coeff0_prime)
+        theta12 = (self.time**2 / 2 * coeff0**(-3) * (1 - self.barr * self.B) / (1 - self.B)**2) * (2 * self.B * self.barr**2 / 3 + 3 * (1 - self.barr * self.B) * coeff0**(-1) * coeff0_prime)
 
         theta1 = theta11 + theta12
 
@@ -156,13 +154,13 @@ class perturbed_functions():
         return vrtot    
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "small")
-    res = np.load("Files/rk45_t6_small_silicate_slowsw.npz")
+    par = dust_properties("carbon" , "slow" , "large")
+    res = np.load("Files/rk45_t6_large_carbon_slowsw.npz")
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     rnum = np.sqrt(x**2+y**2)
     p = perturbed_functions(par , t , b , find_k = False)
-    
+    print(p.K_theoretical , par.K)
     # c0 = p.C0(p.K)
     
     

@@ -97,8 +97,6 @@ def size_to_mass(r , material):
 
     return m
 
-r_vals = np.linspace(0.00100 * 10**(-6) , 50 * 10**(-6) , 200)
-
 #Fetching particle sizes and beta values corresponding to bound orbit
 tol = 1e-8
 

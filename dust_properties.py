@@ -8,18 +8,32 @@ class dust_properties():
     """Calculating properties of particle given speicified material, solar wind conditions and initial size
     
     Attributes: material (string), "silicate" or "carbon", indicating particle material
+                sw (string), "fast", "slow" or "CME", indicating solar wind conditions
+                size (string), default: None, "small", "large" or "medium", indicating particle initial size
+                size_range (tuple), default: None, else tuple consisting of a set of size values, beta values
+
+                r (float), initial particle size, in m
+                B (float), initial beta value, unitless
                 m0 (float), initial particle mass, in kg
                 Ytot (float), total sputtering yield, unitless
                 fsw (float), solar wind flux, in kgm^-3
                 V (float), initial orbital velocity, in ms^-1
                 T (float), initial orbital period, in s
+                epsilon (float), mass loss rate, unitless
+                delta (float), PR drag term, unitless
+                K (float), mass loss to PR drag ratio, unitless
+
+    Methods: calc_V(), calculates initial orbital velocity
+             calc_T(), calculates initial orbital period
+             sw_flux(), calculates solar wind flux
+             sputtering_yield(), calculates total sputtering yield
+             sputtering_lifetime(), calculates sputtering lifetime
+             eps(), calculates epsilon
+             K_cst_r(), calculates and compares K for all initial r and B values, assuming beta slowly changing
 
                 """
     def __init__(self , material , sw , size = None , size_range = None):
-        """input: 
-                  sw (string), "fast", "slow" or "CME", indicating solar wind conditions
-                  size (string), default: None, "small", "large" or "medium", indicating particle initial size
-                  size_range (tuple), default: None, else tuple consisting of a set of size values, beta values"""
+        """Initiating dust properties calculations based on input parameters"""
 
         self.material = material
         self.sw = sw
@@ -45,46 +59,42 @@ class dust_properties():
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
         
-
     def calc_V(self):
-        V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial angular velocity, scaled formula
+        """Calculates initial orbital velocity from given B and R"""
+        V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial orbital velocity, in ms^-1
 
         return V
 
     def calc_T(self):
-        T = np.sqrt(R**3 / (G * m_s * (1 - self.B)))
+        """Calculates initial orbital period from given B and R"""
+        T = np.sqrt(R**3 / (G * m_s * (1 - self.B))) #initial orbital period, in s
 
         return T
 
-    #Solar wind flux
     def sw_flux(self):
-        """input: sw (string), solar wind conditions, default slow, options fast, slow, CME
-        
-            returns: fsw (array), solar wind flux"""
+        """Calculates solar wind flux based on user input solar wind conditions"""
     
         if self.sw == "fast":
-            N_sw = 3e6 #m^-3 density fast solar wind
+            N_sw = 3e6 #particles m^-3, density fast solar wind
             v_sw = 8e5 #ms^-1, velocity fast solar wind
-            fsw = N_sw * v_sw #solar wind flux, m^-2s^-1
+            fsw = N_sw * v_sw #solar wind flux, particles m^-2s^-1
     
         elif self.sw == "slow":
-            N_sw = 8e6 #m^-3, density slow solar wind
+            N_sw = 8e6 #particles m^-3, density slow solar wind
             v_sw = 3e5 #ms^-1, velocity slow solar wind
-            fsw = N_sw * v_sw #solar wind flux, m^-2s^-1
+            # v_sw = 8e5
+            fsw = N_sw * v_sw #solar wind flux, particles m^-2s^-1
     
         elif self.sw == "CME":
-            N_sw = 7e7 #m^-3, density slow solar wind
+            N_sw = 7e7 #particles m^-3, density slow solar wind
             v_sw = 5e5 #ms^-1, velocity slow solar wind
-            fsw = N_sw * v_sw #solar wind flux, m^-2s^-1
+            fsw = N_sw * v_sw #solar wind flux, particles m^-2s^-1
     
         return fsw
 
     #Total sputtering yield
     def sputtering_yield(self):
-        """input: sw (string), solar wind conditions, default slow, options fast, slow, CME
-                species (string), solar wind elements, default all, else one of H, He, C, O, N, Fe, Ne, Mg, Si, S
-        
-            returns: Ytot (array), total sputtering yield"""
+        """Calculates total sputtering yield based on input material and solar wind conditions"""
     
         H = np.sum(sputter[self.material][self.sw]["H"]) #total sputtering yield hydrogen
         He = np.sum(sputter[self.material][self.sw]["He"]) #total sputtering yield helium
@@ -99,17 +109,10 @@ class dust_properties():
 
         Ytot = H + He + C + O + N + Fe + Ne + Mg + Si + S #total sputtering yield 
 
-            
         return Ytot
 
-    """sputtering lifetime calcs"""
     def sputtering_lifetime(self):
-        """input: r0 (float), initial dust radius
-                fsw (float), solar wind flux
-                Ytot (float), total sputtering yield
-                M_m (float), molar mass of the material
-
-        returns: t_sp (float), sputtering lifetime"""
+        """Calculates sputtering lifetime from input material and solar wind conditions, 1 AU distance from the Sun"""
 
         if self.material == "silicate":
             M_m = M_ms
@@ -162,6 +165,6 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "slow" , size = "large")
-    print(f"K:{par.K}")
+    par = dust_properties("carbon" , "slow" , size = "large")
+    print(f"k:{par.K}")
     

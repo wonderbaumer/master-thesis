@@ -88,7 +88,7 @@ def pr_drag(x , y , vx , vy , m , particle_obj):
 
     theta = np.atan2(y , x)
 
-    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.K * particle_obj.epsilon / ((1 - particle_obj.B) * r**3)
+    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.delta / ((1 - particle_obj.B) * r**3)
     #A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.delta / ((1 - particle_obj.B) * r**3)
     x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
     y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)
