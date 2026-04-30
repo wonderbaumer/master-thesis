@@ -209,8 +209,8 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         returns: none"""
     
     res = np.load(file_path)
-    x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-    
+    # x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , _ , t = [res[k] for k in ("x" , "y" , "b", "t")]
     r = np.sqrt(x**2 + y**2) #r hat
     num_orbits = int(t[-1] / (2 * np.pi))
     t_index = int(len(t) / num_orbits)
@@ -260,20 +260,20 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{r}$")
-        plt.title(r"$\hat{r}$ from RK4(5) and perturbed solution")
+        plt.title(r"$\hat{r}$ from RK4(5) silicate and perturbed solution")
         plt.legend()
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
 
     if material == "silicate":
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
         
     
     if material == "carbon":
         plt.plot(t[::10] , r[::10])
         plt.title(r"$\hat{r}$ for carbon, real $\hat{\beta}$")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
         
     plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{r}$")
@@ -584,8 +584,8 @@ def beta_curves(interp = False , comp = False , sample_pts = False):
     if comp == True:
         plt.xscale("log")
         plt.yscale("log")
-        plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
-        plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+        plt.plot(sil_size , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
+        plt.plot(car_size , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
         plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
     
     """curve with sampling points"""
@@ -615,6 +615,7 @@ def PR_spu_lifetime():
 
     ls = {"silicate" : "-" , 
           "carbon" : "--"}
+    
     cl = {"slow" : "green" ,
           "fast" : "red" ,
           "CME" : "blue"}
@@ -627,26 +628,81 @@ def PR_spu_lifetime():
         par_carb = dust_properties("carbon" , sw , size = None , size_range = (car_size , car_betaval))
         t_sp_car = par_carb.sputtering_lifetime()
         tsp_vals["carbon"][sw] = t_sp_car
-        
-    for mat, sw_dict in tsp_vals.items():
 
-        for sw, vals in sw_dict.items():
-            label = f"{mat} {sw}"
+    fig , ax = plt.subplots()
 
-            plt.plot(sil_size , vals , color = cl[sw] , linestyle = ls[mat] , label = label)
+    for mat in material: 
+        size = sil_size if mat == "silicate" else car_size
+        pr = sil_PR if mat == "silicate" else car_PR
 
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.plot(sil_size , sil_PR , color = "black" , linestyle = "-" , label = "PR lifetime")
-    plt.plot(car_size , car_PR , color = "black" , linestyle = "--")
-    plt.savefig(f"Plots/PR_sputtering_lifetime.png" , dpi = 300 , bbox_inches = 'tight')
+        for sw, vals in tsp_vals[mat].items():
+            ax.plot(size , vals,
+                     color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
 
+        label = "PR lifetime"
+        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = label)
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_ylim(0.1 , 10**8)
 
-    plt.title(r"Poynting-Robertson and sputtering lifetimes")
-    plt.xlabel(r"Particle size (m)")
-    plt.ylabel(r"Lifetime (years)")
-    plt.legend()
+        ax.set_xlabel(r"Particle size (m)")
+        ax.set_ylabel(r"Lifetime (years)")
+
+        ax.set_title("Combined: PR and sputtering lifetimes")
+        ax.legend()
+        # fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_tot.png", dpi = 300 , bbox_inches = 'tight')
+
     plt.show()
+        
+def PR_spu_lifetime_separate(limits = False):
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    tsp_vals = {m: {} for m in material}
+
+    ls = {"silicate" : "-" , 
+          "carbon" : "--"}
+    
+    cl = {"slow" : "green" ,
+          "fast" : "red" ,
+          "CME" : "blue"}
+    
+    for sw in sw_conds:
+        par_sil = dust_properties("silicate" , sw , size = None , size_range = (sil_size , sil_betaval))
+        t_sp_sil = par_sil.sputtering_lifetime()
+        tsp_vals["silicate"][sw] = t_sp_sil
+
+        par_carb = dust_properties("carbon" , sw , size = None , size_range = (car_size , car_betaval))
+        t_sp_car = par_carb.sputtering_lifetime()
+        tsp_vals["carbon"][sw] = t_sp_car
+
+    for mat in material: 
+        fig , ax = plt.subplots()
+        size = sil_size if mat == "silicate" else car_size
+        pr = sil_PR if mat == "silicate" else car_PR
+
+        for sw, vals in tsp_vals[mat].items():
+            ax.plot(size , vals,
+                     color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
+            
+            if mat == "carbon":
+                ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1)
+
+        label = f"{mat} PR" 
+        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = label)
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_ylim(0.1 , 10**8)
+
+        ax.set_xlabel(r"Particle size (m)")
+        ax.set_ylabel(r"Lifetime (years)")
+
+       
+        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes")
+        ax.legend()
+        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate.png", dpi = 300 , bbox_inches = 'tight')
+
+    plt.show()
+    
 
 def v_theta(file_path , pert = None , material = None):
 
@@ -700,9 +756,10 @@ def v_theta(file_path , pert = None , material = None):
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , "large")
-    file_path = "Files/rk45_t6_large_silicate_slowsw_1AU_swalt.npz"
+    file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
     res = np.load(file_path)
-    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    x , y , b , t = [res[k] for k in ("x" , "y" , "b" , "t")]
     
     p = perturbed_functions(par , t , b , find_k = False)
     c0 = p.C0(p.K)
@@ -712,11 +769,14 @@ if __name__ == "__main__":
     betas = p.barr
     vthetapert = om * r
     
-    rhat = rhat_comps(file_path , file_path_comp = None , pert = r)
+    rhat = rhat_comps(file_path , file_path_comp = None , pert = None , material = "silicate")
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)
     # betahats = b_plot(file_path , betas)
     # vtheta = v_theta(file_path , vthetapert)
+
+    # beta_curves(interp = False , comp = True)
+    # PR_spu_lifetime_separate()
 
     
 

@@ -44,16 +44,16 @@ def betahat(m , particle_obj):
     """input: m (float), scaled mass of particle
 
        returns: betahat(float), scaled betahat """
-
+    # b = m**(-1 / 3)
     size = m**(1/3)
 
     
     r_physical = size * particle_obj.r
     b = particle_obj.beta_func(r_physical) / particle_obj.B
 
-    r_physmin = 1e-9
-    if (r_physical < r_physmin).any():
-        raise ValueError(f"Value outside interpolation range")
+    # r_physmin = 1e-9
+    # if (r_physical < r_physmin).any():
+    #     raise ValueError(f"Value outside interpolation range")
 
     return b
 

@@ -36,6 +36,28 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
     variable_list = np.array([vx , vy , ax , ay , dmdt]) #variables for ivp solver
     
     return variable_list
+
+def r_out_of_range_event(t , init , pbar , state , epsilon , particle_obj , massloss):
+    x , y , vx , vy , m = init
+
+    size = m**(1/3)
+    r_physical = size * particle_obj.r 
+    
+    return r_physical - 1e-9
+
+r_out_of_range_event.terminal = True
+r_out_of_range_event.direction = -1
+
+def orbital_radius_event(t, init, pbar, state, epsilon, particle_obj, massloss):
+    x , y , vx , vy , m = init
+
+    r_orbit = np.sqrt(x**2 + y**2)
+
+    return r_orbit - 1e-3
+
+
+orbital_radius_event.terminal = True
+orbital_radius_event.direction = -1
     
 """particle motion solved using non-stiff solver in scipys solve_ivp"""
 def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , particle_obj , massloss = True):
@@ -48,9 +70,7 @@ def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , part
     
     with tqdm(total = 1000) as pbar:
         sol = solve_ivp(fun , t_span , y0 , method = method ,
-                      args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
-        # sol = solve_ivp(fun , t_span , y0 , method = method ,
-        #             t_eval = t_eval , args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12) #solving diff eq using solve_ivp, tight tolerances
+                      args = (pbar , state , epsilon , particle_obj , massloss , ) , rtol=1e-9 , atol=1e-12 , events = [r_out_of_range_event , orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
 
     
     return sol

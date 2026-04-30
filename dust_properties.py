@@ -165,6 +165,6 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("carbon" , "slow" , size = "large")
-    print(f"k:{par.K}")
+    par = dust_properties("silicate" , "CME" , size = "large")
+    print(f"m0:{par.m0}")
     
