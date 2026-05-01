@@ -165,6 +165,6 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , size = "large")
-    print(f"m0:{par.m0}")
-    
+    par = dust_properties("silicate" , "CME" , size = "particle2")
+    # print(f"lifetime:{par.sputtering_lifetime()}")
+    print((338.2956502082162 - .678630399042204) / 1.52859) 

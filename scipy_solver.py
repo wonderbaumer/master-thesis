@@ -43,7 +43,7 @@ def r_out_of_range_event(t , init , pbar , state , epsilon , particle_obj , mass
     size = m**(1/3)
     r_physical = size * particle_obj.r 
     
-    return r_physical - 1e-9
+    return r_physical**2 - 1e-9**2
 
 r_out_of_range_event.terminal = True
 r_out_of_range_event.direction = -1

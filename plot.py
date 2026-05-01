@@ -4,7 +4,7 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import car_size_bound , car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
+from config import true_lifetime , car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -654,7 +654,7 @@ def PR_spu_lifetime():
 
     plt.show()
         
-def PR_spu_lifetime_separate(limits = False):
+def PR_spu_lifetime_separate(lifetime_effects = "both"):
     material = ["silicate" , "carbon"]
     sw_conds = ["slow" , "fast" , "CME"]
     tsp_vals = {m: {} for m in material}
@@ -665,6 +665,10 @@ def PR_spu_lifetime_separate(limits = False):
     cl = {"slow" : "green" ,
           "fast" : "red" ,
           "CME" : "blue"}
+    
+    markers = {"pr" : "o" ,
+               "sputtering" : "^" ,
+               "both" : "x"}
     
     for sw in sw_conds:
         par_sil = dust_properties("silicate" , sw , size = None , size_range = (sil_size , sil_betaval))
@@ -680,15 +684,22 @@ def PR_spu_lifetime_separate(limits = False):
         size = sil_size if mat == "silicate" else car_size
         pr = sil_PR if mat == "silicate" else car_PR
 
+        first = True
         for sw, vals in tsp_vals[mat].items():
+            
+            for key , value in true_lifetime.items():
+
+                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] , marker = markers[lifetime_effects] , label = f"{lifetime_effects}" if first else None)
+                first = False
+
             ax.plot(size , vals,
                      color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
             
             if mat == "carbon":
                 ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1)
+ 
+        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = f"{mat} PR")
 
-        label = f"{mat} PR" 
-        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = label)
         ax.set_xscale("log")
         ax.set_yscale("log")
         ax.set_ylim(0.1 , 10**8)
@@ -697,9 +708,9 @@ def PR_spu_lifetime_separate(limits = False):
         ax.set_ylabel(r"Lifetime (years)")
 
        
-        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes")
+        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical")
         ax.legend()
-        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate.png", dpi = 300 , bbox_inches = 'tight')
+        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png", dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
     
@@ -769,14 +780,14 @@ if __name__ == "__main__":
     betas = p.barr
     vthetapert = om * r
     
-    rhat = rhat_comps(file_path , file_path_comp = None , pert = None , material = "silicate")
+    # rhat = rhat_comps(file_path , file_path_comp = None , pert = None , material = "silicate")
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)
     # betahats = b_plot(file_path , betas)
     # vtheta = v_theta(file_path , vthetapert)
 
     # beta_curves(interp = False , comp = True)
-    # PR_spu_lifetime_separate()
+    PR_spu_lifetime_separate(lifetime_effects = "sputtering")
 
     
 
