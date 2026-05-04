@@ -121,7 +121,7 @@ class dust_properties():
         elif self.material == "carbon":
             M_m = M_mc
             rho = rho_c
-
+        
         t_sp = (4 * self.r * N_A * rho) / (self.fsw * self.Ytot * M_m) #sputtering lifetime
         self.t_sp = t_sp / yr
 
@@ -165,6 +165,6 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , size = "particle2")
-    # print(f"lifetime:{par.sputtering_lifetime()}")
-    print((338.2956502082162 - .678630399042204) / 1.52859) 
+    par = dust_properties("silicate" , "slow" , size = "large")
+    print(par.sputtering_yield())
+    

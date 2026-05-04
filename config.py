@@ -64,6 +64,10 @@ init_vals = {"large":{
             "particle2": {
                 "r": 0.01220 * 10**(-6) ,
                 "B": {"silicate": 0.0832 , "carbon": 0.9758}
+            } ,
+            "particle3" : {
+                "r" : 0.00708 * 10**(-6) ,
+                "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
             }}
          
 material_files = {"silicate": sil_beta , "carbon": car_beta} #Mapping labels to correct beta values
@@ -131,108 +135,32 @@ material_files_bound = {"silicate": (sil_size , sil_betaval , sil_PR) ,
 
 #t hat combinations used, dt timestep, t_tot total simulation time
 #1000 orbits
-dt5 = 3.16e3 
+dt5 = 3.16e-3 
 t_tot5 = 1000
 t5 = (dt5 , t_tot5)
 
 #10000 orbits
-dt6 = 3.16e3 
+dt6 = 3.16e-3 
 t_tot6 = 10000
 t6 = (dt6 , t_tot6)
 
 #20000 orbits
-dt7 = 3.16e3 
+dt7 = 3.16e-3 
 t_tot7 = 20000
 t7 = (dt7 , t_tot7)
 
 #30000 orbits
-dt8 = 3.16e3
+dt8 = 3.16e-3
 t_tot8 = 30000
 t8 = (dt8 , t_tot8) #la stå
 
 #100000
-dt9 = 3.16e3
+dt9 = 3.16e-3
 t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
-#Numerically lifetimes in years
-true_lifetime = {"particle1": {
-                 "size": 1.54079 * 10**(-6) , 
-                 "silicate": {
-                     "pr": {
-                         "CME": 3.24501649e+03 , #impact Sun
-                         "slow": 3.24501649e+03 , #impact Sun
-                         "fast": 3.24501649e+03 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 2.36730114e+03 , #destroyed
-                         "slow": 1.5146604161143381e+04 , #assumed destroyed
-                         "fast": 2.8297279521321616e+04 , #assumed destroyed
-                     } ,
-                     "both": {
-                         "CME": 2.36730114e+03 , #destroyed
-                         "slow": 3.20420150e+03 , #impact Sun
-                         "fast": 3.22307505e+03 #impact Sun
-                     }
-                 } ,
-                 "carbon": {
-                     "pr": {
-                         "CME": 1.51457811e+03 , #impact Sun
-                         "slow": 1.51457811e+03 , #impact Sun
-                         "fast": 1.51457811e+03 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 1.5376677151319955e+04 , #assumed destroyed
-                         "slow": 7.385676064e+05 , #assumed destroyed
-                         "fast": 1.875175364211365e+06 #assumed destroyed
-                     } ,
-                     "both": {
-                         "CME": 1.49295676e+03 , #impact Sun
-                         "slow": 1.51405519e+03 , #impact Sun
-                         "fast": 1.51437327e+03 #impact Sun
-                     }
-                 }} , 
-                 
-                 "particle2": {
-                     "size": 0.01220 * 10**(-6) ,
-                 "silicate": {
-                     "pr": {
-                         "CME": 4.81684508e+03 , #impact Sun
-                         "slow": 4.81684508e+03 , #impact Sun
-                         "fast": 4.81684508e+03 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 1.72190836e+01 , #destroyed
-                         "slow": 7.39183550e+02 , #destroyed
-                         "fast": 1.38096192e+03 #destroyed
-                     } ,
-                     "both": {
-                         "CME": 1.72190836e+01 , #destroyed
-                         "slow": 7.39183550e+02 , #destroyed
-                         "fast": 1.38096192e+03 #destroyed
-                     }
-                 } ,
-                 "carbon": {
-                     "pr": {
-                         "CME": 4.10702687e+02 , #impact Sun
-                         "slow": 4.10702687e+02 , #impact Sun
-                         "fast": 4.10702687e+02 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 1.11881687e+02 , #destroyed
-                         "slow": 5.33581866e+03 , #destroyed
-                         "fast": 1.36438960e+04 #destroyed
-                     } ,
-                     "both": {
-                         "CME": 1.05480156e+02 , #impact Sun
-                         "slow": 3.41414628e+02 , #impact Sun
-                         "fast": 3.77974424e+02 #impact Sun
-                     }
-                 }}}
-
 if __name__ == "__main__":
     1
-    for key , value in true_lifetime.items():
-        print(key , value["silicate"]["both"]["CME"])
+    
     
 

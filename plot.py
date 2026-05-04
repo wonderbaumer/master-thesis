@@ -4,12 +4,14 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import true_lifetime , car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
+from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
 import os
 from scipy.constants import G
+from lifetime_calcs import true_lifetime
+import matplotlib.patches as mpatches
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -640,7 +642,7 @@ def PR_spu_lifetime():
                      color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
 
         label = "PR lifetime"
-        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = label)
+        ax.plot(size , pr , color = "purple" , linestyle = ls[mat] , label = label)
         ax.set_xscale("log")
         ax.set_yscale("log")
         ax.set_ylim(0.1 , 10**8)
@@ -684,21 +686,32 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         size = sil_size if mat == "silicate" else car_size
         pr = sil_PR if mat == "silicate" else car_PR
 
-        first = True
+        if mat == "carbon":
+                ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1 , label = "B>1")
+
         for sw, vals in tsp_vals[mat].items():
             
             for key , value in true_lifetime.items():
 
-                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] , marker = markers[lifetime_effects] , label = f"{lifetime_effects}" if first else None)
-                first = False
+                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] , marker = markers[lifetime_effects])
+
+            ax.plot(0 , 0 , c = cl[sw])
 
             ax.plot(size , vals,
-                     color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
-            
-            if mat == "carbon":
-                ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1)
+                     color = cl[sw] , linestyle = ls[mat])
  
-        ax.plot(size , pr , color = "black" , linestyle = ls[mat] , label = f"{mat} PR")
+        ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
+
+        ax.plot(0 , 0 , c = "black" , linestyle = ls[mat] , label = f"{mat.capitalize()}")
+        ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] , label = f"{lifetime_effects.capitalize()} numerical")
+
+        purple_patch = mpatches.Patch(color = "purple" , label = "PR")
+        blue_patch = mpatches.Patch(color = "blue" , label = "CME")
+        red_patch = mpatches.Patch(color = "red" , label = "Fast")
+        green_patch = mpatches.Patch(color = "green" , label = "Slow")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([purple_patch , blue_patch , red_patch , green_patch])
 
         ax.set_xscale("log")
         ax.set_yscale("log")
@@ -708,8 +721,8 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         ax.set_ylabel(r"Lifetime (years)")
 
        
-        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical")
-        ax.legend()
+        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical" , pad = 20)
+        ax.legend(handles = handles , fontsize = 8)
         fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png", dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
@@ -787,7 +800,7 @@ if __name__ == "__main__":
     # vtheta = v_theta(file_path , vthetapert)
 
     # beta_curves(interp = False , comp = True)
-    PR_spu_lifetime_separate(lifetime_effects = "sputtering")
+    PR_spu_lifetime_separate(lifetime_effects = "both")
 
     
 
