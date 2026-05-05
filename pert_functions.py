@@ -142,7 +142,7 @@ class perturbed_functions():
         c3 = self.C3(k)
         
 
-        _ , omega0 , _ = self.omega()
+        _ , omega0 , _ = self.omega(k)
 
         vr0 = 0
         vr11 = omega0 * c3 * np.cos(omega0 * self.time)
@@ -151,7 +151,7 @@ class perturbed_functions():
 
         vrtot = vr0 + self.epsilon * vr1
 
-        return vrtot    
+        return vrtot   
 
 if __name__== "__main__":
     par = dust_properties("carbon" , "slow" , "large")
@@ -160,13 +160,15 @@ if __name__== "__main__":
     
     rnum = np.sqrt(x**2+y**2)
     p = perturbed_functions(par , t , b , find_k = False)
-    print(p.K_theoretical , par.K)
-    # c0 = p.C0(p.K)
+    
+    c0 = p.C0(p.K)
     
     
     
-    # om , _ , _ = p.omega(p.K)
-    # r , _ , _ = p.rad(p.K)
+    om , _ , _ = p.omega(p.K)
+    r , _ , _ = p.rad(p.K)
+    # plt.plot(t , p.vr(p.K))
+    # plt.show()
 
 
     

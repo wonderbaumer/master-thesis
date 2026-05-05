@@ -12,6 +12,7 @@ import os
 from scipy.constants import G
 from lifetime_calcs import true_lifetime
 import matplotlib.patches as mpatches
+from orbital_elements import ecc_calcs
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -747,8 +748,8 @@ def v_theta(file_path , pert = None , material = None):
         vtheta_pert = pert
         save_path1 = f"Plots/{base_name}_vtheta_pert_comps.png"
 
-        plt.plot(t[::10] , vtheta_pert[::10] , color = "red" , linestyle = "-" , label = "Perturbed")
-        plt.plot(t[::10] , vtheta[::10] , color = "blue" , linestyle = "--" , label = "RK4(5)")
+        plt.plot(t[::10] , vtheta[::10] , color = "blue" , label = "RK4(5)")
+        plt.plot(t[::10] , vtheta_pert[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
 
         # if vtheta[ymax][-1] > vtheta_pert[ymax][-1]:
         #     plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
@@ -778,29 +779,65 @@ def v_theta(file_path , pert = None , material = None):
     plt.ylabel(r"$\hat{v}_{\theta}$")
     plt.show()
 
+"""Plotting eccentricity from math and scaled expression"""
+def ecc_comps(file_path , pert = None):
+    """input: x (array), x position
+              y (array), y position
+              vx (array), x velocity
+              vy (array), y velocity
+              beta (array), beta values
+              t (array), time values
+              type (string), default: None, "numerical" if using numerical solved params
+              else "perturbed", if using perturbed params"""
+    
+    res = np.load(file_path)
+    x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")] #unpacking file_path
+
+    theta = np.atan2(y , x) #angle
+    theta_cont = np.unwrap(theta) #continuous angle
+    # orbit = np.floor(theta_cont / (2 * np.pi)).astype(int) #iterating over orbits
+
+    if pert is not None:
+        ecc_num , ecc_pert , orb = ecc_calcs(x , y , pert) #mathematical eccentricity
+        
+        plt.plot(orb , ecc_num , color = "blue" , label = "Numerical eccentricity")
+        plt.plot(orb , ecc_pert , color = "red" , linestyle = "--" , label = "Perturbed eccentricity")
+        plt.legend()
+
+    else:
+        ecc_num , _ , orb = ecc_calcs(x , y) #mathematical eccentricity
+        plt.plot(orb , ecc_num , color = "blue")
+
+    plt.xlabel(r"$\hat{\theta}$ / $2\pi$")
+    plt.ylabel(r"e value")
+    plt.title("Eccentricity as function of orbits")
+    plt.show()
+
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , "large")
     file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
     res = np.load(file_path)
-    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
-    x , y , b , t = [res[k] for k in ("x" , "y" , "b" , "t")]
+    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    
     
     p = perturbed_functions(par , t , b , find_k = False)
     c0 = p.C0(p.K)
     om , _ , _ = p.omega(p.K)
-    r , _ , _ = p.rad(p.K)
+    r_pert , r0 , r1 = p.rad(p.K)
     thetaval = p.theta(p.K)
-    betas = p.barr
-    vthetapert = om * r
+    # betas = p.barr
+    # vthetapert = om * r
     
-    # rhat = rhat_comps(file_path , file_path_comp = None , pert = None , material = "silicate")
+    # print(np.linspace(0 , t[-1] , int(t[-1])))
+    ecc_comps(file_path , r_pert)
+    # rhat = rhat_comps(file_path , file_path_comp = None , pert = r0)
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)
     # betahats = b_plot(file_path , betas)
     # vtheta = v_theta(file_path , vthetapert)
 
     # beta_curves(interp = False , comp = True)
-    PR_spu_lifetime_separate(lifetime_effects = "both")
+    # PR_spu_lifetime_separate(lifetime_effects = "both")
 
     
 

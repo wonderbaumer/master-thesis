@@ -165,6 +165,6 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "slow" , size = "large")
-    print(par.sputtering_yield())
+    par = dust_properties("silicate" , "slow" , size = None , size_range = (sil_size , sil_betaval))
+    print(par.T**2 * (1 - par.B) / R**2)
     

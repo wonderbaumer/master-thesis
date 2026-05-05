@@ -1,64 +1,55 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# from config import B , t6 
-# from pert_functions import vrhat_pert , thetahat_pert , omegahat_pert , rhat_pert , betahat_pert
+from pert_functions import perturbed_functions
+from dust_properties import dust_properties
+from config import R
 
-
-"""
-#func calculating scaled eccentricity using scaled/hatted values from numerical solver
-def eccentricity_sc(x , y , vx , vy , beta , t , type = "numerical"):
-    """"""input: x (array), x position 
-              y (array), y position 
-              vx (array), x velocity 
-              vy (array), y velocity 
-              beta (array), beta value 
-              t (tuple), on the form dt, t_tot
-              type (str), default: "numerical", if using numerical solved params
-              else "perturbed", if using perturbed params
-
-       returns: ecc (arr), scaled eccentricity values""""""
+def ecc_scaled(num , B , pert = None):
+    "input: pert (tuple), rpert,omegapert,vrpert"
     
-    dt , t_tot = t
-    that = np.arange(0 , t_tot , dt)
+    x , y , vx , vy , _ , b , _ = num
 
-    if type == "numerical":
-    #Numerical
-        r = np.sqrt(x**2 + y**2) #r hat
-        theta_num = np.atan2(y , x) #theta hat
-        theta_num = np.unwrap(theta_num) #continuous theta hat
-        vr = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cart to radial vel
-        vtheta = -vx * np.sin(theta_num) + vy * np.cos(theta_num) #cart to theta vel
-        omega = vtheta / r #angular velocity
+    theta = np.atan2(y , x) #angle
+    theta_cont = np.unwrap(theta) #continuous angle
 
-        l_frac = 2 * r**4 * (1 - B)**2 * omega**2 / (1 - B * beta)**2 #not pert
-        energies = 1 / 2 * vr**2 + 1 / 2 * r**2 * omega**2 - (1 - beta * B) / ((1 - B) * r) #not pert
+    r = np.sqrt(x**2 + y**2)
+    start = 0
+    k = 1
 
+    # eccentricity = []
+    # ecc_pert = []
+    # orb = []
 
-    elif type == "perturbed":
-        r_p = rhat_pert(that)
-        omega_p = omegahat_pert(that)
-        vr_p = vrhat_pert(that)
-        beta_p = betahat_pert(that)
+    angvel_num = (-vx * np.sin(theta_cont) + vy * np.cos(theta_cont)) / r
+    v_r = vx * np.cos(theta_cont) + vy * np.sin(theta_cont) #cartesian to radial vel
 
-        l_frac = 2 * r_p**4 * (1 - B)**2 * omega_p**2 / (1 - B * beta_p)**2
-        energies = 1 / 2 * vr_p**2 + 1 / 2 * r_p**2 * omega_p**2 - (1 - beta_p * B) / ((1 - B) * r_p)
+    ecc_x = -(1 - par.B) * r**2 * v_r * angvel_num / (1 - b * par.B) * (-y / r) - (x / r) + r**3 * angvel_num**2 * (1 - par.B) / (1 - b * par.B) * (x / r)
+    ecc_y = -(1 - par.B) * r**2 * v_r * angvel_num / (1 - b * par.B) * (x / r) - (y / r) + r**3 * angvel_num**2 * (1 - par.B) / (1 - b * par.B) * (y / r)
+    ecc_tot = np.sqrt(ecc_x**2 + ecc_y**2)
 
-    else:
-        raise ValueError("Invalid type. Must be numerical or perturbed.")
+    orbit_idx = np.floor(theta_cont / (2 * np.pi)).astype(int)
+    change_idx = np.where(np.diff(orbit_idx) != 0)[0]
+    change_idx = np.append(change_idx, len(theta_cont) - 1)
+
+    eccentricity = ecc_tot[change_idx]
+    orb = np.arange(1, len(change_idx) + 1)
+
+    ecc_pert = None
+
+    if pert is not None:
+        r_per, omega_per, vr_per = pert
+
+        ecc_theta = -(1 - par.B) / (1 - b * par.B) * r_per**2 * vr_per * omega_per
+        ecc_r = (1 - par.B) / (1 - b * par.B) * r_per**3 * omega_per**2 - 1
+
+        eccpert_tot = np.sqrt(ecc_theta**2 + ecc_r**2)
+        ecc_pert = eccpert_tot[change_idx]
     
-    ecc_sq = 1 + l_frac * energies #eccentricity squared
-    
-    #setting extremely small negative numbers to zero
-    small_val = 1e-14
-    ecc_sq = np.where(ecc_sq<small_val , 0.0 , ecc_sq)
+    return eccentricity , orb , ecc_pert
 
-    ecc = np.sqrt(ecc_sq) #eccentricity
-
-    return ecc
-"""
 
 """calculates eccentricity for each orbit based on mathematical definitions"""
-def ecc_math(x , y , t , ecc_sc = None):
+def ecc_calcs(x , y , r_pert = None):
     """input: t (tuple), on the form dt, t_tot
               x (array), scaled x position 
               y (array), scaled y position
@@ -69,37 +60,62 @@ def ecc_math(x , y , t , ecc_sc = None):
     theta_cont = np.unwrap(theta) #continuous angle
 
     r = np.sqrt(x**2 + y**2) #radial distance
-
-    # dt , t_tot = t
-    # that = np.arange(0 , t_tot , dt)
-    that = t
-    orbit_index = np.floor(theta_cont / (2 * np.pi)) #defining orbit in terms of angle
-    full_orbit = np.where(np.diff(orbit_index) > 0)[0] + 1 #indexing orbits 
-
-    orb_start = np.concatenate(([0] , full_orbit)) #start point of each orbit
-    orb_end = np.concatenate((full_orbit , [len(r)])) #end point of each orbit
-    counts = orb_end - orb_start #number of steps per orbit
     
-    r_max = np.array([r[start : end].max() for start , end in zip(orb_start , orb_end)]) #max r val per orbit
-    r_min = np.array([r[start : end].min() for start , end in zip(orb_start , orb_end)]) #min r val per orbit
-    amajor = (r_max + r_min) / 2 #semi-major axis
-    aminor = np.sqrt(r_max * r_min) #semi-minor axis
+    start = 0
+    k = 1
+    eccentricity = []
 
-    ecce = np.sqrt(1 - (aminor**2 / amajor**2)) #eccentricity 
+    ecc_pert = []
+    orb = []
 
-    ecce_arr = np.stack([aminor , amajor , ecce] , axis = 1) #array of aminor, amajor, eccentricity
-    eccearr_filled = np.repeat(ecce_arr , counts , axis = 0) #filling remainder steps with equal values of eccentricity for comparing with that and other ecc
 
-    ecce_filled = eccearr_filled[: , 2]
+    for i in range(1 , len(theta_cont)):
 
-    return ecce_filled , that #, ecc_sc
+        if theta_cont[i] >= k * 2 * np.pi:
 
+            segment = r[start : i]
+            r_max = np.max(segment)
+            r_min = np.min(segment)
+            # eccentricity.append((r_max - r_min) / (r_max + r_min))
+            a = (r_max + r_min) / 2
+            b = np.sqrt(r_max * r_min)
+            eccentricity.append(np.sqrt(1 - b**2 / a**2))
+
+            orb.append(k)
+                
+            if r_pert is not None:
+                segment_pert = r_pert[start : i]
+                r_pertmax = np.max(segment_pert)
+                r_pertmin = np.min(segment_pert)
+                # ecc_pert.append((r_pertmax - r_pertmin) / (r_pertmax + r_pertmin))
+
+                apert = (r_pertmax + r_pertmin) / 2
+                bpert = np.sqrt(r_pertmax * r_pertmin)
+                ecc_pert.append(np.sqrt(1 - bpert**2 / apert**2))
+
+            start = i
+            k += 1
+
+    return eccentricity , ecc_pert , orb
 
 if __name__ == "__main__":
-    rk = np.load("Files/rk45_t6_large_silicate_slowsw_realbeta.npz")
-    x1 , y1 , vx1 , vy1 , m1 , b1 , t1 = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
-    ecc , _ = ecc_math(x1 , y1 , t1)
-    print(ecc)
+    par = dust_properties("silicate" , "slow" , "large")
+    file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
+    rk = np.load(file_path)
+    x1 , y1 , vx1 , vy1 , m1 , b , t = [rk[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    p = perturbed_functions(par , t , b , find_k = False)
+    c0 = p.C0(p.K)
+    om , om0 , _ = p.omega(p.K)
+    r_pert , r0 , r1 = p.rad(p.K)
+    thetaval = p.theta(p.K)
+    vrpert = p.vr(p.K)
+
+    ecc , orb , ecc_pert = ecc_scaled((x1 , y1 , vx1 , vy1 , m1 , b , t) , par.B , (r_pert , om , vrpert))
+    
+    
+    plt.plot(orb , ecc)
+    plt.plot(orb , ecc_pert)
+    plt.show()
     
     
     
