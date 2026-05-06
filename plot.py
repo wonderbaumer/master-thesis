@@ -12,7 +12,7 @@ import os
 from scipy.constants import G
 from lifetime_calcs import true_lifetime
 import matplotlib.patches as mpatches
-from orbital_elements import ecc_calcs
+from orbital_elements import ecc_calcs , ecc_scaled
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -780,7 +780,7 @@ def v_theta(file_path , pert = None , material = None):
     plt.show()
 
 """Plotting eccentricity from math and scaled expression"""
-def ecc_comps(file_path , pert = None):
+def ecc_math(file_path , pert = None):
     """input: x (array), x position
               y (array), y position
               vx (array), x velocity
@@ -792,25 +792,67 @@ def ecc_comps(file_path , pert = None):
     
     res = np.load(file_path)
     x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")] #unpacking file_path
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    save_path = f"Plots/{base_name}_ecc_ellipse_params.png"
 
     theta = np.atan2(y , x) #angle
     theta_cont = np.unwrap(theta) #continuous angle
     # orbit = np.floor(theta_cont / (2 * np.pi)).astype(int) #iterating over orbits
 
+    plt.xlabel(r"$\hat{\theta}$ / $2\pi$")
+    plt.ylabel(r"e value")
+    plt.title("Eccentricity as function of orbits, elliptical parameters")
+
     if pert is not None:
+        save_path1 = f"Plots/{base_name}_ecc_ellipse_params_pert_comps.png"
         ecc_num , ecc_pert , orb = ecc_calcs(x , y , pert) #mathematical eccentricity
         
-        plt.plot(orb , ecc_num , color = "blue" , label = "Numerical eccentricity")
-        plt.plot(orb , ecc_pert , color = "red" , linestyle = "--" , label = "Perturbed eccentricity")
+        plt.plot(orb , ecc_pert , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.plot(orb , ecc_num , color = "blue" , label = "Numerical")
         plt.legend()
+        plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
 
     else:
         ecc_num , _ , orb = ecc_calcs(x , y) #mathematical eccentricity
         plt.plot(orb , ecc_num , color = "blue")
+        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
+    plt.show()
+
+def ecc_sc(file_path , B , pert = None):
+    """input: file_path (str), containing file name, path and .filetype
+              B (float), initial beta value corresponding to particle considered
+              pert (tuple), rpert, omegapert, vrpert"""
+    
+    res = np.load(file_path)
+    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")] #unpacking file_path
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+    save_path = f"Plots/{base_name}_ecc_scaled.png"
+
+    theta = np.atan2(y , x) #angle
+    theta_cont = np.unwrap(theta) #continuous angle
+    # orbit = np.floor(theta_cont / (2 * np.pi)).astype(int) #iterating over orbits
+
+    plt.title("Scaled eccentricity as function of orbits")
     plt.xlabel(r"$\hat{\theta}$ / $2\pi$")
     plt.ylabel(r"e value")
-    plt.title("Eccentricity as function of orbits")
+
+    if pert is not None:
+        save_path1 = f"Plots/{base_name}_ecc_scaled_pert_comps.png"
+        ecc_num , ecc_pert , orb = ecc_scaled((x , y , vx , vy , m , b , t) , B , pert) #mathematical eccentricity
+        
+        plt.plot(orb[:-1] , ecc_pert[:-1] , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.plot(orb[:-1] , ecc_num[:-1] , color = "blue" , label = "Numerical")
+        plt.legend()
+        plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
+
+    else:
+        ecc_num , _ , orb = ecc_scaled((x , y , vx , vy , m , b , t) , B) #mathematical eccentricity
+        plt.plot(orb[:-1] , ecc_num[:-1] , color = "blue")
+        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
+
+    
+    
     plt.show()
 
 if __name__ == "__main__":
@@ -822,14 +864,16 @@ if __name__ == "__main__":
     
     p = perturbed_functions(par , t , b , find_k = False)
     c0 = p.C0(p.K)
-    om , _ , _ = p.omega(p.K)
+    om , om0 , om1 = p.omega(p.K)
     r_pert , r0 , r1 = p.rad(p.K)
     thetaval = p.theta(p.K)
+    vrpert = p.vr(p.K)
     # betas = p.barr
     # vthetapert = om * r
     
     # print(np.linspace(0 , t[-1] , int(t[-1])))
-    ecc_comps(file_path , r_pert)
+    ecc_math(file_path , r_pert)
+    # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
     # rhat = rhat_comps(file_path , file_path_comp = None , pert = r0)
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)

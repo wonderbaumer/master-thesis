@@ -23,12 +23,13 @@ def ecc_scaled(num , B , pert = None):
     angvel_num = (-vx * np.sin(theta_cont) + vy * np.cos(theta_cont)) / r
     v_r = vx * np.cos(theta_cont) + vy * np.sin(theta_cont) #cartesian to radial vel
 
-    ecc_x = -(1 - par.B) * r**2 * v_r * angvel_num / (1 - b * par.B) * (-y / r) - (x / r) + r**3 * angvel_num**2 * (1 - par.B) / (1 - b * par.B) * (x / r)
-    ecc_y = -(1 - par.B) * r**2 * v_r * angvel_num / (1 - b * par.B) * (x / r) - (y / r) + r**3 * angvel_num**2 * (1 - par.B) / (1 - b * par.B) * (y / r)
+    ecc_x = -(1 - B) * r**2 * v_r * angvel_num / (1 - b * B) * (-y / r) - (x / r) + r**3 * angvel_num**2 * (1 - B) / (1 - b * B) * (x / r)
+    ecc_y = -(1 - B) * r**2 * v_r * angvel_num / (1 - b * B) * (x / r) - (y / r) + r**3 * angvel_num**2 * (1 - B) / (1 - b * B) * (y / r)
     ecc_tot = np.sqrt(ecc_x**2 + ecc_y**2)
 
     orbit_idx = np.floor(theta_cont / (2 * np.pi)).astype(int)
-    change_idx = np.where(np.diff(orbit_idx) != 0)[0]
+    change_idx = np.where(np.diff(orbit_idx) != 0)[0] + 1
+    change_idx = np.insert(change_idx , 0 , 0)
     change_idx = np.append(change_idx, len(theta_cont) - 1)
 
     eccentricity = ecc_tot[change_idx]
@@ -39,13 +40,13 @@ def ecc_scaled(num , B , pert = None):
     if pert is not None:
         r_per, omega_per, vr_per = pert
 
-        ecc_theta = -(1 - par.B) / (1 - b * par.B) * r_per**2 * vr_per * omega_per
-        ecc_r = (1 - par.B) / (1 - b * par.B) * r_per**3 * omega_per**2 - 1
+        ecc_theta = -(1 - B) / (1 - b * B) * r_per**2 * vr_per * omega_per
+        ecc_r = (1 - B) / (1 - b * B) * r_per**3 * omega_per**2 - 1
 
         eccpert_tot = np.sqrt(ecc_theta**2 + ecc_r**2)
         ecc_pert = eccpert_tot[change_idx]
     
-    return eccentricity , orb , ecc_pert
+    return eccentricity , ecc_pert , orb
 
 
 """calculates eccentricity for each orbit based on mathematical definitions"""

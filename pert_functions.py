@@ -81,7 +81,7 @@ class perturbed_functions():
         return C0primetot
     
     def C3(self , k):
-        tot = self.B * (24 * k - 1) / (3 * (1 - self.B))
+        tot = -self.B * (1 - 6 * k) / (3 * (1 - self.B))
 
         return tot
     
@@ -148,7 +148,7 @@ class perturbed_functions():
         vr11 = omega0 * c3 * np.cos(omega0 * self.time)
         vr12 = ((1 - self.B) / (1 - self.B * self.barr)) * coeff0 * (self.barr**2 * self.B * coeff0 / (3 * (1 - self.B)) + 2 * coeff0_prime)
         vr1 = vr11 + vr12
-
+        
         vrtot = vr0 + self.epsilon * vr1
 
         return vrtot   
@@ -167,6 +167,7 @@ if __name__== "__main__":
     
     om , _ , _ = p.omega(p.K)
     r , _ , _ = p.rad(p.K)
+    p.vr(p.K)
     # plt.plot(t , p.vr(p.K))
     # plt.show()
 

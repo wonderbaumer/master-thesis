@@ -2,7 +2,7 @@ import numpy as np
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc , sputtering , inter_func
-from config import t5 , t6 , t7 , t8 , t9 , material_files , betahat0 , mhat0 , init_cart_scaled , yr
+from config import t5 , t6 , t7 , t8 , t9 , t10 , material_files , betahat0 , mhat0 , init_cart_scaled , yr
 from scipy.constants import G
 from polar_to_cart import polar_to_cartesian
 from dust_properties import dust_properties
@@ -113,19 +113,19 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "CME" , "particle3")
-    p = particle_solver(t7 , par , "RK45" , massloss = True)
+    par = dust_properties("carbon" , "CME" , "particle3")
+    p = particle_solver(t8 , par , "RK45" , massloss = False)
     vals = p.pos_vel_calcs()
 
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
-    # print(t * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m)
+    print(t[-1] * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m[-1])
     # np.savez("Files/rk45_t6_medium_silicate_slowsw_betaderivation.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
     # x , y , b , t = vals[: , 0] , vals[: , 1] , vals[: , 5] , vals[: , 6]
     # np.savez("Files/rk45_t6_large_carbon_slowsw_31.6AU.npz" , x = x[::10] , y = y[::10] , b = b[::10] , t = t[::10])
-    t = t * p.T / yr
-    plt.plot(t[::10] , m[::10])
-    plt.show()
+    # t = t * p.T / yr
+    # plt.plot(t[::10] , m[::10])
+    # plt.show()
 
     
     
