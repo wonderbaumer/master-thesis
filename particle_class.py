@@ -113,8 +113,8 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "CME" , "particle3")
-    p = particle_solver(t8 , par , "RK45" , massloss = False)
+    par = dust_properties("silicate" , "fast" , "particle4")
+    p = particle_solver(t10 , par , "RK45" , massloss = False)
     vals = p.pos_vel_calcs()
 
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
@@ -124,8 +124,8 @@ if __name__ == "__main__":
     # x , y , b , t = vals[: , 0] , vals[: , 1] , vals[: , 5] , vals[: , 6]
     # np.savez("Files/rk45_t6_large_carbon_slowsw_31.6AU.npz" , x = x[::10] , y = y[::10] , b = b[::10] , t = t[::10])
     # t = t * p.T / yr
-    # plt.plot(t[::10] , m[::10])
-    # plt.show()
+    plt.plot(t[::10] , np.sqrt(x**2 + y**2)[::10])
+    plt.show()
 
     
     

@@ -121,8 +121,10 @@ class dust_properties():
         elif self.material == "carbon":
             M_m = M_mc
             rho = rho_c
-        
+
+
         t_sp = (4 * self.r * N_A * rho) / (self.fsw * self.Ytot * M_m) #sputtering lifetime
+         
         self.t_sp = t_sp / yr
 
         return self.t_sp
@@ -136,16 +138,17 @@ class dust_properties():
         returns: eps (float), epsilon parameter"""
     
         if self.material == "silicate":
-            mA = mA_S
+            M_m = M_ms
             rho = rho_s
-    
-        elif self.material == "carbon": 
-            mA = mA_C
+
+        elif self.material == "carbon":
+            M_m = M_mc
             rho = rho_c
         
         x = R / au
     
-        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T  
+        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T  
+        
         
         return eps
 
@@ -165,6 +168,8 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "slow" , size = None , size_range = (sil_size , sil_betaval))
-    print(par.T**2 * (1 - par.B) / R**2)
+    par = dust_properties("silicate" , "CME" , size = "particle4")
+    # print(M_ms / (mA_S * N_A))
+    print(par.calc_V() / c)
+    
     

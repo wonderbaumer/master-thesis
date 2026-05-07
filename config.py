@@ -22,8 +22,8 @@ m_C = 12.01 #atomic mass carbon, in u
 M_ms = (m_Mg + m_Si + m_Fe + 4 * m_O) * 10**(-3) #molar mass silicate, in kg per mol
 M_mc = m_C * 10**(-3) #molar mass carbon, in kg per mol
 
-mA_S = (m_Mg + m_Si + m_Fe + 4 * m_O) / 7 * u #total mass, all constituents, in kg, silicate
-mA_C = m_C * u #total mass, all constituens, in kg, carbon
+mA_S = (m_Mg + m_Si + m_Fe + 4 * m_O) / 7 * u #mean mass, all constituents, in kg, silicate 
+mA_C = m_C * u #mean mass, all constituens, in kg, carbon
 
 R = 1 * au #initial radial position, in AU
 
@@ -68,6 +68,10 @@ init_vals = {"large":{
             "particle3" : {
                 "r" : 0.00708 * 10**(-6) ,
                 "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
+            } , 
+            "particle4" : {
+                "r" : 0.10165 * 10**(-6) ,
+                "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
             }}
          
 material_files = {"silicate": sil_beta , "carbon": car_beta} #Mapping labels to correct beta values
@@ -165,7 +169,7 @@ t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
 if __name__ == "__main__":
-    1
+    print(mA_S)
     
     
 

@@ -13,6 +13,7 @@ from scipy.constants import G
 from lifetime_calcs import true_lifetime
 import matplotlib.patches as mpatches
 from orbital_elements import ecc_calcs , ecc_scaled
+from test import true_lifetime_units
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({
@@ -857,22 +858,22 @@ def ecc_sc(file_path , B , pert = None):
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , "large")
-    file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
-    res = np.load(file_path)
-    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    # file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
+    # res = np.load(file_path)
+    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     
     
-    p = perturbed_functions(par , t , b , find_k = False)
-    c0 = p.C0(p.K)
-    om , om0 , om1 = p.omega(p.K)
-    r_pert , r0 , r1 = p.rad(p.K)
-    thetaval = p.theta(p.K)
-    vrpert = p.vr(p.K)
+    # p = perturbed_functions(par , t , b , find_k = False)
+    # c0 = p.C0(p.K)
+    # om , om0 , om1 = p.omega(p.K)
+    # r_pert , r0 , r1 = p.rad(p.K)
+    # thetaval = p.theta(p.K)
+    # vrpert = p.vr(p.K)
     # betas = p.barr
     # vthetapert = om * r
     
     # print(np.linspace(0 , t[-1] , int(t[-1])))
-    ecc_math(file_path , r_pert)
+    # ecc_math(file_path , r_pert)
     # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
     # rhat = rhat_comps(file_path , file_path_comp = None , pert = r0)
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
@@ -881,7 +882,7 @@ if __name__ == "__main__":
     # vtheta = v_theta(file_path , vthetapert)
 
     # beta_curves(interp = False , comp = True)
-    # PR_spu_lifetime_separate(lifetime_effects = "both")
+    PR_spu_lifetime_separate(lifetime_effects = "pr")
 
     
 
