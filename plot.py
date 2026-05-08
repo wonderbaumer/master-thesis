@@ -202,7 +202,7 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
 and perturbed rhat"""
-def rhat_comps(file_path , file_path_comp = None , pert = None , material = None):
+def rhat_comps(file_path , material , file_path_comp = None , pert = None):
     """input: x1 (array), RK4(5) x vals
               y1 (array), RK4(5) y vals
               t (tuple), consisting of dt and t_tot, time of simulations
@@ -213,42 +213,26 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         returns: none"""
     
     res = np.load(file_path)
-    # x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-    x , y , _ , t = [res[k] for k in ("x" , "y" , "b", "t")]
+    x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     r = np.sqrt(x**2 + y**2) #r hat
-    num_orbits = int(t[-1] / (2 * np.pi))
-    t_index = int(len(t) / num_orbits)
-    t_numtot = t[::t_index]
-    r_numtot = r[::t_index]
-    r_betw = np.zeros((len(r_numtot) - 1 , t_index))
-    amp = np.zeros((len(r_betw)))
-
-    for i in range(len(r_numtot) - 1):
-        r_betw[i, :] = r[i*t_index:(i+1)*t_index]
     
-    for i , row in enumerate(r_betw):
-        max_ind = np.argmax(i)
-        min_ind = np.argmin(i)
-
-        amp[i] = (np.abs(row[max_ind]) + np.abs(row[min_ind])) / 2
-
-    # print(amp)  
-
     base_name = os.path.splitext(os.path.basename(file_path))[0]
-    save_path = f"Plots/{base_name}_r.png"
+    save_path = f"Plots/{base_name}_r_{material}.png"
 
-    """comparing RK4(5) and Leapfrog rhat"""
+    """comparing rhat with and without constant solar wind flux"""
     if file_path_comp is not None:
         res1 = np.load(file_path_comp)
-        x1 , y1 , _ , _ , _ , _ , t = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+        x1 , y1 , _ , _ , _ , _ , t1 = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
         base_name1 = os.path.splitext(os.path.basename(file_path_comp))[0]
-        save_path1 = f"Plots/{base_name}_r_vs_{base_name1}.png"
+        save_path1 = f"Plots/{base_name}_r_vs_{base_name1}_{material}.png"
 
         r1 = np.sqrt(x1**2 + y1**2) #r hat
-        plt.plot(t[::10] , r[::10] , color = "blue", label = r"RK4(5) $\hat{r}$")
-        plt.plot(t[::10] , r1[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{r}$")
-        plt.title(r"$\hat{r}$ from RK4(5) and Leapfrog solution")
+        plt.plot(t , r , color = "blue", label = r"$\hat{r}$, constant $f_{sw}$")
+        plt.plot(t1 , r1 , color = "red" , linestyle = "--" , label = r"$\hat{r}, f{sw}(\hat{r})$")
+        plt.title(rf"$\hat{{r}}$, constant $f_{{sw}}$ and $f_{{sw}}(\hat{{r}})$, {material}")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{r}$")
         plt.legend()
 
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
@@ -266,18 +250,7 @@ def rhat_comps(file_path , file_path_comp = None , pert = None , material = None
         plt.ylabel(r"$\hat{r}$")
         plt.title(r"$\hat{r}$ from RK4(5) silicate and perturbed solution")
         plt.legend()
-        plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
-
-    if material == "silicate":
-        plt.plot(t[::10] , r[::10])
-        plt.title(r"$\hat{r}$ for silicate, real $\hat{\beta}$")
-        # plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-        
-    
-    if material == "carbon":
-        plt.plot(t[::10] , r[::10])
-        plt.title(r"$\hat{r}$ for carbon, real $\hat{\beta}$")
-        # plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
         
     plt.xlabel(r"$\hat{t}$")
     plt.ylabel(r"$\hat{r}$")
@@ -856,13 +829,36 @@ def ecc_sc(file_path , B , pert = None):
     
     plt.show()
 
+def mass_plot(file_path , file_path_comp , material):
+    res = np.load(file_path)
+    _ , _ , _ , _ , m , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")] 
+    base_name = os.path.splitext(os.path.basename(file_path))[0]
+
+    res1 = np.load(file_path_comp)
+    _ , _ , _ , _ , m1 , _ , t1 = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    base_name1 = os.path.splitext(os.path.basename(file_path_comp))[0]
+    save_path1 = f"Plots/{base_name}_m_vs_{base_name1}_{material}.png"
+
+    plt.plot(t , m , color = "blue", label = r"$\hat{m}$, constant $f_{sw}$")
+    plt.plot(t1 , m1 , color = "red" , linestyle = "--" , label = r"$\hat{m}$, $f_{sw}(\hat{r})$")
+    plt.title(fr"$\hat{{m}}$, constant $f_{{sw}}$ and $f_{{sw}}(\hat{{r}})$, {material}")
+    plt.xlabel(r"$\hat{t}$")
+    plt.ylabel(r"$\hat{m}$")
+    plt.legend()
+
+    plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
+        
+    
+    plt.show()
+
+    
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , "large")
-    # file_path = "Files/rk45_t6_large_silicate_slowsw.npz"
-    # res = np.load(file_path)
-    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    par = dust_properties("silicate" , "CME" , "large")
+    file_path = "Files/rk45_t6_large_silicate_CMEsw_1AU_gradient.npz"
+    res = np.load(file_path)
+    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     
-    
+    file_path2 = "Files/rk45_t6_large_silicate_CMEsw_1AU.npz"
     # p = perturbed_functions(par , t , b , find_k = False)
     # c0 = p.C0(p.K)
     # om , om0 , om1 = p.omega(p.K)
@@ -875,15 +871,15 @@ if __name__ == "__main__":
     # print(np.linspace(0 , t[-1] , int(t[-1])))
     # ecc_math(file_path , r_pert)
     # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
-    # rhat = rhat_comps(file_path , file_path_comp = None , pert = r0)
+    rhat_comps(file_path2 , material = "silicate" , file_path_comp = file_path)
     # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
     # omegahat = omegahat_comps(file_path , pert = om)
     # betahats = b_plot(file_path , betas)
     # vtheta = v_theta(file_path , vthetapert)
 
     # beta_curves(interp = False , comp = True)
-    PR_spu_lifetime_separate(lifetime_effects = "pr")
-
+    # PR_spu_lifetime_separate(lifetime_effects = "pr")
+    mass_plot(file_path = file_path2 , file_path_comp = file_path , material = "silicate")
     
 
 

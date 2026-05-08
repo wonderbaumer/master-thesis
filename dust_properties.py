@@ -145,9 +145,9 @@ class dust_properties():
             M_m = M_mc
             rho = rho_c
         
-        x = R / au
+        R_AU = R / au #R in AU
     
-        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T  
+        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * R_AU**(-2)
         
         
         return eps
@@ -168,8 +168,8 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , size = "particle4")
+    par = dust_properties("silicate" , "slow" , size = "large")
     # print(M_ms / (mA_S * N_A))
-    print(par.calc_V() / c)
+    par.eps()
     
     

@@ -113,19 +113,15 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "fast" , "particle4")
-    p = particle_solver(t10 , par , "RK45" , massloss = False)
+    par = dust_properties("silicate" , "CME" , "large")
+    p = particle_solver(t6 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
 
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
-    print(t[-1] * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m[-1])
-    # np.savez("Files/rk45_t6_medium_silicate_slowsw_betaderivation.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+    # print(t[-1] * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m[-1])
+    np.savez("Files/rk45_t6_large_silicate_CMEsw_1AU.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-    # x , y , b , t = vals[: , 0] , vals[: , 1] , vals[: , 5] , vals[: , 6]
-    # np.savez("Files/rk45_t6_large_carbon_slowsw_31.6AU.npz" , x = x[::10] , y = y[::10] , b = b[::10] , t = t[::10])
-    # t = t * p.T / yr
-    plt.plot(t[::10] , np.sqrt(x**2 + y**2)[::10])
-    plt.show()
+    
 
     
     

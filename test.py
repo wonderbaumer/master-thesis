@@ -1,160 +1,92 @@
-from scipy.stats import linregress
-import numpy as np
+import sympy as sp
+from sympy import symbols , abc , dsolve , Derivative , integrate
+from sympy.abc import a , b , c , g , e , d , f , h , i , j , k , l , m , n , o , p , q , r
+from sympy.solvers.ode.systems import dsolve_system
+from config import rhat0 , betahat0
+from sympy.matrices.expressions import MatMul
 
-def find_slope(x1 , x2 , y1 , y2):
-    x = np.array([x1 , x2])
-    y = np.array([y1 , y2])
+#defining the hatted variables
+t0 = sp.Symbol("t0") #fast time
+t1 = sp.Symbol("t1") #slow time, symbol only
+dt0 = sp.Symbol("dt0") #partial differential, fast time
+dt1 = sp.Symbol("dt1") #partial differential, slow time
 
-    return linregress(x , y)
+r_0 = sp.Function("r_0")(t1) #r0
+r_1 = sp.Function("r_1")(t0 , t1) #r1
 
-#Numerically lifetimes in years, changed eps units
-true_lifetime_units = {"particle1": {
-                 "size": 1.54079 * 10**(-6) , 
-                 "silicate": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed (linear approx)
-                         "fast": 0.0 , #destroyed (linear approx)
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     }
-                 } ,
-                 "carbon": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed (linear approx)
-                         "slow": 0.0 , #destroyed (linear approx)
-                         "fast": 0.0 #destroyed (linear approx)
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     }
-                 }} , 
-                 
-                 "particle2": {
-                     "size": 0.01220 * 10**(-6) ,
-                 "silicate": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 , #destroyed
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 #impact Sun
-                     }
-                 } ,
-                 "carbon": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 #destroyed
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     }
-                 }}  , 
-                 "particle3": {
-                     "size": 0.00708 * 10**(-6) ,
-                 "silicate": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 , #destroyed
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 #destroyed
-                     }
-                 } ,
-                 "carbon": {
-                     "pr": {
-                         "CME": 0.0 , #impact Sun
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     } ,
-                     "sputtering": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #destroyed
-                         "fast": 0.0 #destroyed
-                     } ,
-                     "both": {
-                         "CME": 0.0 , #destroyed
-                         "slow": 0.0 , #impact Sun
-                         "fast": 0.0 #impact Sun
-                     }
-                 }} }
+v_r0 = sp.Function("v_r0")(t1) #v0
+v_r1 = sp.Function("v_r1")(t0 , t1) #vr1
 
-#Slope calcs
-x1 = true_lifetime_units.get("particle2" , {}).get("size") 
-x2 = true_lifetime_units.get("particle3" , {}).get("size") 
-x3 = true_lifetime_units.get("particle1" , {}).get("size") 
+vrdot_0 = sp.Function("vrdot_0")(t1) #vdot0
+vrdot_1 = sp.Function("vrdot_1")(t0 , t1) #vrdot1
 
-par2_sil_spu_slow = true_lifetime_units.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-par2_sil_spu_fast = true_lifetime_units.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+theta_0 = sp.Function("theta_0")(t0 , t1) #theta0
+theta_1 = sp.Function("theta_1")(t0 , t1) #theta1
 
-par2_car_spu_CME = true_lifetime_units.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-par2_car_spu_slow = true_lifetime_units.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-par2_car_spu_fast = true_lifetime_units.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+omega_0 = sp.Function("omega_0")(t1) #omega0
+omega_1 = sp.Function("omega_1")(t0 , t1) #omega1
 
-par3_sil_spu_slow = true_lifetime_units.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-par3_sil_spu_fast = true_lifetime_units.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+omegadot_0 = sp.Function("omegadot_0")(t1) #omegadot0
+omegadot_1 = sp.Function("omegadot_1")(t0 , t1) #omegadot1
 
-par3_car_spu_CME = true_lifetime_units.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-par3_car_spu_slow = true_lifetime_units.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-par3_car_spu_fast = true_lifetime_units.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+dt0_r0 = sp.Symbol("dt0_r0")
+dt0_r1 = sp.Symbol("dt0_r1")
+dt1_r0 = sp.Symbol("dt1_r0")
+dt0t0_r0 = sp.Symbol("dt0t0_r0")
+dt0t0_r1 = sp.Symbol("dt0t0_r1")
+dt0t1_r0 = sp.Symbol("dt0t1_r0")
+dt1t0_r0 = sp.Symbol("dt1t0_r0")
 
-# sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_slow , par3_sil_spu_slow)
-# par1_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
-    
-# sil_spu_fast_slope , sil_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_fast , par3_sil_spu_fast)
-# par1_sil_spu_fast = sil_spu_fast_slope * x3 + sil_spu_fast_intercept
+dt0_theta0 = sp.Symbol("dt0_theta0")
+dt1_theta0 = sp.Symbol("dt1_theta0")
+dt0_theta1 = sp.Symbol("dt0_theta1")
+dt0t0_theta0 = sp.Symbol("dt0t0_theta0")
+dt0t1_theta0 = sp.Symbol("dt0t1_theta0")
+dt0t0_theta1 = sp.Symbol("dt0t0_theta1")
+dt1t0_theta0 = sp.Symbol("dt1t0_theta0")
 
-car_spu_CME_slope , car_spu_CME_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_CME , par3_car_spu_CME)
-par1_car_spu_CME = car_spu_CME_slope * x3 + car_spu_CME_intercept
+B = sp.Symbol("B") #B, initial beta 
+K = sp.Symbol("K")
+beta = sp.Symbol("beta")
 
-car_spu_slow_slope , car_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_slow , par3_car_spu_slow)
-par1_car_spu_slow = car_spu_slow_slope * x3 + car_spu_slow_intercept
+epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
+E_r = sp.Function("E")(r_0) #radial dependent epsilon
+vrterm = 2 * epsilon_0 * (- 3 * r_1 * r_0**(-4) * dt0_r0**2 + r_1 * r_0**(-3) * dt0t0_r0)
+omegaterm = -2 * epsilon_0 * (-3 * r_0**(-4) * dt0_r0**2 * theta_1 + r_0**(-3) * dt0_r0 * dt0_theta1 + r_0**(-3) * theta_1 * dt0t0_r0)
 
-car_spu_fast_slope , car_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_fast , par3_car_spu_fast)
-par1_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
+r_exp = r_0 + epsilon_0 * E_r * r_1 #r perturbed expression
+vr_exp = epsilon_0 * E_r * dt0_r1 + epsilon_0 * dt1_r0 + dt0_r0 - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0 #v perturbed expression
+vrdot_exp = epsilon_0 * E_r * dt0t0_r1 + dt0t0_r0 + vrterm + epsilon_0 * dt0t1_r0 + epsilon_0 * dt1t0_r0  #vrdot perturbed expression
 
-if __name__ == "__main__":
-    1
-    # print(par1_car_spu_fast)
-    
+theta_exp = theta_0 + epsilon_0 * E_r * theta_1 #theta perturbed expression
+omega_exp = dt0_theta0 + epsilon_0 * dt1_theta0 + epsilon_0 * E_r * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0  #omega perturbed expression
+omegadot_exp = dt0t0_theta0 + epsilon_0 * dt0t1_theta0 + epsilon_0 * E_r * dt0t0_theta1 + epsilon_0 * dt1t0_theta0 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 + omegaterm #omegadot perturbed expression
+
+#radial equation
+rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
+               -(1 - beta * B) - 2 * K * epsilon_0 * beta * B * vr_exp) #radial eq of motion
+
+#up to second order expressions
+req_lhs = sp.series(rad_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
+
+req_rhs = sp.series(rad_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) rhs
+
+rad_eq = (req_lhs - req_rhs).expand()
+rad_eq_zeroth_order = rad_eq.coeff(epsilon_0 , 0) #zeroth order total expression
+rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #1 order expression
+
+#angular equation
+ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , -K * epsilon_0 * B * beta * omega_exp) #angular eq of motion
+
+#second order sols
+angeq_lhs = sp.series(ang_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
+
+angeq_rhs = sp.series(ang_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) rhs
+
+angeq = (angeq_lhs - angeq_rhs).expand()
+angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order total expression
+angeq_1 = angeq.coeff(epsilon_0 , 1) #1 expression
+
+print(angeq_1)    
 
     
