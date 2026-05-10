@@ -87,6 +87,37 @@ angeq = (angeq_lhs - angeq_rhs).expand()
 angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order total expression
 angeq_1 = angeq.coeff(epsilon_0 , 1) #1 expression
 
-print(angeq_1)    
 
-    
+r0 = sp.Function("r0")(t1)
+r1 = sp.Function("r1")(t0)
+theta1 = sp.Function("theta1")(t0)
+omega0 = sp.Function("omega0")(t1)
+omega1 = sp.Function("omega1")(t0)
+vr1 = sp.Function("vr1")(t0)
+dt1_r0 = sp.Function("dt1_r0")(t1)
+dt1_theta0 = sp.Function("dt1_theta0")(t1)
+beta = sp.Function("beta")(t1)
+dt1_omega0 = sp.Function("dt1_omega0")(t1)
+dt0_r1 = sp.Function("dt0_r1")(t0)
+
+# dt0_r1 = r0**2 * vr1 - dt1_r0 * r0**2
+# dt0_theta1 = r0**2 * theta1 - dt1_theta0 * r0**2
+
+dt0_vr1 = 3 * omega0 * r1 - 2 * r0**3 * omega0 * omega1 
+dt0_omega1 = - 2 * omega0 * r0 * (dt1_r0 + r0**(-2) * dt0_r1) - B * K * beta * omega0 / ((1 - B) * r0**2) - dt1_omega0
+
+eqs = [
+    # sp.Eq(sp.diff(r1 , t0) , dt0_r1) , 
+    # sp.Eq(sp.diff(theta1 , t0) , dt0_theta1) ,
+    sp.Eq(sp.diff(vr1 , t0), dt0_vr1) ,
+    sp.Eq(sp.diff(omega1 , t0), dt0_omega1)
+]
+
+sol = sp.dsolve(eqs)
+
+# r1_sol = sol[0]
+# theta1_sol = sol[1]
+# vr1_sol = sol[0]
+# omega1_sol = sol[0]
+
+# print(sol[-1])

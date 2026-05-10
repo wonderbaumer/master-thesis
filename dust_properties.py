@@ -149,7 +149,6 @@ class dust_properties():
     
         eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * R_AU**(-2)
         
-        
         return eps
 
     def K_cst_r(self):
