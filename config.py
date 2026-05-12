@@ -58,8 +58,8 @@ init_vals = {"large":{
             },
 
             "k":{
-                "r": 0.11966 * 10**(-6) ,
-                "B": {"silicate": 0.7665 , "carbon": 3.3561}
+                "r": 1.05306 * 10**(-6) ,
+                "B": {"silicate": 0.1902 , "carbon": 0.4211}
             },
             "particle2": {
                 "r": 0.01220 * 10**(-6) ,
@@ -72,6 +72,10 @@ init_vals = {"large":{
             "particle4" : {
                 "r" : 0.10165 * 10**(-6) ,
                 "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
+            } , 
+            "particle5" : {
+                "r" : 0.07745 * 10**(-6) ,
+                "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
             }}
          
 material_files = {"silicate": sil_beta , "carbon": car_beta} #Mapping labels to correct beta values

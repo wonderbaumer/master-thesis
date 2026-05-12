@@ -167,8 +167,8 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "slow" , size = "large")
-    # print(M_ms / (mA_S * N_A))
-    par.eps()
+    par = dust_properties("silicate" , "CME" , size = "large")
+    print(par.K , par.B)
+    
     
     

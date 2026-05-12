@@ -7,7 +7,7 @@ def find_slope(x1 , x2 , y1 , y2):
 
     return linregress(x , y)
 
-#Numerically lifetimes in years
+#Numerically lifetimes in years, constant sputtering
 true_lifetime = {"particle1": {
                  "size": 1.54079 * 10**(-6) , 
                  "silicate": {
@@ -154,39 +154,220 @@ true_lifetime = {"particle1": {
                      }
                  }}}
 
-#Slope calcs
-x1 = true_lifetime.get("particle2" , {}).get("size") 
-x2 = true_lifetime.get("particle3" , {}).get("size") 
-x3 = true_lifetime.get("particle1" , {}).get("size") 
+#Slope calcs, constant sputtering
+# x1 = true_lifetime.get("particle2" , {}).get("size") 
+# x2 = true_lifetime.get("particle3" , {}).get("size") 
+# x3 = true_lifetime.get("particle1" , {}).get("size") 
 
-par2_sil_spu_slow = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-par2_sil_spu_fast = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par2_sil_spu_slow = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par2_sil_spu_fast = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-par2_car_spu_CME = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-par2_car_spu_slow = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-par2_car_spu_fast = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par2_car_spu_CME = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par2_car_spu_slow = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par2_car_spu_fast = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-par3_sil_spu_slow = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-par3_sil_spu_fast = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par3_sil_spu_slow = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par3_sil_spu_fast = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-par3_car_spu_CME = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-par3_car_spu_slow = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-par3_car_spu_fast = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par3_car_spu_CME = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par3_car_spu_slow = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par3_car_spu_fast = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_slow , par3_sil_spu_slow)
-par1_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
+# sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_slow , par3_sil_spu_slow)
+# par1_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
     
-sil_spu_fast_slope , sil_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_fast , par3_sil_spu_fast)
-par1_sil_spu_fast = sil_spu_fast_slope * x3 + sil_spu_fast_intercept
+# sil_spu_fast_slope , sil_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_fast , par3_sil_spu_fast)
+# par1_sil_spu_fast = sil_spu_fast_slope * x3 + sil_spu_fast_intercept
 
-car_spu_CME_slope , car_spu_CME_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_CME , par3_car_spu_CME)
-par1_car_spu_CME = car_spu_CME_slope * x3 + car_spu_CME_intercept
+# car_spu_CME_slope , car_spu_CME_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_CME , par3_car_spu_CME)
+# par1_car_spu_CME = car_spu_CME_slope * x3 + car_spu_CME_intercept
 
-car_spu_slow_slope , car_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_slow , par3_car_spu_slow)
-par1_car_spu_slow = car_spu_slow_slope * x3 + car_spu_slow_intercept
+# car_spu_slow_slope , car_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_slow , par3_car_spu_slow)
+# par1_car_spu_slow = car_spu_slow_slope * x3 + car_spu_slow_intercept
 
-car_spu_fast_slope , car_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_fast , par3_car_spu_fast)
-par1_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
+# car_spu_fast_slope , car_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_fast , par3_car_spu_fast)
+# par1_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
+
+#Numerically lifetimes in years, variable sputtering
+true_lifetime_variableeps = {"particle1": {
+                 "size": 1.54079 * 10**(-6) , 
+                 "silicate": {
+                     "pr": {
+                         "CME": 0.0 ,
+                         "slow": 0.0 ,
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 , 
+                     } ,
+                     "both": {
+                         "CME": 1.2684797354478665e+03 , #destroyed
+                         "slow": 2.818130190907345e+03 , #destroyed 
+                         "fast": 2.9799244702582264e+03 #impact Sun
+                     }
+                 } ,
+                 "carbon": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "both": {
+                         "CME": 0.0 , #yeet
+                         "slow": 1.513539542640072e+03 , #impact Sun
+                         "fast": 1.5141694674287921e+03 #impact Sun
+                     }
+                 }} , 
+                 
+                 "particle2": {
+                     "size": 0.01220 * 10**(-6) ,
+                 "silicate": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     }
+                 } ,
+                 "carbon": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 3.153988106081718e+01 , 
+                         "slow": 2.9664058216611687e+02 , 
+                         "fast": 0.0
+                     }
+                 }} , 
+                 "particle3": {
+                     "size": 0.00708 * 10**(-6) ,
+                 "silicate": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     }
+                 } ,
+                 "carbon": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     }
+                 }} ,
+                 "particle4": {
+                     "size": 0.10165 * 10**(-6) ,
+                 "silicate": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     }
+                 } ,
+                 "carbon": {
+                     "pr": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0 
+                     } ,
+                     "sputtering": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     } ,
+                     "both": {
+                         "CME": 0.0 , 
+                         "slow": 0.0 , 
+                         "fast": 0.0
+                     }
+                 }} }
+
+#Slope calcs, variable sputtering
+# x11 = true_lifetime.get("particle2" , {}).get("size") 
+# x21 = true_lifetime.get("particle3" , {}).get("size") 
+# x31 = true_lifetime.get("particle1" , {}).get("size") 
+
+# par2_sil_spu_slow1 = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par2_sil_spu_fast1 = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+
+# par2_car_spu_CME1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par2_car_spu_slow1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par2_car_spu_fast1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+
+# par3_sil_spu_slow1 = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par3_sil_spu_fast1 = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+
+# par3_car_spu_CME1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par3_car_spu_slow1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par3_car_spu_fast1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+
+# sil_spu_slow_slope1 , sil_spu_slow_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_sil_spu_slow1 , par3_sil_spu_slow1)
+# par1_sil_spu_slow1 = sil_spu_slow_slope1 * x31 + sil_spu_slow_intercept1
+    
+# sil_spu_fast_slope1 , sil_spu_fast_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_sil_spu_fast1 , par3_sil_spu_fast1)
+# par1_sil_spu_fast1 = sil_spu_fast_slope1 * x31 + sil_spu_fast_intercept1
+
+# car_spu_CME_slope1 , car_spu_CME_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_car_spu_CME1 , par3_car_spu_CME1)
+# par1_car_spu_CME1 = car_spu_CME_slope1 * x31 + car_spu_CME_intercept1
+
+# car_spu_slow_slope1 , car_spu_slow_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_car_spu_slow1 , par3_car_spu_slow1)
+# par1_car_spu_slow1 = car_spu_slow_slope1 * x31 + car_spu_slow_intercept1
+
+# car_spu_fast_slope1 , car_spu_fast_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_car_spu_fast1 , par3_car_spu_fast1)
+# par1_car_spu_fast1 = car_spu_fast_slope1 * x31 + car_spu_fast_intercept1
 
 if __name__ == "__main__":
     

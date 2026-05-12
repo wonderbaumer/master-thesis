@@ -28,6 +28,7 @@ class perturbed_functions():
         self.epsilon0 = particle.eps()
         self.delta = self.V / c
         self.K = self.delta / self.epsilon0
+        
         self.beta_prime = np.gradient(self.barr , self.time)
         self.t1 = self.time * self.epsilon0
 
@@ -43,11 +44,12 @@ class perturbed_functions():
         
         b_int = it.cumulative_simpson(var , x = t1 , initial = 0)
         terms = 1.0 + b_int * cst
-
+        
         invalid = np.where(terms <= 0)
         terms[invalid] = 0.0000001
         
-        C0_tot = terms**(1 / 4)
+        # C0_tot = terms**(1 / 4)
+        C0_tot = np.sqrt(1 - self.barr * self.B)
 
         return C0_tot
 
@@ -62,7 +64,7 @@ class perturbed_functions():
     def C3(self):
         
         tot = self.B / (1 - self.B) * (2 * self.K - self.beta_prime[0])
-
+        
         return tot
     
     def D0(self):
@@ -145,6 +147,15 @@ class perturbed_functions():
 
         return vrtot  
 
+    def K_rcst(self):
+        var = self.barr * (1 - self.B * self.barr)**2
+        
+        b_int = it.cumulative_simpson(var , x = self.t1 , initial = 0)
+        
+        K_func = self.beta_prime * (1 - self.B) / (2 * self.barr * (1 - self.B * self.barr))
+
+
+        return K_func
 
 if __name__== "__main__":
     par = dust_properties("silicate" , "slow" , "large")
@@ -159,10 +170,11 @@ if __name__== "__main__":
     rnum = np.sqrt(x**2+y**2)
     om = p.omega0()
     r , r0 , r1 = p.rad()
-    
-    plt.plot(t , r)
-    plt.plot(t , rnum)
-    # plt.ylim(0.0 , 1.01)
-    plt.show()
+    print(p.K , p.K_rcst())
+    # print(p.K_rcst() , p.K)
+    # plt.plot(t , r0)
+    # plt.plot(t , rnum)
+    # # plt.ylim(0.0 , 1.01)
+    # plt.show()
     
     
