@@ -16,12 +16,12 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
         returns: variable_list (list), 
         list of calculated variables for ivp solver, dxdt, dydt, dvxdt, dvydt, dmdt"""
 
-    last_t, dt = state
+    last_t , dt = state
     
     # let's subdivide t_span into 1000 parts
     # call update(n) here where n = (t - last_t) / dt
 
-    n = int((t - last_t)/dt)
+    n = int((t - last_t) / dt)
     pbar.update(n)
 
     # this we need to take into account that n is a rounded number.

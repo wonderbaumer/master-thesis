@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from polar_to_cart import polar_to_cartesian
+from scipy.constants import c , G
 
 #Radiation pressure
 rho_s = 3500 #silicate bulk density, in kgm^-3
@@ -58,8 +59,8 @@ init_vals = {"large":{
             },
 
             "k":{
-                "r": 1.05306 * 10**(-6) ,
-                "B": {"silicate": 0.1902 , "carbon": 0.4211}
+                "r": 2.02213 * 10**(-6) ,
+                "B": {"silicate": 0.0917 , "carbon": 0.1918}
             },
             "particle2": {
                 "r": 0.01220 * 10**(-6) ,
@@ -141,6 +142,15 @@ car_mass_bound = size_to_mass(car_size_bound , "carbon") #bound masses
 material_files_bound = {"silicate": (sil_size , sil_betaval , sil_PR) , 
                         "carbon": (car_size_bound , car_betaval_bound , car_PR_bound)} #bound materials mapping
 
+def pr_lifetime(beta):
+    tau = R**2 * c / (2 * G * m_s * beta) 
+
+    return tau / yr
+
+tau_pr_sil = pr_lifetime(sil_betaval)
+tau_pr_car = pr_lifetime(car_betaval)
+
+
 #t hat combinations used, dt timestep, t_tot total simulation time
 #1000 orbits
 dt5 = 3.16e-3 
@@ -173,7 +183,7 @@ t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
 if __name__ == "__main__":
-    print(mA_S)
+    print(tau_pr_sil)
     
     
 

@@ -167,8 +167,10 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , size = "large")
-    print(par.K , par.B)
+    # par = dust_properties("silicate" , "fast" , size = None , size_range=(sil_size , sil_betaval))
+    par = dust_properties("carbon" , "slow" , size = "large")
+    print(par.eps())
+    # print(np.argwhere(par.B[::-1] / par.K[::-1] <= 2.03154137e+00))
     
     
     

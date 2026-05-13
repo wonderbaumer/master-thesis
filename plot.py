@@ -4,13 +4,13 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , R , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
+from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , tau_pr_sil , tau_pr_car , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
 import os
 from scipy.constants import G
-from lifetime_calcs import true_lifetime
+from lifetime_calcs import true_lifetime , true_lifetime_variableeps
 import matplotlib.patches as mpatches
 from orbital_elements import ecc_calcs , ecc_scaled
 
@@ -139,7 +139,6 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
     res = np.load(file_path)
     x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     r = np.sqrt(x**2 + y**2)
-    ymin , ymax = np.where(r <= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_theta.png"
@@ -156,8 +155,8 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
         theta2 = np.atan2(y1 , x1) #Leapfrog thetahat
         theta2 = np.unwrap(theta2) #removing discontinuities
         
-        plt.plot(t[::10] , theta1[::10] , color = "blue", label = r"RK4(5) $\hat{\theta}$")
-        plt.plot(t[::10] , theta2[::10] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{\theta}$")
+        plt.plot(t[r >= 0.1] , theta1[r >= 0.1] , color = "blue", label = r"RK4(5) $\hat{\theta}$")
+        plt.plot(t[r >= 0.1] , theta2[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Leapfrog $\hat{\theta}$")
         plt.title(r"$\hat{\theta}$ from RK4(5) and Leapfrog solution")
         plt.legend()
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
@@ -168,35 +167,24 @@ def thetahat_comps(file_path , file_path_comp = None , pert = None , material = 
         save_path2 = f"Plots/{base_name}_theta_vs_perturbed.png"
         theta_per = np.unwrap(theta_per) #removing discontinuities
 
-        plt.plot(t[::10] , theta1[::10] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
-        plt.plot(t[::10] , theta_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
-
-        # if theta1[ymin][0] < theta_per[ymin][0]:
-        #     plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
-        
-        # else:
-        #     plt.ylim(theta_per[ymin][0] , theta_per[ymax][-1])
+        plt.plot(t[r >= 0.1] , theta1[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\theta}$")
+        plt.plot(t[r >= 0.1] , theta_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\theta}$")
         
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\theta}$")
-        plt.title(r"$\hat{\theta}$ from RK4(5) and perturbed solution")
+        plt.title(rf"$\hat{{\theta}}$ from RK4(5) and perturbed solution, {material}")
         plt.legend()
         # plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
     
-    if material == "silicate":
-        plt.plot(t[::10] , theta1[::10])
-        plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
-        plt.title(r"$\hat{\theta}$ for silicate, real $\hat{\beta}$")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-    
-    if material == "carbon":
-        plt.plot(t[::10] , theta1[::10])
-        plt.title(r"$\hat{\theta}$ for carbon, real $\hat{\beta}$")
-        plt.ylim(theta1[ymin][0] , theta1[ymax][-1])
+    if file_path_comp is None and pert is None:
+        # plt.plot(t[r >= 0.1] , theta1[r >= 0.1] , color = "blue")
+        plt.plot(t , theta1 , color = "blue")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\theta}$")
+
+        plt.title(rf"$\hat{{\theta}}$ for {material}")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
-    plt.xlabel(r"$\hat{t}$")
-    plt.ylabel(r"$\hat{\theta}$")
     plt.show()
 
 """plotting rhat as function of orbits, comparison of Leapfrog and RK4(5) solver, or RK4(5)
@@ -216,15 +204,16 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
     r = np.sqrt(x**2 + y**2) #r hat
     
     base_name = os.path.splitext(os.path.basename(file_path))[0]
-    save_path = f"Plots/{base_name}_r_{material}.png"
+    save_path = f"Plots/{base_name}_r.png"
 
     """comparing rhat with and without constant solar wind flux"""
-    if file_path_comp is not None:
+    if file_path_comp is not None and pert is None:
+        
         res1 = np.load(file_path_comp)
         x1 , y1 , _ , _ , _ , _ , t1 = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
         base_name1 = os.path.splitext(os.path.basename(file_path_comp))[0]
-        save_path1 = f"Plots/{base_name}_r_vs_{base_name1}_{material}.png"
+        save_path1 = f"Plots/{base_name}_r_vs_{base_name1}.png"
 
         r1 = np.sqrt(x1**2 + y1**2) #r hat
         plt.plot(t , r , color = "blue", label = r"$\hat{r}$, constant $f_{sw}$")
@@ -237,23 +226,29 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
 
 
-    if pert is not None: #comparing RK4(5) with perturbed rhat
+    if pert is not None and file_path_comp is None: #comparing RK4(5) with perturbed rhat
         r_per = pert
         rel_fw_err = np.abs(r - r_per) / np.abs(r)
         # print(rel_fw_err)
         save_path2 = f"Plots/{base_name}_r_vs_perturbed.png"
-        # plt.scatter(t_numtot , r_numtot , color = "black" , label = "Orbits")
-        plt.plot(t[::10] , r[::10] , color = "blue" , label = r"RK4(5) $\hat{r}$")
-        plt.plot(t[::10] , r_per[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
+        
+        plt.plot(t[r >= 0.1] , r[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{r}$")
+        plt.plot(t[r >= 0.1] , r_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{r}$")
         plt.title(fr"$\hat{{r}}$ from RK4(5) {material} and perturbed solution")
         plt.legend()
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
+    
+    if file_path_comp is None and pert is None:
+        # plt.plot(t[r >= 0.1] , r[r >= 0.1] , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
+        plt.plot(t , r , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{r}$")
+        plt.title(fr"$\hat{{r}}$ for {material}")
         
-    plt.xlabel(r"$\hat{t}$")
-    plt.ylabel(r"$\hat{r}$")
-    # plt.ylim(0.05 , 1.1)
+        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
+    
     plt.show()
 
 "plotting vhat from RK4(5) and perturbed expression, as function of t hat"
@@ -268,9 +263,8 @@ def vhat_comps(file_path , pert = None , material = None):
        returns: none"""
 
     res = np.load(file_path)
-    x , y , vx , vy , _ , _ , t= [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , vx , vy , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     r = np.sqrt(x**2 + y**2)
-    ymin , ymax = np.where(r >= 0.05) , np.where(r <= 1)
 
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
@@ -281,38 +275,24 @@ def vhat_comps(file_path , pert = None , material = None):
     v_r = vx * np.cos(theta_num) + vy * np.sin(theta_num) #cartesian to radial vel
     
     if pert is not None:
-        pr = np.load(pert)
-        _ , _ , _ , v_per , _ , _ , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
+        v_per = pert
 
         save_path1 = f"Plots/{base_name}_vr_vs_perturbed.png"
-        plt.plot(t[::100] , v_r[::100] , color = "blue" , label = r"RK4(5) $\hat{v}$")
-        plt.plot(t[::100] , v_per[::100] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
+        plt.plot(t[r >= 0.1] , v_r[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{v}$")
+        plt.plot(t[r >= 0.1] , v_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
-        # if v_r[ymin][-1] < v_per[ymin][-1]:
-        #     plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
-        
-        # else:
-        #     plt.ylim(v_per[ymin][-1] , v_per[ymax][0])
 
         plt.legend()
-        plt.title(r"RK4(5) and perturbed $\hat{v}_r$")
+        plt.title(rf"RK4(5) and perturbed $\hat{{v}}_r$ for {material}")
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
     
-    if material == "silicate":
-        plt.plot(t[::100] , v_r[::100])
-        # plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
+    else:
+        # plt.plot(t[r >= 0.1] , v_r[r >= 0.1] , color = "blue")
+        plt.plot(t , v_r , color = "blue")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
-        plt.title(r"$\hat{v}_r$ for silicate, real $\hat{\beta}$")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-
-    if material == "carbon":
-        plt.plot(t[::100] , v_r[::100])
-        # plt.ylim(v_r[ymin][-1] , v_r[ymax][0])
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{v}_r$")
-        plt.title(r"$\hat{v}_r$ for carbon, real $\hat{\beta}$")
+        plt.title(fr"$\hat{{v}}_r$ for {material}")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
@@ -331,7 +311,6 @@ def omegahat_comps(file_path , pert = None , material = None):
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     r = np.sqrt(x**2 + y**2)
-    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_omega.png"
@@ -343,37 +322,26 @@ def omegahat_comps(file_path , pert = None , material = None):
 
     if pert is not None:
         angvel = pert
-        plt.plot(t[::10] , angvel_num[::10] , color = "blue" , label = "RK4(5)")
-        plt.plot(t[::10] , angvel[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue" , label = "RK4(5)")
+        plt.plot(t[r >= 0.1] , angvel[r >= 0.1] , color = "red" , linestyle = "--" , label = "Perturbed")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\omega}$")
-        plt.title(r"$\hat{\omega}$ RK4(5) vs perturbed solution")
-
-        # if angvel_num[ymax][-1] < angvel[ymax][-1]:
-        #     plt.ylim(angvel_num[ymin][0] , angvel[ymax][-1])
-        
-        # else:
-        #     plt.ylim(angvel_num[ymin][0] , angvel[ymax][-1])
+        plt.title(rf"$\hat{{\omega}}$ RK4(5) vs perturbed solution, {material}")
 
         plt.legend()
         save_path = f"Plots/{base_name}_omega_vs_perturbed.png"
         
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
-    if material == "silicate":
-        plt.plot(t[::10] , angvel_num[::10])
-        # plt.ylim(angvel_num[ymin][0] , angvel_num[ymax][-1])
-        plt.title(r"$\hat{\omega}$ for silicate, real $\hat{\beta}$")
+    if pert is None:
+        # plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue")
+        plt.plot(t , angvel_num , color = "blue")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{\omega}$")
+        
+        plt.title(rf"$\hat{{\omega}}$ for {material}")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
-    if material == "carbon":
-        plt.plot(t[::10] , angvel_num[::10])
-        # plt.ylim(angvel_num[ymin][0] , angvel_num[ymax][-1])
-        plt.title(r"$\hat{\omega}$ for carbon, real $\hat{\beta}$")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-
-    plt.xlabel(r"$\hat{t}$")
-    plt.ylabel(r"$\hat{\omega}$")
     plt.show()
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
@@ -389,7 +357,8 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
        returns: none"""
     
     res = np.load(file_path)
-    _ , _ , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    r = np.sqrt(x**2 + y**2)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path2 = f"Plots/{base_name}_beta.png"
@@ -398,11 +367,11 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
         b_pert = b_per
 
         save_path3 = f"Plots/{base_name}_beta_interp_vs_expression.png"
-        plt.plot(t[::10] , b_pert[::10] , color = "red" , label = r"$\hat{\beta}$ expression")
-        plt.plot(t[::10] , b[::10] , color = "blue" , linestyle = "--" , label = r"Interpolated $\hat{\beta}$ curve")
+        plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , label = r"$\hat{\beta}$ expression")
+        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , linestyle = "--" , label = r"Interpolated $\hat{\beta}$ curve")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from interpolated function and from expression")
+        plt.title(fr"$\hat{{\beta}}$ from interpolated function and from expression, {material}")
         plt.legend()
         plt.savefig(save_path3 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
@@ -410,33 +379,31 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
 
     """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
     if fw_err == False and b_per is not None and b_analytical is not None:
-        pr = np.load(b_per)
-        _ , _ , _ , _ , _ , b_pert , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
-
+        b_pert = b_per
         save_path = f"Plots/{base_name}_beta_vs_analytical_perturbed.png"
         plt.figure()
-        plt.plot(t[::10] , b[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[::10] , b_pert[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5) and perturbed solution")
+        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
+        plt.title(fr"$\hat{{\beta}}$ from RK4(5) and perturbed solution, {material}")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
 
         plt.figure()
-        plt.plot(t[::10] , b[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5) and analytical solution")
+        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t[r >= 0.1] , b_analytical[r >= 0.1] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
+        plt.title(fr"$\hat{{\beta}}$ from RK4(5) and analytical solution , {material}")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
         plt.show()
         
         plt.figure()
-        plt.plot(t[::10] , b[::10] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[::10] , b_pert[::10] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.plot(t[::10] , b_analytical[::10] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ from RK4(5), perturbed and analytical solution")
+        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
+        plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
+        plt.plot(t[r >= 0.1] , b_analytical[r >= 0.1] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
+        plt.title(fr"$\hat{{\beta}}$ from RK4(5), perturbed and analytical solution, {material}")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
@@ -446,35 +413,26 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
     if fw_err == True and b_per is not None and b_analytical is not None:
-        pr = np.load(b_per)
-        _ , _ , _ , _ , _ , b_pert , _ = [pr[k] for k in ("omega" , "r" , "theta" , "vr" , "c0" , "b" , "t")]
-
+        b_pert = b_per
         save_path1 = f"Plots/{base_name}_beta_rel_fw_err.png"
         fw_err_RK45_per = np.abs(b - b_pert) / np.abs(b)
         fw_err_RK45_analytical = np.abs(b - b_analytical) / np.abs(b)
-        plt.plot(t[::10] , fw_err_RK45_per[::10] , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
-        plt.plot(t[::10] , fw_err_RK45_analytical[::10] , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
+        plt.plot(t[r >= 0.1] , fw_err_RK45_per[r >= 0.1] , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
+        plt.plot(t[r >= 0.1] , fw_err_RK45_analytical[r >= 0.1] , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"Relative forward error")
-        plt.title("Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical")
+        plt.title(f"Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical, {material}")
 
         plt.legend()
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
     
-    if material == "silicate":
-        plt.plot(t[::10] , b[::10])
+    if b_per is None and b_analytical is None and fw_err == False:
+        # plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue")
+        plt.plot(t , b , color = "blue")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ silicate")
-        plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
-        plt.show()
-    
-    if material == "carbon": 
-        plt.plot(t[::10] , b[::10])
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.title(r"$\hat{\beta}$ carbon")
+        plt.title(fr"$\hat{{\beta}}$ for {material}")
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
 
@@ -659,13 +617,14 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         fig , ax = plt.subplots()
         size = sil_size if mat == "silicate" else car_size
         pr = sil_PR if mat == "silicate" else car_PR
+        # pr = tau_pr_sil if mat == "silicate" else tau_pr_car
 
         if mat == "carbon":
                 ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1 , label = "B>1")
 
         for sw, vals in tsp_vals[mat].items():
             
-            for key , value in true_lifetime.items():
+            for key , value in true_lifetime_variableeps.items():
 
                 ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] , marker = markers[lifetime_effects])
 
@@ -706,6 +665,8 @@ def v_theta(file_path , pert = None , material = None):
 
     res = np.load(file_path)
     x , y , vx , vy , _ , _ , t = [res[k] for k in ("x","y","vx","vy","m","b" , "t")] #unpacking file_path
+    r = np.sqrt(x**2 + y**2)
+
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_vtheta.png"
 
@@ -714,42 +675,29 @@ def v_theta(file_path , pert = None , material = None):
 
     vtheta = -vx * np.sin(theta) + vy * np.cos(theta)
 
-    r = np.sqrt(x**2 + y**2)
-    ymax , ymin = np.where(r >= 0.05) , np.where(r <= 1)
-
     if pert is not None:
         vtheta_pert = pert
         save_path1 = f"Plots/{base_name}_vtheta_pert_comps.png"
 
-        plt.plot(t[::10] , vtheta[::10] , color = "blue" , label = "RK4(5)")
-        plt.plot(t[::10] , vtheta_pert[::10] , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.plot(t[r >= 0.1] , vtheta[r >= 0.1] , color = "blue" , label = "RK4(5)")
+        plt.plot(t[r >= 0.1] , vtheta_pert[r >= 0.1] , color = "red" , linestyle = "--" , label = "Perturbed")
 
-        # if vtheta[ymax][-1] > vtheta_pert[ymax][-1]:
-        #     plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
-        
-        # else:
-        #     plt.ylim(vtheta_pert[ymin][0] , vtheta_pert[ymax][-1])
 
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_{\theta}$")
-        plt.title(r"Perturbed and numerical $\hat{v}_{\theta}$")
+        plt.title(fr"Perturbed and numerical $\hat{{v}}_{{\theta}}$, {material}")
         plt.legend()
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
     
-    if material == "silicate":
-        plt.plot(t[::10] , vtheta[::10])
-        plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
-        plt.title(r"$\hat{v}_{\theta}$ silicate")
+    if pert is None:
+        # plt.plot(t[r >= 0.1] , vtheta[r >= 0.1] , color = "blue")
+        plt.plot(t , vtheta , color = "blue")
+        plt.xlabel(r"$\hat{t}$")
+        plt.ylabel(r"$\hat{v}_{\theta}$")
+        
+        plt.title(fr"$\hat{{v}}_{{\theta}}$ for {material}")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-    
-    if material == "carbon":
-        plt.plot(t[::10] , vtheta[::10])
-        plt.ylim(vtheta[ymin][0] , vtheta[ymax][-1])
-        plt.title(r"$\hat{v}_{\theta}$ carbon")
-        plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
-    
-    plt.xlabel(r"$\hat{t}$")
-    plt.ylabel(r"$\hat{v}_{\theta}$")
+
     plt.show()
 
 """Plotting eccentricity from math and scaled expression"""
@@ -852,16 +800,16 @@ def mass_plot(file_path , file_path_comp , material):
 
     
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "CME" , "large")
-    file_path = "Files/rk45_t8_large_carbon_CMEsw_1AU_gradient.npz"
+    par = dust_properties("silicate" , "fast" , "small")
+    file_path = "Files/rk45_t7_small_silicate_fastsw.npz"
     res = np.load(file_path)
     x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     
     # file_path2 = "Files/rk45_t6_large_silicate_CMEsw_1AU.npz"
-    p = perturbed_functions(par , t , b , find_k = False)
-    c0 = p.C0(p.K)
-    om , om0 , om1 = p.omega(p.K)
-    r_pert , r0 , r1 = p.rad(p.K)
+    # p = perturbed_functions(par , t , b , find_k = False)
+    # c0 = p.C0(p.K)
+    # om , om0 , om1 = p.omega(p.K)
+    # r_pert , r0 , r1 = p.rad(p.K)
     # thetaval = p.theta(p.K)
     # vrpert = p.vr(p.K)
     # betas = p.barr
@@ -870,11 +818,12 @@ if __name__ == "__main__":
     # print(np.linspace(0 , t[-1] , int(t[-1])))
     # ecc_math(file_path , r_pert)
     # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
-    rhat_comps(file_path , material = "carbon" , file_path_comp = None , pert = r_pert)
-    # thetahat = thetahat_comps(file_path , file_path_comp = None , pert = thetaval)
-    # omegahat = omegahat_comps(file_path , pert = om)
-    # betahats = b_plot(file_path , betas)
-    # vtheta = v_theta(file_path , vthetapert)
+    rhat = rhat_comps(file_path , material = "silicate")
+    thetahat = thetahat_comps(file_path , material = "silicate")
+    omegahat = omegahat_comps(file_path , material = "silicate")
+    betahats = b_plot(file_path , material = "silicate")
+    vtheta = v_theta(file_path , material = "silicate")
+    vr = vhat_comps(file_path , pert = None , material = "silicate")
 
     # beta_curves(interp = False , comp = True)
     # PR_spu_lifetime_separate(lifetime_effects = "both")

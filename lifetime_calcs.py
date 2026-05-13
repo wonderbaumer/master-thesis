@@ -240,9 +240,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 0.0 , 
-                         "slow": 0.0 , 
-                         "fast": 0.0
+                         "CME": 2.442474395444546 , #destroyed
+                         "slow": 1.0376094108573302e+02 , #destroyed
+                         "fast": 1.920762740846535e+02 #destroyed
                      }
                  } ,
                  "carbon": {
@@ -257,9 +257,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 3.153988106081718e+01 , 
-                         "slow": 2.9664058216611687e+02 , 
-                         "fast": 0.0
+                         "CME": 3.153988106081718e+01 , #destroyed
+                         "slow": 2.9664058216611687e+02 , #impact Sun
+                         "fast": 3.5194969785329585e+02 #impact Sun
                      }
                  }} , 
                  "particle3": {
@@ -276,9 +276,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 0.0 , 
-                         "slow": 0.0 , 
-                         "fast": 0.0
+                         "CME": 1.3327232632182593 , #destroyed 
+                         "slow": 5.68932495149948e+01 , #destroyed
+                         "fast": 1.057688024755302e+02 #destroyed
                      }
                  } ,
                  "carbon": {
@@ -293,9 +293,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 0.0 , 
-                         "slow": 0.0 , 
-                         "fast": 0.0
+                         "CME": 4.438985720282468e+01 , #destroyed 
+                         "slow": 3.846281626362645e+02 , #destroyed
+                         "fast": 4.047585955709945e+02 #impact Sun
                      }
                  }} ,
                  "particle4": {
@@ -312,9 +312,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 0.0 , 
-                         "slow": 0.0 , 
-                         "fast": 0.0
+                         "CME": 6.761235294351679 , #destroyed 
+                         "slow": 2.112590073836999e+02 , #destroyed
+                         "fast": 3.105920637401841e+02 #destroyed
                      }
                  } ,
                  "carbon": {
