@@ -23,7 +23,7 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
 
     n = int((t - last_t) / dt)
     pbar.update(n)
-
+    ###
     # this we need to take into account that n is a rounded number.
     state[0] = last_t + dt * n
     
@@ -40,10 +40,10 @@ def pos_vel(t , init , pbar , state , epsilon , particle_obj , massloss = True):
 def r_out_of_range_event(t , init , pbar , state , epsilon , particle_obj , massloss):
     x , y , vx , vy , m = init
 
-    size = m**(1/3)
+    size = m**(1 / 3)
     r_physical = size * particle_obj.r 
     
-    return r_physical**2 - 1e-9**2
+    return r_physical - 1e-5
 
 r_out_of_range_event.terminal = True
 r_out_of_range_event.direction = -1

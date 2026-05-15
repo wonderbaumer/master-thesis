@@ -148,7 +148,7 @@ class dust_properties():
         R_AU = R / au #R in AU
     
         eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * R_AU**(-2)
-        
+        print(self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3))
         return eps
 
     def K_cst_r(self):
@@ -168,8 +168,8 @@ class dust_properties():
 if __name__ == "__main__":
     
     # par = dust_properties("silicate" , "fast" , size = None , size_range=(sil_size , sil_betaval))
-    par = dust_properties("carbon" , "slow" , size = "large")
-    print(par.eps())
+    par = dust_properties("silicate" , "slow" , size = "large")
+    
     # print(np.argwhere(par.B[::-1] / par.K[::-1] <= 2.03154137e+00))
     
     

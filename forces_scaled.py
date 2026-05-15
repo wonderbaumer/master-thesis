@@ -35,7 +35,7 @@ def sputtering(m , epsilon , x , y):
     #dmdt = 0.0
     r = np.sqrt(x**2 + y**2)
 
-    dmdt = - epsilon * m**(2 / 3) * r**(-2)
+    dmdt = - epsilon * m**(2 / 3) * r**(-2) ###
 
     return dmdt
 

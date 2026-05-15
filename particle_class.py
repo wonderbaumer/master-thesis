@@ -49,7 +49,7 @@ class particle_solver():
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
         y0 = np.concatenate((self.init_cart_scaled, [self.mhat0])) #initial values for scipy ivp solver
-        
+        print(y0)
         dt , t_tot = self.sim_time #dt and t_tot unpacking
         dt = dt #/ self.T 
         t_tot = t_tot 
@@ -113,13 +113,13 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "fast" , "small")
+    par = dust_properties("silicate" , "CME" , "large")
     p = particle_solver(t7 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
 
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6]
-    # print(t[-1] * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m[-1])
-    np.savez("Files/rk45_t7_small_silicate_fastsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+    print(t[-1] * p.T / yr , np.sqrt(x**2 + y**2)[-1] , m[-1])
+    # np.savez("Files/rk45_t7_small_silicate_fastsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     # plt.plot(t , np.sqrt(x**2 + y**2))
     # plt.show()
     

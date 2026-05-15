@@ -142,14 +142,6 @@ car_mass_bound = size_to_mass(car_size_bound , "carbon") #bound masses
 material_files_bound = {"silicate": (sil_size , sil_betaval , sil_PR) , 
                         "carbon": (car_size_bound , car_betaval_bound , car_PR_bound)} #bound materials mapping
 
-def pr_lifetime(beta):
-    tau = R**2 * c / (2 * G * m_s * beta) 
-
-    return tau / yr
-
-tau_pr_sil = pr_lifetime(sil_betaval)
-tau_pr_car = pr_lifetime(car_betaval)
-
 
 #t hat combinations used, dt timestep, t_tot total simulation time
 #1000 orbits
@@ -183,7 +175,7 @@ t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
 if __name__ == "__main__":
-    print(tau_pr_sil)
+    1
     
     
 
