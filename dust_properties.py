@@ -53,14 +53,16 @@ class dust_properties():
 
         self.V = self.calc_V()
         self.T = self.calc_T()
-
+        self.RAU = R / au #R in AU
         self.epsilon = self.eps()
 
         self.delta = self.V / c
         self.K = self.delta / self.epsilon
         
+        
     def calc_V(self):
         """Calculates initial orbital velocity from given B and R"""
+        
         V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial orbital velocity, in ms^-1
 
         return V
@@ -145,10 +147,9 @@ class dust_properties():
             M_m = M_mc
             rho = rho_c
         
-        R_AU = R / au #R in AU
-    
-        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * R_AU**(-2)
-        print(self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3))
+        
+        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * self.RAU**(-2)
+        
         return eps
 
     def K_cst_r(self):

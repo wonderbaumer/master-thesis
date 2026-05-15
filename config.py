@@ -174,8 +174,18 @@ dt9 = 3.16e-3
 t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
+def pr_lifetime(betaval):
+        RAU = R / au
+
+        tau = 400 * RAU**2 / betaval
+
+        return tau
+
+tau_sil = pr_lifetime(sil_betaval)
+tau_car = pr_lifetime(car_betaval)
+
 if __name__ == "__main__":
-    1
+    print(400 / 0.1235)
     
     
 

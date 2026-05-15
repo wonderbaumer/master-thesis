@@ -52,7 +52,6 @@ beta = sp.Symbol("beta")
 epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
 E_r = sp.Function("E")(r_0) #radial dependent epsilon
 vrterm = 2 * epsilon_0 * (- 3 * r_1 * r_0**(-4) * dt0_r0**2 + r_1 * r_0**(-3) * dt0t0_r0)
-omegaterm = -2 * epsilon_0 * (-3 * r_0**(-4) * dt0_r0**2 * theta_1 + r_0**(-3) * dt0_r0 * dt0_theta1 + r_0**(-3) * theta_1 * dt0t0_r0)
 
 r_exp = r_0 + epsilon_0 * E_r * r_1 #r perturbed expression
 vr_exp = epsilon_0 * E_r * dt0_r1 + epsilon_0 * dt1_r0 + dt0_r0 - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0 #v perturbed expression

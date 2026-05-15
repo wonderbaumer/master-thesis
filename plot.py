@@ -4,7 +4,7 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , tau_pr_sil , tau_pr_car , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass
+from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -616,8 +616,8 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
     for mat in material: 
         fig , ax = plt.subplots()
         size = sil_size if mat == "silicate" else car_size
-        pr = sil_PR if mat == "silicate" else car_PR
-        # pr = tau_pr_sil if mat == "silicate" else tau_pr_car
+        
+        pr = tau_sil if mat == "silicate" else tau_car
 
         if mat == "carbon":
                 ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1 , label = "B>1")
@@ -800,10 +800,10 @@ def mass_plot(file_path , file_path_comp , material):
 
     
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "fast" , "small")
-    file_path = "Files/rk45_t7_small_silicate_fastsw.npz"
-    res = np.load(file_path)
-    x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
+    # par = dust_properties("silicate" , "fast" , "small")
+    # file_path = "Files/rk45_t7_small_silicate_fastsw.npz"
+    # res = np.load(file_path)
+    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
     
     # file_path2 = "Files/rk45_t6_large_silicate_CMEsw_1AU.npz"
     # p = perturbed_functions(par , t , b , find_k = False)
@@ -818,15 +818,15 @@ if __name__ == "__main__":
     # print(np.linspace(0 , t[-1] , int(t[-1])))
     # ecc_math(file_path , r_pert)
     # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
-    rhat = rhat_comps(file_path , material = "silicate")
-    thetahat = thetahat_comps(file_path , material = "silicate")
-    omegahat = omegahat_comps(file_path , material = "silicate")
-    betahats = b_plot(file_path , material = "silicate")
-    vtheta = v_theta(file_path , material = "silicate")
-    vr = vhat_comps(file_path , pert = None , material = "silicate")
+    # rhat = rhat_comps(file_path , material = "silicate")
+    # thetahat = thetahat_comps(file_path , material = "silicate")
+    # omegahat = omegahat_comps(file_path , material = "silicate")
+    # betahats = b_plot(file_path , material = "silicate")
+    # vtheta = v_theta(file_path , material = "silicate")
+    # vr = vhat_comps(file_path , pert = None , material = "silicate")
 
     # beta_curves(interp = False , comp = True)
-    # PR_spu_lifetime_separate(lifetime_effects = "both")
+    PR_spu_lifetime_separate(lifetime_effects = "both")
     # mass_plot(file_path = file_path2 , file_path_comp = file_path , material = "silicate")
     
 
