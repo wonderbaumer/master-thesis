@@ -42,8 +42,7 @@ dtt_theta0 = sp.Symbol("dtt_theta0")
 dtt_theta1 = sp.Symbol("dtt_theta1")
 
 B = sp.Symbol("B") #B, initial beta 
-V = sp.Symbol("V")
-c = sp.Symbol("c")
+delta = sp.Symbol("delta")
 
 epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
 E_r = sp.Function("E")(r_0) #radial dependent epsilon
@@ -62,7 +61,7 @@ beta_exp = beta_0 + epsilon_0 * E_r * beta_1 #beta perturbed expression
 
 #Radial equation
 rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
-               -(1 - beta_exp * B) - 2 * V / c * beta_exp * B * vr_exp) #radial eq of motion
+               -(1 - beta_exp * B) - 2 * delta * beta_exp * B * vr_exp) #radial eq of motion
 
 #up to second order expressions
 req_lhs = sp.series(rad_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
@@ -74,7 +73,7 @@ rad_eq_zeroth_order = rad_eq.coeff(epsilon_0 , 0) #zeroth order total expression
 rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #1 order expression
 
 #angular equation
-ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , -V / c * B * beta_exp * omega_exp) #angular eq of motion
+ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , -delta * B * beta_exp * omega_exp) #angular eq of motion
 
 #second order sols
 angeq_lhs = sp.series(ang_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
