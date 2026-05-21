@@ -203,9 +203,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0 , 
                      } ,
                      "both": {
-                         "CME": 1.2684797354478665e+03 , #destroyed
-                         "slow": 2.818130190907345e+03 , #destroyed 
-                         "fast": 2.9799244702582264e+03 #impact Sun
+                         "CME": 3.2799220179287167e+03 , #destroyed 
+                         "slow": 3.165877728790449e+03 , #impact Sun 
+                         "fast": 3.2018350461736945e+03 #impact Sun
                      }
                  } ,
                  "carbon": {
@@ -221,8 +221,8 @@ true_lifetime_variableeps = {"particle1": {
                      } ,
                      "both": {
                          "CME": 0.0 , #yeet
-                         "slow": 1.513539542640072e+03 , #impact Sun
-                         "fast": 1.5141694674287921e+03 #impact Sun
+                         "slow": 1.513539876418186e+03 , #impact Sun
+                         "fast": 1.5141695995692314e+03 #impact Sun
                      }
                  }} , 
                  
@@ -240,9 +240,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 2.442474395444546 , #destroyed
-                         "slow": 1.0376094108573302e+02 , #destroyed
-                         "fast": 1.920762740846535e+02 #destroyed
+                         "CME": 1.7076197230341602e+01 , #destroyed
+                         "slow": 6.822441704258237e+02 , #destroyed
+                         "fast": 1.197496850939118e+03 #destroyed
                      }
                  } ,
                  "carbon": {
@@ -257,9 +257,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 3.153988106081718e+01 , #destroyed
-                         "slow": 2.9664058216611687e+02 , #impact Sun
-                         "fast": 3.5194969785329585e+02 #impact Sun
+                         "CME": 3.1549098696479202e+01 , #destroyed
+                         "slow": 2.966635951570946e+02 , #impact Sun
+                         "fast": 3.519646536759617e+02 #impact Sun
                      }
                  }} , 
                  "particle3": {
@@ -276,9 +276,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 1.3327232632182593 , #destroyed 
-                         "slow": 5.68932495149948e+01 , #destroyed
-                         "fast": 1.057688024755302e+02 #destroyed
+                         "CME": 9.324368818449967 , #destroyed 
+                         "slow": 3.8514844692983246e+02 , #destroyed
+                         "fast": 6.956122480723823e+02 #destroyed
                      }
                  } ,
                  "carbon": {
@@ -293,9 +293,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 4.438985720282468e+01 , #destroyed 
-                         "slow": 3.846281626362645e+02 , #destroyed
-                         "fast": 4.047585955709945e+02 #impact Sun
+                         "CME": 4.4403387296926226e+01 , #destroyed 
+                         "slow": 3.846379010359448e+02 , #destroyed
+                         "fast": 4.0476340615297164e+02 #impact Sun
                      }
                  }} ,
                  "particle4": {
@@ -312,9 +312,9 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 0.0
                      } ,
                      "both": {
-                         "CME": 6.761235294351679 , #destroyed 
-                         "slow": 2.112590073836999e+02 , #destroyed
-                         "fast": 3.105920637401841e+02 #destroyed
+                         "CME": 4.4995574900932155e+01 , #destroyed 
+                         "slow": 4.781054446295344e+02 , #destroyed
+                         "fast": 5.226594334458505e+02 #destroyed
                      }
                  } ,
                  "carbon": {

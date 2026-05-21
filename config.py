@@ -185,7 +185,7 @@ tau_sil = pr_lifetime(sil_betaval)
 tau_car = pr_lifetime(car_betaval)
 
 if __name__ == "__main__":
-    print(400 / 0.1235)
+    print(len(sil_size) , len(car_size_bound))
     
     
 

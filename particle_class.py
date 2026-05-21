@@ -49,7 +49,7 @@ class particle_solver():
     """calculates position, velocity and other parameters using different solvers"""
     def pos_vel_calcs(self):
         y0 = np.concatenate((self.init_cart_scaled, [self.mhat0])) #initial values for scipy ivp solver
-        print(y0)
+        
         dt , t_tot = self.sim_time #dt and t_tot unpacking
         dt = dt #/ self.T 
         t_tot = t_tot 
@@ -113,7 +113,7 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "CME" , "large")
+    par = dust_properties("silicate" , "fast" , "particle4")
     p = particle_solver(t7 , par , "RK45" , massloss = True)
     vals = p.pos_vel_calcs()
 

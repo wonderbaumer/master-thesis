@@ -4,7 +4,7 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_functions import perturbed_functions
 from energy import tot_energy
-from config import car_betaval_bound , m_s , mA_S , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
+from config import car_betaval_bound , car_size_bound , mA_S , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -31,99 +31,45 @@ def eps_init_betareal():
        
        returns: none"""
     
-    material = {"silicate" : "-" , 
-                "carbon" : "--"}
+    combs = {"silicate" : {
+        "fast" : {"linestyle" : "-" , "color" : "red"} ,
+        "slow" : {"linestyle" : "-" , "color" : "green"} ,
+        "CME" :  {"linestyle" : "-" , "color" : "blue"}} ,
+
+            "carbon" : {
+        "fast" : {"linestyle" : "--" , "color" : "red"} ,
+        "slow" : {"linestyle" : "--" , "color" : "green"} ,
+        "CME" :  {"linestyle" : "--" , "color" : "blue"}}}
     
-    material = {"silicate" : "-" , 
-                "carbon" : "--"}
     
-    sw_conds = ["slow" , "fast" , "CME"]
-    eps_vals = []
-    delta_vals = []
+    for mat , sw in combs.items():
 
-    for key , value in material.items():
-        par = dust_properties(key , "slow" , "all" , None)
-        delta_vals.append({"material" : key ,
-                           "delta": par.delta ,
-                           "line" : value ,
-                           "B" : par.B})
-        
-        for sw in sw_conds:
-            par = dust_properties(key , sw , "all" , None)
-            eps = par.epsilon
-            drag_cst = par.K
-            eps_vals.append({"material" : key ,
-                             "sw_cond" : sw ,
-                             "eps" : eps ,
-                             "B" : par.B ,
-                             "line" : value , 
-                             "K" : drag_cst ,
-                             "delta" : par.delta})   
-        
-    plt.figure()
+        for sw_cond , styles in sw.items():
+            size_ranges = (sil_size , sil_betaval) if mat == "silicate" else (car_size_bound , car_betaval_bound)
+            par = dust_properties(mat , sw_cond , size = None , size_range = size_ranges)
+            init_beta = par.B
+            epsilon = par.eps()
+            delta = par.delta
+            
+            
+            plt.plot(init_beta , epsilon , color = styles["color"] , linestyle = styles["linestyle"])
+            plt.plot(init_beta , par.delta , color = "purple" , linestyle = styles["linestyle"])
+            
 
-    for item in eps_vals:
-        m = item["material"]
-        sw = item["sw_cond"]
-        epsilon = item["eps"]
-        Bval = item["B"]
-        linestyle = item["line"]
-        drag_cst = item["K"]
-        dragtot = item["delta"]
+        purple_patch = mpatches.Patch(color = "purple" , label = r"${\delta}$")
+        blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon}$ CME")
+        red_patch = mpatches.Patch(color = "red" , label = r"${\epsilon}$ Fast")
+        green_patch = mpatches.Patch(color = "green" , label = r"${\epsilon}$ Slow")
 
-        mask = np.abs((dragtot - epsilon / 5)) < 0.0000009
-
-        print(m,sw)
-        print(f"B {Bval[mask]},K {drag_cst[mask]}, epsilon {epsilon[mask]} , delta {dragtot[mask]}")
-    #     plt.plot(Bval , epsilon , linestyle = linestyle , label=f"{m}, {sw} sw")
-    # plt.xlabel(r"$B$")
-    # plt.ylabel(r"${\epsilon}$")
-    # plt.yscale("log")
-    # plt.title(r"${\epsilon}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    # plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
-    # plt.savefig("Plots/eps_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
-
-    # plt.figure()
-    # for item in delta_vals:
-    #     m = item["material"]
-    #     drag_term = item["delta"]
-    #     Bval = item["B"]
-    #     linestyle = item["line"]
-
-    #     plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}")
-    # plt.xlabel(r"$B$")
-    # plt.ylabel(r"${\delta}$")
-    # plt.yscale("log")
-    # plt.title(r"${\delta}$ vs ${B}$, corresponding to size range $1~\mathrm{nm} \text{–} 50~\mu\mathrm{m}$, silicate and carbon")
-    # plt.legend(loc = "lower left")
-    # plt.savefig("Plots/delta_vs_beta.png" , dpi = 300 , bbox_inches = 'tight')
-
-    # plt.figure()
-    # for i in eps_vals:
-    #     Bval = i["B"]
-    #     m = i["material"]
-    #     epsilon = i["eps"]
-    #     sw = i["sw_cond"]
-    #     linestyle = i["line"]
-
-    #     plt.plot(Bval , epsilon , linestyle = linestyle , label = f"{m}, {sw} sw eps")
-
-    # for j in delta_vals:
-    #     drag_term = j["delta"]
-    #     Bval = j["B"]
-    #     linestyle = j["line"]
-    #     m = j["material"]
-
-    #     plt.plot(Bval , drag_term , linestyle = linestyle , label = f"{m}, {sw} sw delta")
-        
-    # plt.xlabel(r"$B$")
-    # plt.ylabel("Magnitude")
-    # plt.yscale("log")
-    # plt.title(r"${\delta}$ and ${\epsilon}$ comparison, silicate and carbon")
-    # plt.legend(loc = "lower right" , prop = {"size" : 9} , borderpad = 0.05 , labelspacing = 0.2 , handlelength = 1.5)
-    # plt.savefig("Plots/delta_vs_epsilon.png" , dpi = 300 , bbox_inches = 'tight')
-    
-    # plt.show()
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([purple_patch , blue_patch , red_patch , green_patch])    
+        plt.loglog()        
+        plt.title(fr"${{\epsilon}}$ and ${{\delta}}$ vs B for {mat}")
+        plt.xlabel("B")
+        plt.ylabel("Value")
+        plt.legend(handles = handles)
+        plt.savefig(f"Plots/{mat}_epsilonvsbeta.png", dpi = 300 , bbox_inches = 'tight')
+        plt.show()
     
 """comparing thetahat values between RK4(5) and Leapfrog or RK4(5) and perturbed expression"""
 def thetahat_comps(file_path , file_path_comp = None , pert = None , material = None):
@@ -635,7 +581,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
  
         ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
 
-        ax.plot(0 , 0 , c = "black" , linestyle = ls[mat] , label = f"{mat.capitalize()}")
+        # ax.plot(0 , 0 , c = "black" , linestyle = ls[mat] , label = f"{mat.capitalize()}")
         ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] , label = f"{lifetime_effects.capitalize()} numerical")
 
         purple_patch = mpatches.Patch(color = "purple" , label = "PR")
@@ -828,6 +774,7 @@ if __name__ == "__main__":
     # beta_curves(interp = False , comp = True)
     PR_spu_lifetime_separate(lifetime_effects = "both")
     # mass_plot(file_path = file_path2 , file_path_comp = file_path , material = "silicate")
+    # eps_init_betareal()
     
 
 

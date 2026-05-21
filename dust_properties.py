@@ -119,13 +119,14 @@ class dust_properties():
         if self.material == "silicate":
             M_m = M_ms
             rho = rho_s
+            mA = mA_S
 
         elif self.material == "carbon":
             M_m = M_mc
             rho = rho_c
+            mA = mA_C
 
-
-        t_sp = (4 * self.r * N_A * rho) / (self.fsw * self.Ytot * M_m) #sputtering lifetime
+        t_sp = (4 * self.r * rho) / (self.fsw * self.Ytot * mA) #sputtering lifetime
          
         self.t_sp = t_sp / yr
 
@@ -142,13 +143,14 @@ class dust_properties():
         if self.material == "silicate":
             M_m = M_ms
             rho = rho_s
+            mA = mA_S
 
         elif self.material == "carbon":
             M_m = M_mc
             rho = rho_c
+            mA = mA_C
         
-        
-        eps = self.fsw * self.Ytot * M_m / N_A * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * self.RAU**(-2)
+        eps = self.fsw * self.Ytot * mA * np.pi * (3 / (4 * np.pi * rho))**(2 / 3) * self.m0**(-1 / 3) * self.T * self.RAU**(-2)
         
         return eps
 
@@ -168,10 +170,10 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    # par = dust_properties("silicate" , "fast" , size = None , size_range=(sil_size , sil_betaval))
-    par = dust_properties("silicate" , "slow" , size = "large")
+    par = dust_properties("silicate" , "CME" , size = None , size_range = (sil_size , sil_betaval))
+    # par = dust_properties("silicate" , "CME" , size = "large")
     
-    # print(np.argwhere(par.B[::-1] / par.K[::-1] <= 2.03154137e+00))
+    print(par.eps() , sil_size)
     
     
     
