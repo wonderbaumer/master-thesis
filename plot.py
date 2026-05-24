@@ -57,16 +57,17 @@ def eps_init_betareal():
             
 
         purple_patch = mpatches.Patch(color = "purple" , label = r"${\delta}$")
-        blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon}$ CME")
-        red_patch = mpatches.Patch(color = "red" , label = r"${\epsilon}$ Fast")
-        green_patch = mpatches.Patch(color = "green" , label = r"${\epsilon}$ Slow")
+        blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon_0}$ CME")
+        red_patch = mpatches.Patch(color = "red" , label = r"${\epsilon_0}$ Fast")
+        green_patch = mpatches.Patch(color = "green" , label = r"${\epsilon_0}$ Slow")
 
         handles, labels = plt.gca().get_legend_handles_labels()
         handles.extend([purple_patch , blue_patch , red_patch , green_patch])    
         plt.loglog()        
-        plt.title(fr"${{\epsilon}}$ and ${{\delta}}$ vs B for {mat}")
+        plt.title(fr"${{\epsilon_0}}$ and ${{\delta}}$ vs B for {mat}")
         plt.xlabel("B")
         plt.ylabel("Value")
+        plt.ylim(10**(-9) , 1)
         plt.legend(handles = handles)
         plt.savefig(f"Plots/{mat}_epsilonvsbeta.png", dpi = 300 , bbox_inches = 'tight')
         plt.show()
@@ -447,18 +448,26 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
         plt.show()
         
 """plots general beta curves for silicate and carbon"""
-def beta_curves(interp = False , comp = False , sample_pts = False):
+def beta_curves(interp = False , material = "silicate" , comp = False , scaled = False):
     """input: None
     
        returns: None"""
     
     """compare interpolated function with true curve for silicate values"""
     if interp == True: 
-        interp = pchip(sil_size , sil_betaval)
+        size = sil_size if material == "silicate" else car_size
+        beta = sil_betaval if material == "silicate" else car_betaval
 
-        plt.plot(sil_size * 10**(-6) , sil_betaval , linestyle = "--" , label = "True curve")
-        plt.plot(sil_size * 10**(-6) , interp(sil_size) , linestyle = "-" , label = "Interpolated function")
-        plt.savefig(f"Plots/beta_interpolation_curve_silicate.png" , dpi = 300 , bbox_inches = 'tight')
+        interp = pchip(size , beta)
+
+        plt.plot(size , beta , linestyle = "-" , label = "True curve")
+        plt.plot(size , interp(size) , linestyle = "--" , label = "Interpolated function")
+        plt.xlabel(r"Particle size (m)")
+        plt.ylabel(r"$\beta$")
+        plt.title(fr"{material.capitalize()} $\beta$ versus particle size")
+        plt.legend()
+        plt.savefig(f"Plots/{material}_beta_interpolation_curve.png" , dpi = 300 , bbox_inches = 'tight')
+        
     
     """comparing real silicate and carbon beta curve"""
     if comp == True:
@@ -466,24 +475,28 @@ def beta_curves(interp = False , comp = False , sample_pts = False):
         plt.yscale("log")
         plt.plot(sil_size , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
         plt.plot(car_size , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
+        plt.xlabel(r"Particle size (m)")
+        plt.ylabel(r"$\beta$")
+        plt.title(r"Silicate and carbon, $\beta$ versus particle size")
+        plt.legend()
         plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
     
-    """curve with sampling points"""
-    if sample_pts == True:
-        plt.xscale("log")
-        plt.yscale("log")
-        plt.scatter([1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)] , [0.1235 , 0.8560 , 0.2098] , c = "g")
-        plt.scatter([1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)] , [0.2646 , 3.0589 , 1.6179] , c = "orange")
-        plt.plot(sil_size * 10**(-6) , sil_betaval , color = "red" , linestyle = "-" , label = "Silicate")
-        plt.plot(car_size * 10**(-6) , car_betaval , color = "blue" , linestyle = "--" , label = "Carbon")
-        plt.savefig(f"Plots/beta_curve_sampling_points.png" , dpi = 300 , bbox_inches = 'tight')
+    """example scaled curve silicate"""
+    if scaled:
+        ref_size = 10.33226 * 10**(-6)
+        ref_B = 0.0163
 
-    plt.title(r"$\beta$ versus particle size")
-    plt.xlabel(r"Particle size (m)")
-    plt.ylabel(r"$\beta$")
-    plt.legend()
+        interp = pchip(sil_size , sil_betaval)
+        plt.plot(sil_size / ref_size , interp(sil_size) / ref_B)
+        plt.xlabel(r"Particle size (m)")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.title(r"Silicate $\hat{\beta}$ versus particle size")
+        plt.savefig(f"Plots/silicate_betacurve_refscaling.png" , dpi = 300 , bbox_inches = 'tight')
+
+
     plt.show()
 
+"""plots theoretical PR and sputtering lifetimes, silicate and carbon, all solar wind conditions"""
 def PR_spu_lifetime():
     """input: None
     
@@ -509,18 +522,26 @@ def PR_spu_lifetime():
         t_sp_car = par_carb.sputtering_lifetime()
         tsp_vals["carbon"][sw] = t_sp_car
 
-    fig , ax = plt.subplots()
-
     for mat in material: 
+        fig , ax = plt.subplots()
         size = sil_size if mat == "silicate" else car_size
-        pr = sil_PR if mat == "silicate" else car_PR
+        pr = tau_sil if mat == "silicate" else tau_car
 
         for sw, vals in tsp_vals[mat].items():
             ax.plot(size , vals,
-                     color = cl[sw] , linestyle = ls[mat] , label = f"{sw}")
+                     color = cl[sw] , linestyle = ls[mat])
+            
+        ax.plot(0 , 0 , c = cl[sw])
+        ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
 
-        label = "PR lifetime"
-        ax.plot(size , pr , color = "purple" , linestyle = ls[mat] , label = label)
+        purple_patch = mpatches.Patch(color = "purple" , label = "PR")
+        blue_patch = mpatches.Patch(color = "blue" , label = "CME")
+        red_patch = mpatches.Patch(color = "red" , label = "Fast")
+        green_patch = mpatches.Patch(color = "green" , label = "Slow")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([purple_patch , blue_patch , red_patch , green_patch])
+
         ax.set_xscale("log")
         ax.set_yscale("log")
         ax.set_ylim(0.1 , 10**8)
@@ -528,9 +549,9 @@ def PR_spu_lifetime():
         ax.set_xlabel(r"Particle size (m)")
         ax.set_ylabel(r"Lifetime (years)")
 
-        ax.set_title("Combined: PR and sputtering lifetimes")
-        ax.legend()
-        # fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_tot.png", dpi = 300 , bbox_inches = 'tight')
+        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes")
+        ax.legend(handles = handles)
+        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_theoretical.png", dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
         
@@ -600,7 +621,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         ax.set_ylabel(r"Lifetime (years)")
 
        
-        ax.set_title(f"{mat.capitalize()}: PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical" , pad = 20)
+        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical" , pad = 20)
         ax.legend(handles = handles , fontsize = 8)
         fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png", dpi = 300 , bbox_inches = 'tight')
 
@@ -744,7 +765,7 @@ def mass_plot(file_path , file_path_comp , material):
     
     plt.show()
 
-    
+
 if __name__ == "__main__":
     # par = dust_properties("silicate" , "fast" , "small")
     # file_path = "Files/rk45_t7_small_silicate_fastsw.npz"
@@ -771,11 +792,11 @@ if __name__ == "__main__":
     # vtheta = v_theta(file_path , material = "silicate")
     # vr = vhat_comps(file_path , pert = None , material = "silicate")
 
-    # beta_curves(interp = False , comp = True)
-    PR_spu_lifetime_separate(lifetime_effects = "both")
+    beta_curves(interp = False , material = "silicate" , comp = False , scaled = True)
+    # PR_spu_lifetime_separate(lifetime_effects = "both")
     # mass_plot(file_path = file_path2 , file_path_comp = file_path , material = "silicate")
     # eps_init_betareal()
-    
+    # PR_spu_lifetime()
 
 
     
