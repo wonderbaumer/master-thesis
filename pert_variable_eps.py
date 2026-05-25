@@ -48,8 +48,7 @@ class perturbed_functions():
         invalid = np.where(terms <= 0)
         terms[invalid] = 0.0000001
         
-        # C0_tot = terms**(1 / 4)
-        C0_tot = np.sqrt(1 - self.barr * self.B)
+        C0_tot = terms**(1 / 4)
 
         return C0_tot
 
@@ -60,18 +59,6 @@ class perturbed_functions():
         C0primetot = -self.B * self.K / (1 - self.B)**3 * beta * (1 - self.B * beta)**2 * c0**(-3)
 
         return C0primetot
-    
-    def C3(self):
-        
-        tot = self.B / (1 - self.B) * (2 * self.K - self.beta_prime[0])
-        
-        return tot
-    
-    def D0(self):
-        c3 = self.C3()
-        tot = -2 * self.epsilon0 * c3
-
-        return tot
 
     def omega0(self):
         beta = self.barr
@@ -86,64 +73,51 @@ class perturbed_functions():
         omega0 = self.omega0()
 
         coeff0 = self.C0()
-        coeff3 = self.C3()
         
         r0 = (1 - self.B) / (1 - beta * self.B) * coeff0**2
-        r1 = coeff3 * np.sin(omega0 * self.time)
+        # r1 = coeff3 * np.sin(omega0 * self.time)
 
-        firstorder = self.epsilon0 * r0**(-2)
-        invalid = np.where(r0 <= 0.1)
-        firstorder[invalid] = 0.1
+        # firstorder = self.epsilon0 * r0**(-2)
+        # invalid = np.where(r0 <= 0.1)
+        # firstorder[invalid] = 0.1
         
-        rtot = r0 +  firstorder * r1
+        rtot = r0 #+  firstorder * r1
 
-        return rtot , r0 , r1
-
-    def omega1(self):
-        r0 = self.rad()
-        omega0 = self.omega()
-        c3 = self.C3()
-        
-
-        omega1 = -2 * omega0 / r0**3 * c3 * np.sin(omega0 * self.time)
-
-        return omega1 * self.epsilon0 * r0**(-2)
+        return rtot 
 
     def theta(self):
         coeff0 = self.C0()
         coeff0_prime = self.C0_prime()
-        c3 = self.C3()
-        d0 = self.D0()
+        d0 = 0.0 #placeholder
 
         omega0 = self.omega()
         _ , r0 , _ = self.rad()
 
         theta0 = ((1 - self.B) / (1 - self.B * self.barr))**(-2) * coeff0**(-3) * self.time + d0
-        theta11 = 2 * omega0 / r0 * c3 * np.cos(omega0 * self.time)
-        theta12 = r0**2 * self.time**2 * self.B * (1 - self.barr * self.B) * self.beta_prime / (1 - self.B)**2 * coeff0**(-3) 
-        theta13 = 3 * r0**2 * self.time**2 * (1 - self.barr * self.B) * coeff0_prime / (2 * (1 - self.B) * coeff0**4)
+        # theta11 = 2 * omega0 / r0 * c3 * np.cos(omega0 * self.time)
+        # theta12 = r0**2 * self.time**2 * self.B * (1 - self.barr * self.B) * self.beta_prime / (1 - self.B)**2 * coeff0**(-3) 
+        # theta13 = 3 * r0**2 * self.time**2 * (1 - self.barr * self.B) * coeff0_prime / (2 * (1 - self.B) * coeff0**4)
 
-        theta1 = theta11 + theta12 + theta13
+        # theta1 = theta11 + theta12 + theta13
 
-        thetatot = theta0 + self.epsilon0 * r0**(-2) * theta1
+        thetatot = theta0 #+ self.epsilon0 * r0**(-2) * theta1
     
         return thetatot
 
     def vr(self):
         coeff0 = self.C0()
         coeff0_prime = self.C0_prime()
-        c3 = self.C3()
         r0 = self.rad()
         
 
         _ , omega0 , _ = self.omega()
 
         vr0 = 0
-        vr11 = omega0 / r0**2 * c3 * np.cos(omega0 * self.time)
-        vr12 = self.B * (1 - self.B) * coeff0**2 * self.beta_prime / (1 - self.B * self.barr)**2 + 2 * (1 - self.B) * coeff0 * coeff0_prime / (1 - self.B * self.barr)
-        vr1 = vr11 + vr12
+        # vr11 = omega0 / r0**2 * c3 * np.cos(omega0 * self.time)
+        # vr12 = self.B * (1 - self.B) * coeff0**2 * self.beta_prime / (1 - self.B * self.barr)**2 + 2 * (1 - self.B) * coeff0 * coeff0_prime / (1 - self.B * self.barr)
+        # vr1 = vr11 + vr12
         
-        vrtot = vr0 + self.epsilon0 * r0**(-2) * vr1
+        vrtot = vr0 #+ self.epsilon0 * r0**(-2) * vr1
 
         return vrtot  
 
@@ -159,7 +133,7 @@ class perturbed_functions():
 
 if __name__== "__main__":
     par = dust_properties("silicate" , "slow" , "large")
-    res = np.load("Files/rk45_t7_large_silicate_slowsw_1AU_gradient.npz")
+    res = np.load("Files/rk45_t6_large_silicate_slowsw.npz")
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     p = perturbed_functions(par , t , b)
@@ -169,12 +143,8 @@ if __name__== "__main__":
     
     rnum = np.sqrt(x**2+y**2)
     om = p.omega0()
-    r , r0 , r1 = p.rad()
-    print(p.K , p.K_rcst())
-    # print(p.K_rcst() , p.K)
-    # plt.plot(t , r0)
-    # plt.plot(t , rnum)
-    # # plt.ylim(0.0 , 1.01)
-    # plt.show()
+    r = p.rad()
+    print(c0 , r , np.sqrt(x**2+y**2))
+    
     
     

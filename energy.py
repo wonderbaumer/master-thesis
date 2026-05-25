@@ -16,8 +16,8 @@ def tot_energy(x , y , vx , vy ,  m , beta , particle_obj):
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
     r = np.sqrt(x**2 + y**2)  #position
-    vr = (x * vx + y * vy) / r
-    vtheta = (x * vy - y * vx) / r
+    vr = x * np.cos(theta_num) + y * np.sin(theta_num)
+    vtheta = (x * np.sin(theta_num) - y * np.cos(theta_num))
     
     kinetic_energy = 1 / 2 * m * (vr**2 + vtheta**2)
     #kinetic_energy = 1 / 2 * m * v**2 #formula corresponding to scaled kinetic E

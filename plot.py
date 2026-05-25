@@ -396,7 +396,7 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
     x1 , y1 , vx1 , vy1 , m1 , b_vals1 , t = [res1[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver1
 
     res2 = np.load(solver2)
-    x2 , y2 , vx2 , vy2 , m2 , b_vals2 , _ = [res2[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver2
+    x2 , y2 , vx2 , vy2 , m2 , b_vals2 , tl = [res2[k] for k in ("x","y","vx","vy","m","b", "t")] #unpacking solver2
 
     base_name = os.path.splitext(os.path.basename(solver1))[0]
     save_path = f"Plots/{base_name}_energy_solver_comps.png"
@@ -414,37 +414,42 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
     tot2 = kinetic2 + potential2 #summing kinetic and potential energy into total energy
 
     if fw_err == False:
-        #plots skipping 10 values for each iteration, for efficiency in plotting
-        plt.plot(t[::10] , kinetic1[::10] , label = "Kinetic RK4(5)" , color = "blue" , linewidth = 2)
-        plt.plot(t[::10] , potential1[::10] , label = "Potential RK4(5)" , color = "orange" , linewidth = 2)
-        plt.plot(t[::10] , tot1[::10] , label = "Total RK4(5)" , color = "teal" , linewidth = 2)
-        plt.plot(t[::10] , kinetic2[::10] , label = "Kinetic Leapfrog" , color = "red" , linestyle = "--" , linewidth = 2)
-        plt.plot(t[::10] , potential2[::10] , label = "Potential Leapfrog" , color = "purple" , linestyle = "--" , linewidth = 2)
-        plt.plot(t[::10] , tot2[::10] , label = "Total Leapfrog" , color = "pink" , linestyle = "--" , linewidth = 2)
-        plt.xlabel("Number of orbits")
+        plt.plot(0 , 0 , c = "black" , linestyle = "-" , label = "RK4(5)")
+        plt.plot(0 , 0 , c = "black" , linestyle = "--" , label = "Leapfrog")
+        plt.plot(t , kinetic1 , label = "Kinetic" , color = "blue" , linewidth = 2)
+        plt.plot(t , potential1 , label = "Potential" , color = "orange" , linewidth = 2)
+        plt.plot(t , tot1 , label = "Total" , color = "teal" , linewidth = 2)
+        plt.plot(tl , kinetic2 , label = "Kinetic" , color = "red" , linestyle = "--" , linewidth = 2)
+        plt.plot(tl , potential2 , label = "Potential" , color = "purple" , linestyle = "--" , linewidth = 2)
+        plt.plot(tl , tot2 , label = "Total" , color = "pink" , linestyle = "--" , linewidth = 2)
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel("Energy")
-        plt.title("RK4(5) vs Leapfrog")
+        plt.title("RK4(5) vs leapfrog energies")
         plt.legend(loc = "upper right" ,
-               bbox_to_anchor = (1.0 , 0.8))
+               bbox_to_anchor = (1.0 , 0.95))
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
         plt.show()
-    
+        
     if fw_err == True: #plots RK4(5) sols and relative forward errors between RK4(5) and Leapfrog
         save_path1 = f"Plots/{base_name}_energy_rel_fw_err.png"
+        kinetic2 = np.interp(t , tl , kinetic2)
+        potential2 = np.interp(t , tl , potential2)
+        tot2 = np.interp(t , tl , tot2)
+
         err_kin = np.abs(kinetic1 - kinetic2) / np.abs(kinetic1)
         err_pot = np.abs(potential1 - potential2) / np.abs(potential1)
         err_tot = np.abs(tot1 - tot2) / np.abs(tot1)
-        
+
         plt.figure()
-        plt.plot(t[::10] , err_kin[::10] , label = "Error kinetic" , color = "blue" , linewidth = 2)
-        plt.plot(t[::10] , err_pot[::10]  , label = "Error potential" , color = "orange" , linewidth = 2)
-        plt.plot(t[::10] , err_tot[::10] , label = "Error total energy" , color = "teal" , linewidth = 2)
-        plt.xlabel("Number of orbits")
+        plt.plot(t , err_kin , label = "Kinetic" , color = "blue")
+        plt.plot(t , err_pot  , label = "Potential" , color = "orange")
+        # plt.plot(t , err_tot , label = "Total energy" , color = "teal" )
+        plt.xlabel(r"$\hat{t}$")
         plt.ylabel("Relative forward error")
-        plt.title("Forward error, RK4(5) vs Leapfrog")
+        plt.title("Relative forward error between RK4(5) and leapfrog")
         plt.legend(loc = "upper right" ,
-               bbox_to_anchor = (1.0 , 0.9))
-        plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
+               bbox_to_anchor = (1.0 , 0.95))
+        # plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
         
 """plots general beta curves for silicate and carbon"""
@@ -767,37 +772,11 @@ def mass_plot(file_path , file_path_comp , material):
 
 
 if __name__ == "__main__":
-    # par = dust_properties("silicate" , "fast" , "small")
-    # file_path = "Files/rk45_t7_small_silicate_fastsw.npz"
-    # res = np.load(file_path)
-    # x , y , vx , vy , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b" , "t")]
-    
-    # file_path2 = "Files/rk45_t6_large_silicate_CMEsw_1AU.npz"
-    # p = perturbed_functions(par , t , b , find_k = False)
-    # c0 = p.C0(p.K)
-    # om , om0 , om1 = p.omega(p.K)
-    # r_pert , r0 , r1 = p.rad(p.K)
-    # thetaval = p.theta(p.K)
-    # vrpert = p.vr(p.K)
-    # betas = p.barr
-    # vthetapert = om * r
-    
-    # print(np.linspace(0 , t[-1] , int(t[-1])))
-    # ecc_math(file_path , r_pert)
-    # ecc_sc(file_path , par.B , (r1 , om1 , vrpert))
-    # rhat = rhat_comps(file_path , material = "silicate")
-    # thetahat = thetahat_comps(file_path , material = "silicate")
-    # omegahat = omegahat_comps(file_path , material = "silicate")
-    # betahats = b_plot(file_path , material = "silicate")
-    # vtheta = v_theta(file_path , material = "silicate")
-    # vr = vhat_comps(file_path , pert = None , material = "silicate")
+    file_path1 = "Files/rk45_t6_large_silicate_slowsw_pressurerad_gravonly.npz"
+    file_path2 = "Files/leapfrog_t6_large_silicate_slowsw_pressurerad_gravonly.npz"
+    par = dust_properties("silicate" , "slow" , "large")
 
-    beta_curves(interp = False , material = "silicate" , comp = False , scaled = True)
-    # PR_spu_lifetime_separate(lifetime_effects = "both")
-    # mass_plot(file_path = file_path2 , file_path_comp = file_path , material = "silicate")
-    # eps_init_betareal()
-    # PR_spu_lifetime()
-
+    energy_plot(file_path1 , file_path2 , par , False)
 
     
     
