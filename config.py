@@ -44,17 +44,17 @@ car_beta = "ac_radpr_prdrag_sun1au.dat" #Utilizing data sets provided by Li, A.,
 
 #Chosen initial values and labels
 init_vals = {"large":{
-            "r": 1.54079 * 10**(-6),
+            "r": 1.54079 * 10**(-6) ,
             "B": {"silicate": 0.1235 , "carbon": 0.2646} 
             },
 
             "medium":{
-            "r": 0.17508 * 10**(-6),
+            "r": 0.17508 * 10**(-6) ,
             "B": {"silicate": 0.8560 , "carbon": 3.0589}
             },
 
             "small":{
-            "r": 0.04259 * 10**(-6),
+            "r": 0.04259 * 10**(-6) ,
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
             },
 

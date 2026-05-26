@@ -45,7 +45,7 @@ def betahat(m , particle_obj):
 
        returns: betahat(float), scaled betahat """
     # b = m**(-1 / 3)
-    size = m**(1/3)
+    size = m**(1 / 3)
 
     
     r_physical = size * particle_obj.r

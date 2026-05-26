@@ -4,7 +4,7 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_variable_eps import perturbed_functions
 from energy import tot_energy
-from config import car_betaval_bound , car_size_bound , mA_S , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
+from config import car_betaval_bound , car_size_bound , init_vals , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -609,7 +609,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
        
         ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical" , pad = 20)
         ax.legend(handles = handles , fontsize = 8)
-        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png", dpi = 300 , bbox_inches = 'tight')
+        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png" , dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
     
@@ -751,24 +751,39 @@ def mass_plot(file_path , file_path_comp , material):
     
     plt.show()
 
+def eval_sizes():
+    sizes = [1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)]
+    sil_betas = [0.1235 , 0.8560 , 0.2098]
+    car_betas = [0.2646 , 3.0589 , 1.6179]
+
+    plt.plot(sil_size , sil_betaval , linestyle = "-" , color = "red" , label = "Silicate")
+    plt.plot(car_size , car_betaval , linestyle = "--" , color = "blue" , label = "Carbon")
+
+    plt.scatter(sizes , sil_betas , marker = "o" , color = "C4" , zorder = 4)
+    plt.scatter(sizes , car_betas , marker = "o" , color = "C2" , zorder = 4)
+
+    plt.yscale("log")
+    plt.xscale("log")
+    plt.xlabel("Particle size (m)")
+    plt.ylabel(r"$\beta$")
+    plt.title(r"Initial particle sizes and $\beta$ values")
+    plt.legend()
+    plt.savefig("Plots/beta_referencesizes.png" , dpi = 300 , bbox_inches = 'tight')
+
+    plt.show()
 
 if __name__ == "__main__":
-    file_path1 = "Files/rk45_t7_large_silicate_CMEsw.npz"
-    # file_path2 = "Files/rk45_t6_large_carbon_slowsw.npz"
-    par = dust_properties("silicate" , "CME" , "large")
-    res = np.load(file_path1)
-    x , y , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-
+    
+    filepath = "Files/rk45_t7_small_silicate_slowsw.npz"
+    par = dust_properties("silicate" , "slow" , "small")
+    res = np.load(filepath)
+    x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    
     p = perturbed_functions(par , t , b)
     
-    c0 = p.C0()
-    ompert = p.omega0()
     rpert = p.rad()
-    vrpert = p.vr()
 
-    rhat_comps(file_path1 , "silicate" , None , rpert)
-
-
+    rhat_comps(filepath , "silicate" , None , rpert)
     
     
     
