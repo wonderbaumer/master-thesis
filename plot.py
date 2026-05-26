@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from forces import beta
 from dust_properties import dust_properties
-from pert_functions import perturbed_functions
+from pert_variable_eps import perturbed_functions
 from energy import tot_energy
 from config import car_betaval_bound , car_size_bound , mA_S , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
 from forces_scaled import betahat
@@ -153,28 +153,9 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path = f"Plots/{base_name}_r.png"
 
-    """comparing rhat with and without constant solar wind flux"""
-    if file_path_comp is not None and pert is None:
-        
-        res1 = np.load(file_path_comp)
-        x1 , y1 , _ , _ , _ , _ , t1 = [res1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-
-        base_name1 = os.path.splitext(os.path.basename(file_path_comp))[0]
-        save_path1 = f"Plots/{base_name}_r_vs_{base_name1}.png"
-
-        r1 = np.sqrt(x1**2 + y1**2) #r hat
-        plt.plot(t , r , color = "blue", label = r"$\hat{r}$, constant $f_{sw}$")
-        plt.plot(t1 , r1 , color = "red" , linestyle = "--" , label = r"$\hat{r}, f{sw}(\hat{r})$")
-        plt.title(rf"$\hat{{r}}$, constant $f_{{sw}}$ and $f_{{sw}}(\hat{{r}})$, {material}")
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{r}$")
-        plt.legend()
-
-        plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
-
-
     if pert is not None and file_path_comp is None: #comparing RK4(5) with perturbed rhat
         r_per = pert
+
         rel_fw_err = np.abs(r - r_per) / np.abs(r)
         # print(rel_fw_err)
         save_path2 = f"Plots/{base_name}_r_vs_perturbed.png"
@@ -183,7 +164,7 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
         plt.plot(t[r >= 0.1] , r_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{r}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{r}$")
-        plt.title(fr"$\hat{{r}}$ from RK4(5) {material} and perturbed solution")
+        plt.title(fr"{material.capitalize()} $\hat{{r}}$, RK4(5) and perturbed solution")
         plt.legend()
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
     
@@ -223,15 +204,15 @@ def vhat_comps(file_path , pert = None , material = None):
     
     if pert is not None:
         v_per = pert
-
+        # rel_fw_err = np.abs(v_r - v_per) / np.abs(v_r)
         save_path1 = f"Plots/{base_name}_vr_vs_perturbed.png"
-        plt.plot(t[r >= 0.1] , v_r[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{v}$")
-        plt.plot(t[r >= 0.1] , v_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}$")
+        plt.plot(t[r >= 0.1] , v_r[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{v}_r$")
+        plt.plot(t[r >= 0.1] , v_per[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{v}_r$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{v}_r$")
 
         plt.legend()
-        plt.title(rf"RK4(5) and perturbed $\hat{{v}}_r$ for {material}")
+        plt.title(rf"{material.capitalize()} $\hat{{v}}_r$, RK4(5) and perturbed solution")
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
     
     else:
@@ -242,7 +223,7 @@ def vhat_comps(file_path , pert = None , material = None):
         plt.title(fr"$\hat{{v}}_r$ for {material}")
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
-    plt.show()
+    # plt.show()
 
 "plotting omegahat from RK4(5) and perturbed expression as function of t hat"
 def omegahat_comps(file_path , pert = None , material = None):
@@ -269,11 +250,11 @@ def omegahat_comps(file_path , pert = None , material = None):
 
     if pert is not None:
         angvel = pert
-        plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue" , label = "RK4(5)")
-        plt.plot(t[r >= 0.1] , angvel[r >= 0.1] , color = "red" , linestyle = "--" , label = "Perturbed")
+        plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\omega}$")
+        plt.plot(t[r >= 0.1] , angvel[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\omega}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\omega}$")
-        plt.title(rf"$\hat{{\omega}}$ RK4(5) vs perturbed solution, {material}")
+        plt.title(rf"{material.capitalize()} $\hat{{\omega}}$, RK4(5) and perturbed solution")
 
         plt.legend()
         save_path = f"Plots/{base_name}_omega_vs_perturbed.png"
@@ -772,11 +753,21 @@ def mass_plot(file_path , file_path_comp , material):
 
 
 if __name__ == "__main__":
-    file_path1 = "Files/rk45_t6_large_silicate_slowsw_pressurerad_gravonly.npz"
-    file_path2 = "Files/leapfrog_t6_large_silicate_slowsw_pressurerad_gravonly.npz"
-    par = dust_properties("silicate" , "slow" , "large")
+    file_path1 = "Files/rk45_t7_large_silicate_CMEsw.npz"
+    # file_path2 = "Files/rk45_t6_large_carbon_slowsw.npz"
+    par = dust_properties("silicate" , "CME" , "large")
+    res = np.load(file_path1)
+    x , y , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
 
-    energy_plot(file_path1 , file_path2 , par , False)
+    p = perturbed_functions(par , t , b)
+    
+    c0 = p.C0()
+    ompert = p.omega0()
+    rpert = p.rad()
+    vrpert = p.vr()
+
+    rhat_comps(file_path1 , "silicate" , None , rpert)
+
 
     
     

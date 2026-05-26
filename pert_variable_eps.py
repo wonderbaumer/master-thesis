@@ -31,6 +31,13 @@ class perturbed_functions():
         
         self.beta_prime = np.gradient(self.barr , self.time)
         self.t1 = self.time * self.epsilon0
+    
+    # def C3(self):
+
+    #     tot = self.B / (1 - self.B) * (2 * self.K - self.beta_prime[0])
+
+        
+    #     return tot
 
     def C0(self):
         beta = self.barr
@@ -59,6 +66,7 @@ class perturbed_functions():
         C0primetot = -self.B * self.K / (1 - self.B)**3 * beta * (1 - self.B * beta)**2 * c0**(-3)
 
         return C0primetot
+    
 
     def omega0(self):
         beta = self.barr
@@ -73,15 +81,16 @@ class perturbed_functions():
         omega0 = self.omega0()
 
         coeff0 = self.C0()
+        # coeff3 = self.C3()
         
         r0 = (1 - self.B) / (1 - beta * self.B) * coeff0**2
         # r1 = coeff3 * np.sin(omega0 * self.time)
 
-        # firstorder = self.epsilon0 * r0**(-2)
-        # invalid = np.where(r0 <= 0.1)
-        # firstorder[invalid] = 0.1
+        firstorder = self.epsilon0 * r0**(-2)
+        invalid = np.where(r0 <= 0.1)
+        firstorder[invalid] = 0.1
         
-        rtot = r0 #+  firstorder * r1
+        rtot = r0 #+ firstorder * r1
 
         return rtot 
 
@@ -110,14 +119,14 @@ class perturbed_functions():
         r0 = self.rad()
         
 
-        _ , omega0 , _ = self.omega()
+        omega0 = self.omega0()
 
         vr0 = 0
         # vr11 = omega0 / r0**2 * c3 * np.cos(omega0 * self.time)
-        # vr12 = self.B * (1 - self.B) * coeff0**2 * self.beta_prime / (1 - self.B * self.barr)**2 + 2 * (1 - self.B) * coeff0 * coeff0_prime / (1 - self.B * self.barr)
+        vr12 = self.B * (1 - self.B) * coeff0**2 * self.beta_prime / (1 - self.B * self.barr)**2 + 2 * (1 - self.B) * coeff0 * coeff0_prime / (1 - self.B * self.barr)
         # vr1 = vr11 + vr12
         
-        vrtot = vr0 #+ self.epsilon0 * r0**(-2) * vr1
+        vrtot = vr0 + self.epsilon0 * r0**(-2) * vr12
 
         return vrtot  
 
