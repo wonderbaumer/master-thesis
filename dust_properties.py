@@ -170,10 +170,10 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , size = None , size_range = (sil_size , sil_betaval))
+    par = dust_properties("silicate" , "slow" , "large")
     # par = dust_properties("silicate" , "CME" , size = "large")
     
-    print(par.eps() , sil_size)
+    print(par.eps())
     
     
     

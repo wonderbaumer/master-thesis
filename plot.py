@@ -589,7 +589,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
 
         # ax.plot(0 , 0 , c = "black" , linestyle = ls[mat] , label = f"{mat.capitalize()}")
-        ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] , label = f"{lifetime_effects.capitalize()} numerical")
+        ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] , label = f"{lifetime_effects.capitalize()} effects")
 
         purple_patch = mpatches.Patch(color = "purple" , label = "PR")
         blue_patch = mpatches.Patch(color = "blue" , label = "CME")
@@ -607,7 +607,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
         ax.set_ylabel(r"Lifetime (years)")
 
        
-        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical vs {lifetime_effects} numerical" , pad = 20)
+        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical and numerical" , pad = 20)
         ax.legend(handles = handles , fontsize = 8)
         fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png" , dpi = 300 , bbox_inches = 'tight')
 
@@ -774,8 +774,8 @@ def eval_sizes():
 
 if __name__ == "__main__":
     
-    filepath = "Files/rk45_t7_small_silicate_slowsw.npz"
-    par = dust_properties("silicate" , "slow" , "small")
+    filepath = "Files/rk45_t7_large_silicate_slowsw_10au.npz"
+    par = dust_properties("silicate" , "slow" , "large")
     res = np.load(filepath)
     x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     

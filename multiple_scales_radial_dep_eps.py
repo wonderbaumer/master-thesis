@@ -50,17 +50,17 @@ K = sp.Symbol("K")
 beta = sp.Symbol("beta")
 
 epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
-E_r = sp.Function("E")(r_0) #radial dependent epsilon
-vrterm = 2 * epsilon_0 * (- 3 * r_1 * r_0**(-4) * dt0_r0**2 + r_1 * r_0**(-3) * dt0t0_r0)
-omegaterm = -2 * epsilon_0 * (-3 * r_0**(-4) * dt0_r0**2 * theta_1 + r_0**(-3) * dt0_r0 * dt0_theta1 + r_0**(-3) * theta_1 * dt0t0_r0)
+E_r = sp.Function("E")(r_0) #radial dependent epsilon, r0^-2
+vrterm = - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0**2 + 6 * epsilon_0 * r_1 * r_0**(-4) * dt0_r0**2 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_r1 + epsilon_0 * dt1t0_r0 + epsilon_0 * dt0t1_r0  
+omegaterm = - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * theta_1 * dt0t0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_theta1**2 + 6 * epsilon_0 * r_0**(-4) * dt0_r0 * theta_1 * dt0_theta1 + epsilon_0 * dt1t0_theta0 + epsilon_0 * dt0t1_theta0
 
 r_exp = r_0 + epsilon_0 * E_r * r_1 #r perturbed expression
 vr_exp = epsilon_0 * E_r * dt0_r1 + epsilon_0 * dt1_r0 + dt0_r0 - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0 #v perturbed expression
-vrdot_exp = epsilon_0 * E_r * dt0t0_r1 + dt0t0_r0 + vrterm + epsilon_0 * dt0t1_r0 + epsilon_0 * dt1t0_r0  #vrdot perturbed expression
+vrdot_exp = dt0t0_r0 + epsilon_0 * E_r * dt0_r1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_r1 + vrterm #vrdot perturbed expression
 
 theta_exp = theta_0 + epsilon_0 * E_r * theta_1 #theta perturbed expression
 omega_exp = dt0_theta0 + epsilon_0 * dt1_theta0 + epsilon_0 * E_r * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0  #omega perturbed expression
-omegadot_exp = dt0t0_theta0 + epsilon_0 * dt0t1_theta0 + epsilon_0 * E_r * dt0t0_theta1 + epsilon_0 * dt1t0_theta0 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 + omegaterm #omegadot perturbed expression
+omegadot_exp = dt0t0_theta0 + epsilon_0 * E_r * dt0t0_theta1 + omegaterm #omegadot perturbed expression
 
 #radial equation
 rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
