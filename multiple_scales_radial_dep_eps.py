@@ -29,6 +29,9 @@ omega_1 = sp.Function("omega_1")(t0 , t1) #omega1
 omegadot_0 = sp.Function("omegadot_0")(t1) #omegadot0
 omegadot_1 = sp.Function("omegadot_1")(t0 , t1) #omegadot1
 
+m_0 = sp.Function("m_0")(t1) #m0
+m_1 = sp.Function("m_1")(t0 , t1) #m1
+
 dt0_r0 = sp.Symbol("dt0_r0")
 dt0_r1 = sp.Symbol("dt0_r1")
 dt1_r0 = sp.Symbol("dt1_r0")
@@ -62,6 +65,9 @@ theta_exp = theta_0 + epsilon_0 * E_r * theta_1 #theta perturbed expression
 omega_exp = dt0_theta0 + epsilon_0 * dt1_theta0 + epsilon_0 * E_r * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0  #omega perturbed expression
 omegadot_exp = dt0t0_theta0 + epsilon_0 * E_r * dt0t0_theta1 + omegaterm #omegadot perturbed expression
 
+m_exp = m_0 + epsilon_0 * E_r * m_1
+beta = m_0**(-1 / 3) - 1 / 3 * epsilon_0 * E_r * m_1 * m_0**(-4 / 3) 
+
 #radial equation
 rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
                -(1 - beta * B) - 2 * K * epsilon_0 * beta * B * vr_exp) #radial eq of motion
@@ -87,6 +93,7 @@ angeq = (angeq_lhs - angeq_rhs).expand()
 angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order total expression
 angeq_1 = angeq.coeff(epsilon_0 , 1) #1 expression
 
+print(angeq_zeroth_order)
 
 r0 = sp.Function("r0")(t1)
 r1 = sp.Function("r1")(t0)
@@ -120,4 +127,4 @@ sol = sp.dsolve(eqs)
 # vr1_sol = sol[0]
 # omega1_sol = sol[0]
 
-print(sol[0])
+# print(sol[0])
