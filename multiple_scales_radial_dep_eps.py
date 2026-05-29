@@ -55,11 +55,11 @@ beta = sp.Symbol("beta")
 epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
 E_r = sp.Function("E")(r_0) #radial dependent epsilon, r0^-2
 vrterm = - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0**2 + 6 * epsilon_0 * r_1 * r_0**(-4) * dt0_r0**2 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_r1 + epsilon_0 * dt1t0_r0 + epsilon_0 * dt0t1_r0  
-omegaterm = - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * theta_1 * dt0t0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_theta1**2 + 6 * epsilon_0 * r_0**(-4) * dt0_r0 * theta_1 * dt0_theta1 + epsilon_0 * dt1t0_theta0 + epsilon_0 * dt0t1_theta0
+omegaterm = - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * theta_1 * dt0t0_r0 + 6 * epsilon_0 * r_0**(-4) * dt0_r0**2 * theta_1 + epsilon_0 * dt1t0_theta0 + epsilon_0 * dt0t1_theta0
 
 r_exp = r_0 + epsilon_0 * E_r * r_1 #r perturbed expression
 vr_exp = epsilon_0 * E_r * dt0_r1 + epsilon_0 * dt1_r0 + dt0_r0 - 2 * epsilon_0 * r_1 * r_0**(-3) * dt0_r0 #v perturbed expression
-vrdot_exp = dt0t0_r0 + epsilon_0 * E_r * dt0_r1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_r1 + vrterm #vrdot perturbed expression
+vrdot_exp = dt0t0_r0 + epsilon_0 * E_r * dt0t0_r1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0 * dt0_r1 + vrterm #vrdot perturbed expression
 
 theta_exp = theta_0 + epsilon_0 * E_r * theta_1 #theta perturbed expression
 omega_exp = dt0_theta0 + epsilon_0 * dt1_theta0 + epsilon_0 * E_r * dt0_theta1 - 2 * epsilon_0 * r_0**(-3) * dt0_r0  #omega perturbed expression
@@ -93,7 +93,7 @@ angeq = (angeq_lhs - angeq_rhs).expand()
 angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order total expression
 angeq_1 = angeq.coeff(epsilon_0 , 1) #1 expression
 
-print(angeq_zeroth_order)
+# print(angeq_1)
 
 r0 = sp.Function("r0")(t1)
 r1 = sp.Function("r1")(t0)
@@ -103,21 +103,24 @@ omega1 = sp.Function("omega1")(t0)
 vr1 = sp.Function("vr1")(t0)
 dt1_r0 = sp.Function("dt1_r0")(t1)
 dt1_theta0 = sp.Function("dt1_theta0")(t1)
+dt0t0_theta1 = sp.Function("dt0t0_theta1")(t0)
+dt0_r1 = sp.Function("dt0_r1")(t0)
 beta = sp.Function("beta")(t1)
 dt1_omega0 = sp.Function("dt1_omega0")(t1)
-dt0_r1 = sp.Function("dt0_r1")(t0)
+m0 = sp.Function("m0")(t1)
+m1 = sp.Function("m1")(t0)
 
 # dt0_r1 = r0**2 * vr1 - dt1_r0 * r0**2
-# dt0_theta1 = r0**2 * theta1 - dt1_theta0 * r0**2
+# dt0_theta1 = r0**2 * omega1 - dt1_theta0 * r0**2
 
-dt0_vr1 = 3 * omega0 * r1 - 2 * r0**3 * omega0 * omega1 
-dt0_omega1 = - 2 * omega0 / r0 * (dt1_r0 + r0**(-2) * dt0_r1) - B * K * beta * omega0 / ((1 - B) * r0**2) - dt1_omega0
+dt0_vr1 = - B * m1 / (3 * (1 - B) * r0**2 * m0**(1 / 3)) + 3 * omega0**2 * r1 + 2 * omega0 * r0 * omega1
+dt0_omega1 = - B * K * omega0 / ((1 - B) * m0**(1 / 3) * r0**2) - 2 * omega0 * dt0_r1 / r0**3 - 2 * omega0 * dt1_r0 / r0**2 - dt1_omega0
 
 eqs = [
-    sp.Eq(sp.diff(r1 , t0) , dt0_r1) , 
-    sp.Eq(sp.diff(theta1 , t0) , dt0_theta1) ,
-    sp.Eq(sp.diff(vr1 , t0), dt0_vr1) ,
-    sp.Eq(sp.diff(omega1 , t0), dt0_omega1)
+    # sp.Eq(sp.diff(r1 , t0) , dt0_r1) , 
+    # sp.Eq(sp.diff(theta1 , t0) , dt0_theta1) ,
+    sp.Eq(sp.diff(vr1 , t0) , dt0_vr1) ,
+    sp.Eq(sp.diff(omega1 , t0) , dt0_omega1)
 ]
 
 sol = sp.dsolve(eqs)
@@ -127,4 +130,4 @@ sol = sp.dsolve(eqs)
 # vr1_sol = sol[0]
 # omega1_sol = sol[0]
 
-# print(sol[0])
+print(sol[-1])
