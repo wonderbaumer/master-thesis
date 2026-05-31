@@ -452,7 +452,7 @@ def beta_curves(interp = False , material = "silicate" , comp = False , scaled =
         plt.ylabel(r"$\beta$")
         plt.title(fr"{material.capitalize()} $\beta$ versus particle size")
         plt.legend()
-        plt.savefig(f"Plots/{material}_beta_interpolation_curve.png" , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(f"Plots/{material}_beta_interpolation_curve.png" , dpi = 300 , bbox_inches = 'tight')
         
     
     """comparing real silicate and carbon beta curve"""
@@ -465,19 +465,24 @@ def beta_curves(interp = False , material = "silicate" , comp = False , scaled =
         plt.ylabel(r"$\beta$")
         plt.title(r"Silicate and carbon, $\beta$ versus particle size")
         plt.legend()
-        plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
     
     """example scaled curve silicate"""
     if scaled:
-        ref_size = 10.33226 * 10**(-6)
-        ref_B = 0.0163
+        # ref_size = 10.33226 * 10**(-6)
+        # ref_B = 0.0163
 
-        interp = pchip(sil_size , sil_betaval)
-        plt.plot(sil_size / ref_size , interp(sil_size) / ref_B)
+        ref_size = 1.54079 * 10**(-6)
+        ref_B = 0.2646
+
+        # interp = pchip(sil_size , sil_betaval)
+        # plt.plot(sil_size / ref_size , interp(sil_size) / ref_B)
+        interp = pchip(car_size , car_betaval)
+        plt.plot(car_size / ref_size , car_betaval / ref_B)
         plt.xlabel(r"Particle size (m)")
         plt.ylabel(r"$\hat{\beta}$")
         plt.title(r"Silicate $\hat{\beta}$ versus particle size")
-        plt.savefig(f"Plots/silicate_betacurve_refscaling.png" , dpi = 300 , bbox_inches = 'tight')
+        # plt.savefig(f"Plots/silicate_betacurve_refscaling.png" , dpi = 300 , bbox_inches = 'tight')
 
 
     plt.show()
@@ -774,20 +779,14 @@ def eval_sizes():
 
 if __name__ == "__main__":
     
-    filepath = "Files/rk45_t7_large_silicate_slowsw_10au.npz"
-    par = dust_properties("silicate" , "slow" , "large")
-    res = np.load(filepath)
-    x , y , _ , _ , m , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    bfile = "Files/rk45_t7_large_carbon_CMEsw.npz"
+    vals = np.load(bfile)
+    x , y , vx , vy , m , b , t , dmdt = [vals[k] for k in ("x","y","vx","vy","m","b" , "t" , "dmdt")] 
     
-    p = perturbed_functions(par , t , b)
+    # plt.plot(t , b)
+    # plt.show()
     
-    rpert = p.rad()
-
-    rhat_comps(filepath , "silicate" , None , rpert)
-    
-    
-    
-    
+    print(dmdt[-1] , m[-1])
 
 
     

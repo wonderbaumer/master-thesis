@@ -76,7 +76,7 @@ def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , part
     return sol
 
 """function that creates array of variables from solution object, same structure as leapfrog output"""
-def arr_variables(sol , particle_obj):
+def arr_variables(sol , particle_obj , epsilon , massloss = True):
     """input: sol (array_like), solution object from solve_ivp
        
        returns: new_arr (array), array containing x , y , vx , vy , m , beta values"""
@@ -84,7 +84,12 @@ def arr_variables(sol , particle_obj):
     x , y , vx , vy , m = sol.y #unpacking solution object
     b = betahat(m , particle_obj)
 
-    new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
+    if massloss:
+        dmdt = sputtering(m, epsilon, x, y)
+    else:
+        dmdt = np.zeros_like(m)
+
+    new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t , dmdt)) #creating new array with all variables
 
     return new_arr
 
