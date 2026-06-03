@@ -144,53 +144,38 @@ class perturbed_functions():
 def solve_system(t, B, K , epsilon):
 
     def rhs(t, y):
-        m0 = y[0]
+        beta0 = y[0]
         C0 = y[1]
-        m1 = y[2]
 
+        m0 = 1.0
         beta0 = m0**(-1 / 3)
 
-        # r0 is explicitly computed HERE
-        r0 = C0**2 * (1 - B) / (1 - B * m0**(-1 / 3))
-        
-        # r0 is explicitly USED in its raw form
-        dm0_dt = -m0**(2 / 3) * r0**(-2) 
-        # print(dm0_dt)
-        dm1_dt = -2 / 3 * m1 * m0**(-1 / 3) * r0**(-2)
-        # dm1_dt = 0.0
+        r0 = C0**2 * (1 - B) / (1 - B * beta0)
+        dbeta0_dt = beta0**2 / (3 * r0**2)
 
-        dC0_dt = -B * K / (1 - B) * m0**(-1 / 3) / C0**3
+        dC0_dt = -B * K * beta0 * (1 - beta0 * B)**2 / (1 - B)**3 * C0**(-3)
 
-        return [dm0_dt, dC0_dt , dm1_dt]
+        return [dbeta0_dt, dC0_dt]
 
-    y0 = [1.0 , 1.0 , 1.0]
+    y0 = [1.0 , 1.0]
 
     sol = solve_ivp(rhs, (t[0], t[-1]), y0, t_eval=t, method="RK45", rtol=1e-9 , atol=1e-12 )
 
-    m0 = sol.y[0]
+    beta0 = sol.y[0]
     C0 = sol.y[1]
-    m1 = sol.y[2]
 
-    beta0 = m0**(-1 / 3)
-    
 
-    # r0 explicitly computed AFTER integration as well
-    r0 = C0**2 * (1 - B) / (1 - B * m0**(-1/3))
-    
-    beta1 = -1 / 3 * m1 * m0**(-4 / 3) * r0**(-2)
-    # beta1 = 0.0
-    # r1_part = 0.0
+    r0 = C0**2 * (1 - B) / (1 - B * beta0)
+ 
     omega0 = C0**(-3) * ((1 - B) / (1 - B * beta0))**(-2)
-    # C1 = -1
-    r1_part = -B * beta1 / (1 - B) * r0**(-2)
     
 
-    return m0, r0, omega0 , m1 , r1_part , beta0 , beta1 , sol.t
+    return r0 , omega0 , beta0 , sol.t
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "medium")
-    res = np.load("Files/rk45_t7_medium_silicate_slowsw.npz")
-    x , y , _ , _ , m , b , t , dmdt = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
+    par = dust_properties("silicate" , "slow" , "large")
+    res = np.load("Files/rk45_t6_large_silicate_slowsw.npz")
+    x , y , _ , _ , m , b , t  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
     
     p = perturbed_functions(par , t , b)
     
@@ -201,24 +186,21 @@ if __name__== "__main__":
     om = p.omega0()
     r = p.rad()
     
-    m0 , rad , omega0 , m1 , r1_part , beta0 , beta1 , time = solve_system(p.epsilon0 * t , p.B , p.K , p.epsilon0)
+    rad , omega0 , beta0 , time = solve_system(p.epsilon0 * t , p.B , p.K , p.epsilon0)
+   
     mask = rad >= 0.1
     
-    trad = t
+    trad = t[:len(rad)]
     xrad = x
     yrad = y
     mrad = m
-    rrad = np.sqrt(x**2+y**2)
-    brad = b
-
-    rtot = rad + p.epsilon0 * rad**(-2) * r1_part
-    mtot = m0 + p.epsilon0 * m1 * rad**(-2)
-    betatot = beta0 + p.epsilon0 * rad**(-2) * beta1
+    rrad = np.sqrt(x**2+y**2)[:len(rad)]
+    brad = b[:len(rad)]
     
-    plt.plot(trad[:5799], brad[:5799], label = "num")
-    plt.plot(trad[:5799]  , beta0[:5799]  , label = "pert" , linestyle = "--")
+    plt.plot(trad , rrad , label = "num")
+    plt.plot(trad  , rad  , label = "pert" , linestyle = "--")
     plt.legend()
     plt.show()
-    # print(p.epsilon0 , trad)
+    
     
     

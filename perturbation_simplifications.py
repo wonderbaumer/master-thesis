@@ -22,15 +22,17 @@ beta0 = sp.Function("beta0")(t1)
 # totc0beta = beta * (1 - beta * B)**2
 # totc0int = integrate(totc0beta , t1)
 # c1 = sp.Symbol("c1")
-# theta0 = ((1 - B) / (1 - beta * B))**(-2) * c0**(-3) * t0 + d0
-# dt1_theta0 = sp.diff(theta0 , t1)
+theta0 = ((1 - B) / (1 - beta0 * B))**(-2) * c0**(-3) * t0 + d0
+dt1_theta0 = sp.diff(theta0 , t1)
+print(dt1_theta0)
 
 
 r0_exp = ((1 - B) / (1 - beta0 * B)) * c0**2
 dt1_r0 = sp.diff(r0_exp , t1)
-print(dt1_r0)
-# omega0_exp = ((1 - B) / (1 - beta * B))**(-2) * c0**(-3)
-# dt1_omega0 = sp.diff(omega0_exp , t1)
+
+w0_exp = ((1 - B) / (1 - beta0 * B))**(-2) * c0**(-3)
+dt1_w0 = sp.diff(w0_exp , t1)
+
 
 r1_expr = B * m1 / (3 * (1 - B) * r0**2 * m0**(1/3))
 dt1_r1exp = sp.diff(r1_expr , t1)

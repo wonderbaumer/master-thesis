@@ -173,7 +173,7 @@ if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , "large")
     # par = dust_properties("silicate" , "CME" , size = "large")
     
-    print(par.eps())
+    print(par.K)
     
     
     
