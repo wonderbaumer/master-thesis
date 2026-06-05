@@ -43,38 +43,37 @@ sil_beta = "sil_radpr_prdrag_sun1au.dat" #Utilizing data sets provided by Li, A.
 car_beta = "ac_radpr_prdrag_sun1au.dat" #Utilizing data sets provided by Li, A., 2026
 
 #Chosen initial values and labels
-init_vals = {"large":{
+init_vals = {"A":{
             "r": 1.54079 * 10**(-6) ,
             "B": {"silicate": 0.1235 , "carbon": 0.2646} 
             },
 
-            "medium":{
+            "C":{
             "r": 0.17508 * 10**(-6) ,
             "B": {"silicate": 0.8560 , "carbon": 3.0589}
             },
 
-            "small":{
+            "F":{
             "r": 0.04259 * 10**(-6) ,
             "B":{"silicate": 0.2098 , "carbon": 1.6179}     
             },
 
-            "k":{
-                "r": 2.02213 * 10**(-6) ,
-                "B": {"silicate": 0.0917 , "carbon": 0.1918}
-            },
-            "particle2": {
+            "G": {
                 "r": 0.01220 * 10**(-6) ,
                 "B": {"silicate": 0.0832 , "carbon": 0.9758}
             } ,
-            "particle3" : {
+
+            "H" : {
                 "r" : 0.00708 * 10**(-6) ,
                 "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
-            } , 
-            "particle4" : {
+            } ,
+
+            "D" : {
                 "r" : 0.10165 * 10**(-6) ,
                 "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
             } , 
-            "particle5" : {
+
+            "E" : {
                 "r" : 0.07745 * 10**(-6) ,
                 "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
             }}

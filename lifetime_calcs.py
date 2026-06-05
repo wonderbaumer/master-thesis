@@ -8,7 +8,7 @@ def find_slope(x1 , x2 , y1 , y2):
     return linregress(x , y)
 
 #Numerically lifetimes in years, constant sputtering
-true_lifetime = {"particle1": {
+true_lifetime = {"A": {
                  "size": 1.54079 * 10**(-6) , 
                  "silicate": {
                      "pr": {
@@ -45,7 +45,7 @@ true_lifetime = {"particle1": {
                      }
                  }} , 
                  
-                 "particle2": {
+                 "E": {
                      "size": 0.01220 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -81,7 +81,7 @@ true_lifetime = {"particle1": {
                          "fast": 3.7796525897239525e+02 #impact Sun
                      }
                  }} , 
-                 "particle3": {
+                 "F": {
                      "size": 0.00708 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -117,7 +117,7 @@ true_lifetime = {"particle1": {
                          "fast": 4.124541673429061e+02 #impact Sun
                      }
                  }} ,
-                 "particle4": {
+                 "G": {
                      "size": 0.10165 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -155,23 +155,23 @@ true_lifetime = {"particle1": {
                  }}}
 
 #Slope calcs, constant sputtering
-# x1 = true_lifetime.get("particle2" , {}).get("size") 
+# x1 = true_lifetime.get("E" , {}).get("size") 
 # x2 = true_lifetime.get("particle3" , {}).get("size") 
-# x3 = true_lifetime.get("particle1" , {}).get("size") 
+# x3 = true_lifetime.get("A" , {}).get("size") 
 
-# par2_sil_spu_slow = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par2_sil_spu_fast = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par2_sil_spu_slow = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par2_sil_spu_fast = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par2_car_spu_CME = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par2_car_spu_slow = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par2_car_spu_fast = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par2_car_spu_CME = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par2_car_spu_slow = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par2_car_spu_fast = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-# par3_sil_spu_slow = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par3_sil_spu_fast = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par3_sil_spu_slow = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par3_sil_spu_fast = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par3_car_spu_CME = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par3_car_spu_slow = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par3_car_spu_fast = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par3_car_spu_CME = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par3_car_spu_slow = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par3_car_spu_fast = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
 # sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_slow , par3_sil_spu_slow)
 # par1_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
@@ -189,7 +189,7 @@ true_lifetime = {"particle1": {
 # par1_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
 
 #Numerically lifetimes in years, variable sputtering
-true_lifetime_variableeps = {"particle1": {
+true_lifetime_variableeps = {"A": {
                  "size": 1.54079 * 10**(-6) , 
                  "silicate": {
                      "pr": {
@@ -226,7 +226,7 @@ true_lifetime_variableeps = {"particle1": {
                      }
                  }} , 
                  
-                 "particle2": {
+                 "E": {
                      "size": 0.01220 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -262,7 +262,7 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 3.519646536759617e+02 #impact Sun
                      }
                  }} , 
-                 "particle3": {
+                 "F": {
                      "size": 0.00708 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -298,7 +298,7 @@ true_lifetime_variableeps = {"particle1": {
                          "fast": 4.0476340615297164e+02 #impact Sun
                      }
                  }} ,
-                 "particle4": {
+                 "G": {
                      "size": 0.10165 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -336,23 +336,23 @@ true_lifetime_variableeps = {"particle1": {
                  }} }
 
 #Slope calcs, variable sputtering
-# x11 = true_lifetime.get("particle2" , {}).get("size") 
-# x21 = true_lifetime.get("particle3" , {}).get("size") 
-# x31 = true_lifetime.get("particle1" , {}).get("size") 
+# x11 = true_lifetime.get("E" , {}).get("size") 
+# x21 = true_lifetime.get("F" , {}).get("size") 
+# x31 = true_lifetime.get("A" , {}).get("size") 
 
-# par2_sil_spu_slow1 = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par2_sil_spu_fast1 = true_lifetime.get("particle2" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par2_sil_spu_slow1 = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par2_sil_spu_fast1 = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par2_car_spu_CME1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par2_car_spu_slow1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par2_car_spu_fast1 = true_lifetime.get("particle2" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par2_car_spu_CME1 = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par2_car_spu_slow1 = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par2_car_spu_fast1 = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-# par3_sil_spu_slow1 = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par3_sil_spu_fast1 = true_lifetime.get("particle3" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+# par3_sil_spu_slow1 = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+# par3_sil_spu_fast1 = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par3_car_spu_CME1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par3_car_spu_slow1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par3_car_spu_fast1 = true_lifetime.get("particle3" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+# par3_car_spu_CME1 = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+# par3_car_spu_slow1 = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+# par3_car_spu_fast1 = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
 # sil_spu_slow_slope1 , sil_spu_slow_intercept1 , _ , _ , _ = find_slope(x11 , x21 , par2_sil_spu_slow1 , par3_sil_spu_slow1)
 # par1_sil_spu_slow1 = sil_spu_slow_slope1 * x31 + sil_spu_slow_intercept1

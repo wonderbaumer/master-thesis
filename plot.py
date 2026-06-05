@@ -147,7 +147,7 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
         returns: none"""
     
     res = np.load(file_path)
-    x , y , _ , _ , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , _ , _ , _ , _ , t , _ = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
     r = np.sqrt(x**2 + y**2) #r hat
     
     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -168,9 +168,11 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
         plt.legend()
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
     
+    """Plotting only one r curve"""
     if file_path_comp is None and pert is None:
-        # plt.plot(t[r >= 0.1] , r[r >= 0.1] , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
-        plt.plot(t , r , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
+        plt.figure(figsize = (5 , 4))
+        plt.plot(t[r >= 0.1] , r[r >= 0.1] , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
+        # plt.plot(t , r , color = "blue" , label = fr"$\hat{{r}}$ for {material}")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{r}$")
         plt.title(fr"$\hat{{r}}$ for {material}")
@@ -237,7 +239,7 @@ def omegahat_comps(file_path , pert = None , material = None):
        returns: none"""
     
     res = np.load(file_path)
-    x , y , vx , vy , _ , _ , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , vx , vy , _ , _ , t , _ = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
     r = np.sqrt(x**2 + y**2)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -262,8 +264,9 @@ def omegahat_comps(file_path , pert = None , material = None):
         plt.savefig(save_path , dpi = 300 , bbox_inches = 'tight')
 
     if pert is None:
-        # plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue")
-        plt.plot(t , angvel_num , color = "blue")
+        plt.figure(figsize = (5 , 4))
+        plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue")
+        # plt.plot(t , angvel_num , color = "blue")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\omega}$")
         
@@ -285,7 +288,7 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
        returns: none"""
     
     res = np.load(file_path)
-    x , y , _ , _ , _ , b , t = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    x , y , _ , _ , _ , b , t , dmdt = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
     r = np.sqrt(x**2 + y**2)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
@@ -355,12 +358,14 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
         plt.savefig(save_path1 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
     
+    """Plotting only one beta curve for a given material"""
     if b_per is None and b_analytical is None and fw_err == False:
-        # plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue")
-        plt.plot(t , b , color = "blue")
+        plt.figure(figsize = (5 , 4))
+        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.title(fr"$\hat{{\beta}}$ for {material}")
+
         plt.savefig(save_path2 , dpi = 300 , bbox_inches = 'tight')
         plt.show()
 
@@ -757,15 +762,22 @@ def mass_plot(file_path , file_path_comp , material):
     plt.show()
 
 def eval_sizes():
-    sizes = [1.54079 * 10**(-6) , 0.17508 * 10**(-6) , 0.04259 * 10**(-6)]
-    sil_betas = [0.1235 , 0.8560 , 0.2098]
-    car_betas = [0.2646 , 3.0589 , 1.6179]
-
+    # sizes = [i["r"] for i in init_vals.values()]
+    # labels = list(init_vals.keys())
+    
+    # sil_betas = [i["B"]["silicate"] for i in init_vals.values()]
+    # car_betas = [i["B"]["carbon"] for i in init_vals.values()]
+    
     plt.plot(sil_size , sil_betaval , linestyle = "-" , color = "red" , label = "Silicate")
     plt.plot(car_size , car_betaval , linestyle = "--" , color = "blue" , label = "Carbon")
 
-    plt.scatter(sizes , sil_betas , marker = "o" , color = "C4" , zorder = 4)
-    plt.scatter(sizes , car_betas , marker = "o" , color = "C2" , zorder = 4)
+    for label , i in init_vals.items():
+        sizes = i["r"]
+        sil_betas = i["B"]["silicate"]
+        car_betas = i["B"]["carbon"]
+
+        plt.scatter(sizes , sil_betas , marker = "o" , color = "C4" , zorder = 4)
+        plt.scatter(sizes , car_betas , marker = "o" , color = "C2" , zorder = 4)
 
     plt.yscale("log")
     plt.xscale("log")
@@ -779,14 +791,11 @@ def eval_sizes():
 
 if __name__ == "__main__":
     
-    bfile = "Files/rk45_t7_large_carbon_CMEsw.npz"
-    vals = np.load(bfile)
-    x , y , vx , vy , m , b , t , dmdt = [vals[k] for k in ("x","y","vx","vy","m","b" , "t" , "dmdt")] 
-    
-    # plt.plot(t , b)
-    # plt.show()
-    
-    print(dmdt[-1] , m[-1])
+    file_path = "Files/rk45_t6_C_silicate_slowsw.npz"
+    b_plot(file_path , None , None , False , "silicate")
+    rhat_comps(file_path , "silicate" , None , None)
+    omegahat_comps(file_path , None , "silicate")
+
 
 
     

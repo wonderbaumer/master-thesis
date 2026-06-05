@@ -163,23 +163,16 @@ m2 = sp.Function("m2")(t1)
 # dt0_r1 = r0**2 * vr1 - dt1_r0 * r0**2
 # dt0_theta1 = r0**2 * omega1 - dt1_theta0 * r0**2
 
-# dt0_vr1 = - B * m1 / (3 * (1 - B) * r0**2 * m0**(1 / 3)) + 3 * omega0**2 * r1 + 2 * omega0 * r0 * omega1
-# dt0_omega1 = - 2 * omega0 * dt0_r1 / r0**3 #- 2 * omega0 * dt1_r0 / r0**2 - dt1_omega0 - B * K * omega0 / ((1 - B) * m0**(1 / 3) * r0**2) 
+dt0_vr1 = - B * beta1 / ((1 - B) * r0**2) + 3 * omega0**2 * r1 + 2 * omega0 * r0 * omega1
+dt0_omega1 = - 2 * omega0 * dt0_r1 / r0 - 2 * omega0 * dt1_r0 / r0 - dt1_omega0 - B * K * beta0 * omega0 / ((1 - B) * r0**2) 
 
-dt0_vr1 = sp.Function("dt0_vr1")(t0)
-dt0_omega1 = sp.Function("dt0_omega1")(t0)
 
-dt0_vr2 = (+ 3 * omega0 * r2 / r0**2 + 3 * omega0**2 * r1**2 / r0**3 - 2 * B * K * vr1 * beta0 / (1 - B) 
-           + 6 * omega0 * r1 * dt0_theta1 / r0**2 - 4 * omega0 * dt1_r0 + 6 * omega0 * r1 * dt1_theta0 
-           + 2 * omega0 * r0 * dt1_theta1 + dt0_theta1**2 / r0 + 2 * r0 * dt0_theta1 * dt1_theta0 
-           - 2 * r1 * dt0t0_r1 / r0**3 + 4 * dt1_r0 * dt1_r1 / r0 + r0**3 * dt1_theta0**2 - r0**2 * dt1_vr1
-             - B * beta2 / ((1 - B) * r0**4)+ 2 * r0**2 / (1 - B))
 
 eqs = [
     # sp.Eq(sp.diff(r1 , t0) , dt0_r1) , 
     # sp.Eq(sp.diff(theta1 , t0) , dt0_theta1) ,
-    sp.Eq(sp.diff(vr2 , t0) , dt0_vr2) ,
-    # sp.Eq(sp.diff(omega1 , t0) , dt0_omega1)
+    sp.Eq(sp.diff(vr1 , t0) , dt0_vr1) ,
+    sp.Eq(sp.diff(omega1 , t0) , dt0_omega1)
 ]
 
 sol = sp.dsolve(eqs)

@@ -1,5 +1,5 @@
 from config import (material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , sil_size ,
-                     sil_betaval , car_betaval_bound , car_size_bound , R , M_ms , M_mc , mA_S , mA_C , size_to_mass)
+                     sil_betaval , car_betaval_bound , car_size_bound , M_ms , M_mc , mA_S , mA_C , size_to_mass)
 from sputtering_dict import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
@@ -32,11 +32,12 @@ class dust_properties():
              K_cst_r(), calculates and compares K for all initial r and B values, assuming beta slowly changing
 
                 """
-    def __init__(self , material , sw , size = None , size_range = None):
+    def __init__(self , material , sw , init_dist = 1.0 , size = None , size_range = None):
         """Initiating dust properties calculations based on input parameters"""
 
         self.material = material
         self.sw = sw
+        self.R = init_dist * au
 
         if isinstance(size , str):
             self.size = size
@@ -53,7 +54,7 @@ class dust_properties():
 
         self.V = self.calc_V()
         self.T = self.calc_T()
-        self.RAU = R / au #R in AU
+        self.RAU = self.R / au #R in AU
         self.epsilon = self.eps()
 
         self.delta = self.V / c
@@ -63,13 +64,13 @@ class dust_properties():
     def calc_V(self):
         """Calculates initial orbital velocity from given B and R"""
         
-        V = np.sqrt((G * m_s * (1 - self.B)) / R) #initial orbital velocity, in ms^-1
+        V = np.sqrt((G * m_s * (1 - self.B)) / self.R) #initial orbital velocity, in ms^-1
 
         return V
 
     def calc_T(self):
         """Calculates initial orbital period from given B and R"""
-        T = np.sqrt(R**3 / (G * m_s * (1 - self.B))) #initial orbital period, in s
+        T = np.sqrt(self.R**3 / (G * m_s * (1 - self.B))) #initial orbital period, in s
 
         return T
 
@@ -170,7 +171,7 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "slow" , "large")
+    par = dust_properties("silicate" , "CME" , 5 , "A")
     # par = dust_properties("silicate" , "CME" , size = "large")
     
     print(par.K)
