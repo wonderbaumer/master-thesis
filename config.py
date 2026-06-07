@@ -173,8 +173,8 @@ dt9 = 3.16e-3
 t_tot9 = 100000
 t9 = (dt9 , t_tot9)
 
-def pr_lifetime(betaval):
-        RAU = R / au
+def pr_lifetime(betaval , init_dist = 1.0):
+        RAU = init_dist
 
         tau = 400 * RAU**2 / betaval
 

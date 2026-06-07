@@ -1,5 +1,6 @@
 from scipy.stats import linregress
 import numpy as np
+from config import yr
 
 def find_slope(x1 , x2 , y1 , y2):
     x = np.array([x1 , x2])
@@ -12,128 +13,128 @@ true_lifetime = {"A": {
                  "size": 1.54079 * 10**(-6) , 
                  "silicate": {
                      "pr": {
-                         "CME": 3.245016490536648e+03 , #impact Sun
-                         "slow": 3.245016490536648e+03 , #impact Sun
-                         "fast": 3.245016490536648e+03 #impact Sun
+                         "CME": (1.9075403764698192e+04 * 0.17011521908343677) , #impact Sun
+                         "slow": (1.9075403764698192e+04 * 0.17011521908343677) , #impact Sun
+                         "fast": (1.9075403764698192e+04 * 0.17011521908343677) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 3.380760903403005e+02 , #destroyed
-                         "slow": 1.4512983980552342e+04 , #assumed destroyed
-                         "fast": 2.711353383139966e+04 , #assumed destroyed
+                         "CME": (1.391586920435384e+04 * 0.17011521908343677) , #destroyed
+                         "slow": (1.4512983980552342e+04 * 0.17011521908343677) , #assumed destroyed
+                         "fast": (2.711353383139966e+04 * 0.17011521908343677) , #assumed destroyed
                      } ,
                      "both": {
-                         "CME": 3.380760903395063e+02 , #destroyed
-                         "slow": 2.976750343468511e+03 , #impact Sun
-                         "fast": 3.0965710813731766e+03 #impact Sun
+                         "CME": (1.3915869204353734e+04 * 0.17011521908343677) , #destroyed
+                         "slow": (1.883547822221666e+04 * 0.17011521908343677) , #impact Sun
+                         "fast": (1.8946423881851584e+04 * 0.17011521908343677) #impact Sun
                      }
                  } ,
                  "carbon": {
                      "pr": {
-                         "CME": 1.514578111889514e+03 , #impact Sun
-                         "slow": 1.514578111889514e+03 , #impact Sun
-                         "fast": 1.514578111889514e+03 #impact Sun
+                         "CME": (8.155195188611925e+03 * 0.18571941895449673) , #impact Sun
+                         "slow": (8.155195188611925e+03 * 0.18571941895449673) , #impact Sun
+                         "fast": (8.155195188611925e+03 * 0.18571941895449673) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 1.5376640831096107e+04 , #assumed destroyed
-                         "slow": 7.333368763147648e+05 , #assumed destroyed
-                         "fast": 1.8751709349382098e+06 #assumed destroyed
+                         "CME": (1.5376640831096107e+04 * 0.18571941895449673) , #assumed destroyed
+                         "slow": (7.333368763147648e+05 * 0.18571941895449673) , #assumed destroyed
+                         "fast": (1.8751709349382098e+06 * 0.18571941895449673) #assumed destroyed
                      } ,
                      "both": {
-                         "CME": 1.4929509282623908e+03 , #impact Sun
-                         "slow": 1.5140550181222495e+03 , #impact Sun
-                         "fast": 1.5143731994043846e+03 #impact Sun
+                         "CME": (8.038775762306178e+03 * 0.18571941895449673) , #impact Sun
+                         "slow": (8.152379519559163e+03 * 0.18571941895449673) , #impact Sun
+                         "fast": (8.154092201989478e+03 * 0.18571941895449673) #impact Sun
                      }
                  }} , 
                  
-                 "E": {
+                 "G": {
                      "size": 0.01220 * 10**(-6) ,
                  "silicate": {
                      "pr": {
-                         "CME": 4.816845084666488e+03 , #impact Sun
-                         "slow": 4.816845084666488e+03 , #impact Sun
-                         "fast": 4.816845084666488e+03 #impact Sun
+                         "CME": (28958.819396637136e+04 * 0.16633430454094575) , #impact Sun
+                         "slow": (28958.819396637136e+04 * 0.16633430454094575) , #impact Sun
+                         "fast": (28958.819396637136e+04 * 0.16633430454094575) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 2.4590705303254685 , #destroyed
-                         "slow": 1.0556336940893623e+02 , #destroyed
-                         "fast": 1.9721623007791672e+02 #destroyed
+                         "CME": (1.0352094029330188e+02 * 0.16633430454094575) , #destroyed
+                         "slow": (4.443963329734232e+03 * 0.16633430454094575) , #destroyed
+                         "fast": (8.30232778095182e+03 * 0.16633430454094575) #destroyed
                      } ,
                      "both": {
-                         "CME": 2.4590705303267577 , #destroyed
-                         "slow": 1.0556336940893613e+02 , #destroyed
-                         "fast": 1.9721623007791501e+02 #destroyed
+                         "CME": (1.0352094029330185e+02 * 0.16633430454094575) , #destroyed
+                         "slow": (4.44396332973424e+03 * 0.16633430454094575) , #destroyed
+                         "fast": (8.302327780951786e+03 * 0.16633430454094575) #destroyed
                      }
                  } ,
                  "carbon": {
                      "pr": {
-                         "CME": 4.1070268725095247e+02 , #impact Sun
-                         "slow": 4.1070268725095247e+02 , #impact Sun
-                         "fast": 4.1070268725095247e+02 #impact Sun
+                         "CME": (401.1585920969129e+02 * 1.023791326777151) , #impact Sun
+                         "slow": (401.1585920969129e+02 * 1.023791326777151) , #impact Sun
+                         "fast": (401.1585920969129e+02 * 1.023791326777151) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 1.118453667761682e+02 , #destroyed
-                         "slow": 5.334086475899605e+03 , #destroyed
-                         "fast": 1.3639466726831513e+04 #destroyed
+                         "CME": (1.0928173000855521e+02 * 1.023791326777151) , #destroyed
+                         "slow": (5.211822491208914e+03 * 1.023791326777151) , #destroyed
+                         "fast": (1.3326832959341404e+04 * 1.023791326777151) #destroyed
                      } ,
                      "both": {
-                         "CME": 1.0546861796842475e+02 , #impact Sun
-                         "slow": 3.413983230000514e+02 , #impact Sun
-                         "fast": 3.7796525897239525e+02 #impact Sun
+                         "CME": (1.0302896064960659e+02 * 1.023791326777151) , #impact Sun
+                         "slow": (3.334806801435187e+02 * 1.023791326777151) , #impact Sun
+                         "fast": (3.6919088304662847e+02 * 1.023791326777151) #impact Sun
                      }
                  }} , 
-                 "F": {
+                 "H": {
                      "size": 0.00708 * 10**(-6) ,
                  "silicate": {
                      "pr": {
-                         "CME": 5.015791751530783e+03 , #impact Sun
-                         "slow": 5.015791751530783e+03 , #impact Sun
-                         "fast": 5.015791751530783e+03 #impact Sun
+                         "CME": (3.0209106707628238e+04 * 0.16603575206890253) , #impact Sun
+                         "slow": (3.0209106707628238e+04 * 0.16603575206890253) , #impact Sun
+                         "fast": (3.0209106707628238e+04 * 0.16603575206890253) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 1.3349240021964774 , #destroyed
-                         "slow": 5.730582910770815e+01 , #destroyed
-                         "fast": 1.0706023918515456e+02 #destroyed
+                         "CME": (5.629813106023842e+01 * 0.16603575206890253) , #destroyed
+                         "slow": (2.4167750916425866e+03 * 0.16603575206890253) , #destroyed
+                         "fast": (4.515082032609089e+03 * 0.16603575206890253) #destroyed
                      } ,
                      "both": {
-                         "CME": 1.3349240021963173 , #destroyed
-                         "slow": 5.73058291077082e+01 , #destroyed
-                         "fast": 1.0706023918515443e+02 #destroyed
+                         "CME": (5.629813106023846e+01 * 0.16603575206890253) , #destroyed
+                         "slow": (2.4167750916425853e+03 * 0.16603575206890253) , #destroyed
+                         "fast": (4.515082032609065e+03 * 0.16603575206890253) #destroyed
                      }
                  } ,
                  "carbon": {
                      "pr": {
-                         "CME": 4.2163018750950135e+02 , #impact Sun
-                         "slow": 4.2163018750950135e+02 , #impact Sun
-                         "fast": 4.2163018750950135e+02 #impact Sun
+                         "CME": (5.889998280495578e+02 * 0.7158409348024901) , #impact Sun
+                         "slow": (5.889998280495578e+02 * 0.7158409348024901) , #impact Sun
+                         "fast": (5.889998280495578e+02 * 0.7158409348024901) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 6.071605624991979e+01 , #destroyed
-                         "slow": 2.8956469440598116e+03 , #destroyed
-                         "fast": 7.4042819374228075e+03 #destroyed
+                         "CME": (8.484534787597285e+01 * 0.7158409348024901) , #destroyed
+                         "slow": (4.0464118961131667e+03 * 0.7158409348024901) , #destroyed
+                         "fast": (1.034683270874086e+04 * 0.7158409348024901) #destroyed
                      } ,
                      "both": {
-                         "CME": 6.071605624992002e+01 , #destroyed
-                         "slow": 4.00641455738426e+02 , #impact Sun
-                         "fast": 4.124541673429061e+02 #impact Sun
+                         "CME": (8.484534787597295e+01 * 0.7158409348024901) , #destroyed
+                         "slow": (5.596875912887647e+02 * 0.7158409348024901) , #impact Sun
+                         "fast": (5.761851971142123e+02 * 0.7158409348024901) #impact Sun
                      }
                  }} ,
-                 "G": {
+                 "D": {
                      "size": 0.10165 * 10**(-6) ,
                  "silicate": {
                      "pr": {
-                         "CME": 5.883958701709033e+02 , #impact Sun
-                         "slow": 5.883958701709033e+02 , #impact Sun
-                         "fast": 5.883958701709033e+02 #impact Sun
+                         "CME": (2.086304748095878e+03 * 0.28202776737574825) , #impact Sun
+                         "slow": (2.086304748095878e+03 * 0.28202776737574825) , #impact Sun
+                         "fast": (2.086304748095878e+03 * 0.28202776737574825) #impact Sun
                      } ,
                      "sputtering": {
-                         "CME": 2.2098700792098164e+01 , #destroyed
-                         "slow": 9.486565295544124e+02 , #destroyed
-                         "fast": 1.7723047819055546e+03 #destroyed
+                         "CME": (5.486734203335685e+02 * 0.28202776737574825) , #destroyed
+                         "slow": (2.3553539535614473e+04 * 0.28202776737574825) , #destroyed
+                         "fast": (4.400333466252357e+04 * 0.28202776737574825) #destroyed
                      } ,
                      "both": {
-                         "CME": 2.20987007920982e+01 , #destroyed
-                         "slow": 3.695179273496882e+02 , #impact Sun
-                         "fast": 4.2996592938159836e+02 #impact Sun
+                         "CME": (5.486734203335675e+02 * 0.28202776737574825) , #destroyed
+                         "slow": (1.8781639154328848e+03 * 0.28202776737574825) , #impact Sun
+                         "fast": (1.9670131299476825e+03 * 0.28202776737574825) #impact Sun
                      }
                  } ,
                  "carbon": {
@@ -155,38 +156,38 @@ true_lifetime = {"A": {
                  }}}
 
 #Slope calcs, constant sputtering
-# x1 = true_lifetime.get("E" , {}).get("size") 
-# x2 = true_lifetime.get("particle3" , {}).get("size") 
-# x3 = true_lifetime.get("A" , {}).get("size") 
+x1 = true_lifetime.get("G" , {}).get("size") 
+x2 = true_lifetime.get("H" , {}).get("size") 
+x3 = true_lifetime.get("A" , {}).get("size") 
 
-# par2_sil_spu_slow = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par2_sil_spu_fast = true_lifetime.get("E" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+G_sil_spu_slow = true_lifetime.get("G" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+G_sil_spu_fast = true_lifetime.get("G" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par2_car_spu_CME = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par2_car_spu_slow = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par2_car_spu_fast = true_lifetime.get("E" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+G_car_spu_CME = true_lifetime.get("G" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+G_car_spu_slow = true_lifetime.get("G" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+G_car_spu_fast = true_lifetime.get("G" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-# par3_sil_spu_slow = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
-# par3_sil_spu_fast = true_lifetime.get("F" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
+H_sil_spu_slow = true_lifetime.get("H" , {}).get("silicate" , {}).get("sputtering" , {}).get("slow")
+H_sil_spu_fast = true_lifetime.get("H" , {}).get("silicate" , {}).get("sputtering" , {}).get("fast")
 
-# par3_car_spu_CME = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
-# par3_car_spu_slow = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
-# par3_car_spu_fast = true_lifetime.get("F" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
+H_car_spu_CME = true_lifetime.get("H" , {}).get("carbon" , {}).get("sputtering" , {}).get("CME")
+H_car_spu_slow = true_lifetime.get("H" , {}).get("carbon" , {}).get("sputtering" , {}).get("slow")
+H_car_spu_fast = true_lifetime.get("H" , {}).get("carbon" , {}).get("sputtering" , {}).get("fast")
 
-# sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_slow , par3_sil_spu_slow)
-# par1_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
+sil_spu_slow_slope , sil_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , G_sil_spu_slow , H_sil_spu_slow)
+A_sil_spu_slow = sil_spu_slow_slope * x3 + sil_spu_slow_intercept
     
-# sil_spu_fast_slope , sil_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_sil_spu_fast , par3_sil_spu_fast)
-# par1_sil_spu_fast = sil_spu_fast_slope * x3 + sil_spu_fast_intercept
+sil_spu_fast_slope , sil_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , G_sil_spu_fast , H_sil_spu_fast)
+A_sil_spu_fast = sil_spu_fast_slope * x3 + sil_spu_fast_intercept
 
-# car_spu_CME_slope , car_spu_CME_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_CME , par3_car_spu_CME)
-# par1_car_spu_CME = car_spu_CME_slope * x3 + car_spu_CME_intercept
+car_spu_CME_slope , car_spu_CME_intercept , _ , _ , _ = find_slope(x1 , x2 , G_car_spu_CME , H_car_spu_CME)
+A_car_spu_CME = car_spu_CME_slope * x3 + car_spu_CME_intercept
 
-# car_spu_slow_slope , car_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_slow , par3_car_spu_slow)
-# par1_car_spu_slow = car_spu_slow_slope * x3 + car_spu_slow_intercept
+car_spu_slow_slope , car_spu_slow_intercept , _ , _ , _ = find_slope(x1 , x2 , G_car_spu_slow , H_car_spu_slow)
+A_car_spu_slow = car_spu_slow_slope * x3 + car_spu_slow_intercept
 
-# car_spu_fast_slope , car_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , par2_car_spu_fast , par3_car_spu_fast)
-# par1_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
+car_spu_fast_slope , car_spu_fast_intercept , _ , _ , _ = find_slope(x1 , x2 , G_car_spu_fast , H_car_spu_fast)
+A_car_spu_fast = car_spu_fast_slope * x3 + car_spu_fast_intercept
 
 #Numerically lifetimes in years, variable sputtering
 true_lifetime_variableeps = {"A": {
@@ -226,7 +227,7 @@ true_lifetime_variableeps = {"A": {
                      }
                  }} , 
                  
-                 "E": {
+                 "G": {
                      "size": 0.01220 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -262,7 +263,7 @@ true_lifetime_variableeps = {"A": {
                          "fast": 3.519646536759617e+02 #impact Sun
                      }
                  }} , 
-                 "F": {
+                 "H": {
                      "size": 0.00708 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -298,7 +299,7 @@ true_lifetime_variableeps = {"A": {
                          "fast": 4.0476340615297164e+02 #impact Sun
                      }
                  }} ,
-                 "G": {
+                 "D": {
                      "size": 0.10165 * 10**(-6) ,
                  "silicate": {
                      "pr": {
@@ -370,6 +371,7 @@ true_lifetime_variableeps = {"A": {
 # par1_car_spu_fast1 = car_spu_fast_slope1 * x31 + car_spu_fast_intercept1
 
 if __name__ == "__main__":
-    
     1
+    for key, value in true_lifetime.items():
+        print(value)
     

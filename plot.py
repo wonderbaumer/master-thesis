@@ -4,7 +4,9 @@ from forces import beta
 from dust_properties import dust_properties
 from pert_variable_eps import perturbed_functions
 from energy import tot_energy
-from config import car_betaval_bound , car_size_bound , init_vals , sil_beta , car_beta , t5 , t6 , t7 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass , car_mass , tau_car , tau_sil
+from config import (car_betaval_bound , car_size_bound , init_vals , sil_beta , car_beta , t5 , t6 , t7 
+                    , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR , sil_mass 
+                    , car_mass , tau_car , tau_sil)
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 from polar_to_cart import polar_to_cartesian
@@ -154,7 +156,10 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
     save_path = f"Plots/{base_name}_r.png"
 
     if pert is not None and file_path_comp is None: #comparing RK4(5) with perturbed rhat
+        plt.figure(figsize = (5 , 4))
         r_per = pert
+        t = t[:len(r_per)]
+        r = r[:len(r_per)]
 
         rel_fw_err = np.abs(r - r_per) / np.abs(r)
         # print(rel_fw_err)
@@ -251,7 +256,13 @@ def omegahat_comps(file_path , pert = None , material = None):
     angvel_num = (-vx * np.sin(theta_num) + vy * np.cos(theta_num)) / r    
 
     if pert is not None:
+        plt.figure(figsize = (5 , 4))
         angvel = pert
+
+        t = t[:len(angvel)]
+        angvel_num = angvel_num[:len(angvel)]
+        r = r[:len(angvel)]
+
         plt.plot(t[r >= 0.1] , angvel_num[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\omega}$")
         plt.plot(t[r >= 0.1] , angvel[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\omega}$")
         plt.xlabel(r"$\hat{t}$")
@@ -277,7 +288,7 @@ def omegahat_comps(file_path , pert = None , material = None):
 
 """plotting betahat from RK4(5), perturbed and analytic expression.
 Can compare betahat values or relative forward error RK4(5)-perturbed and RK4(5)-analytical"""
-def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , material = None):
+def b_plot(file_path , b_per = None , fw_err = False , material = None):
     """input: solver (.npz), RK4(5) solver file consisting of x, y, vx, vy, m, b
               b_per (array), betahat from perturbed expression
               b_analytical (array), betahat from analytical expression
@@ -288,53 +299,26 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
        returns: none"""
     
     res = np.load(file_path)
-    x , y , _ , _ , _ , b , t , dmdt = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
+    x , y , _ , _ , _ , b , t , _ = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
     r = np.sqrt(x**2 + y**2)
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     save_path2 = f"Plots/{base_name}_beta.png"
 
-    if fw_err == False and b_per is not None and b_analytical is None:
-        b_pert = b_per
+    """comparing betahat from RK4(5) to betahat from perturbed expression"""
+    if fw_err == False and b_per is not None:
+        plt.figure(figsize = (5 , 4))
 
-        save_path3 = f"Plots/{base_name}_beta_interp_vs_expression.png"
-        plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , label = r"$\hat{\beta}$ expression")
-        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , linestyle = "--" , label = r"Interpolated $\hat{\beta}$ curve")
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.title(fr"$\hat{{\beta}}$ from interpolated function and from expression, {material}")
-        plt.legend()
-        plt.savefig(save_path3 , dpi = 300 , bbox_inches = 'tight')
-        plt.show()
-        
-
-    """comparing betahat from RK4(5) to betahat from perturbed and analytical expression"""
-    if fw_err == False and b_per is not None and b_analytical is not None:
         b_pert = b_per
-        save_path = f"Plots/{base_name}_beta_vs_analytical_perturbed.png"
-        plt.figure()
+        t = t[:len(b_pert)]
+        b = b[:len(b_pert)]
+        r = r[:len(b_pert)]
+
+        save_path = f"Plots/{base_name}_beta_vs_perturbed.png"
+
         plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
         plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.title(fr"$\hat{{\beta}}$ from RK4(5) and perturbed solution, {material}")
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.legend()
-        plt.show()
-
-        plt.figure()
-        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[r >= 0.1] , b_analytical[r >= 0.1] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(fr"$\hat{{\beta}}$ from RK4(5) and analytical solution , {material}")
-        plt.xlabel(r"$\hat{t}$")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.legend()
-        plt.show()
-        
-        plt.figure()
-        plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue" , label = r"RK4(5) $\hat{\beta}$")
-        plt.plot(t[r >= 0.1] , b_pert[r >= 0.1] , color = "red" , linestyle = "--" , label = r"Perturbed $\hat{\beta}$")
-        plt.plot(t[r >= 0.1] , b_analytical[r >= 0.1] , color = "orange" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.title(fr"$\hat{{\beta}}$ from RK4(5), perturbed and analytical solution, {material}")
+        plt.title(fr"{material.capitalize()} $\hat{{\beta}}$, RK4(5) and perturbed solution")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\beta}$")
         plt.legend()
@@ -343,13 +327,12 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
     
     """comparing relative forward errors in beta hat from RK45-perturbed expression and 
     RK45-analytical expression"""
-    if fw_err == True and b_per is not None and b_analytical is not None:
+    if fw_err == True and b_per is not None:
         b_pert = b_per
         save_path1 = f"Plots/{base_name}_beta_rel_fw_err.png"
         fw_err_RK45_per = np.abs(b - b_pert) / np.abs(b)
-        fw_err_RK45_analytical = np.abs(b - b_analytical) / np.abs(b)
+        
         plt.plot(t[r >= 0.1] , fw_err_RK45_per[r >= 0.1] , color = "blue" , label = "Rel fw error RK4(5) vs perturbed")
-        plt.plot(t[r >= 0.1] , fw_err_RK45_analytical[r >= 0.1] , color = "red" , linestyle = "--" , label = "Rel fw error RK4(5) vs analytical")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"Relative forward error")
         plt.title(f"Relative forward error, RK4(5) vs perturbed and RK4(5) vs analytical, {material}")
@@ -359,7 +342,7 @@ def b_plot(file_path , b_per = None , b_analytical = None, fw_err = False , mate
         plt.show()
     
     """Plotting only one beta curve for a given material"""
-    if b_per is None and b_analytical is None and fw_err == False:
+    if b_per is None and fw_err == False:
         plt.figure(figsize = (5 , 4))
         plt.plot(t[r >= 0.1] , b[r >= 0.1] , color = "blue")
         plt.xlabel(r"$\hat{t}$")
@@ -551,7 +534,7 @@ def PR_spu_lifetime():
 
     plt.show()
         
-def PR_spu_lifetime_separate(lifetime_effects = "both"):
+def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both"):
     material = ["silicate" , "carbon"]
     sw_conds = ["slow" , "fast" , "CME"]
     tsp_vals = {m: {} for m in material}
@@ -587,7 +570,7 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
 
         for sw, vals in tsp_vals[mat].items():
             
-            for key , value in true_lifetime_variableeps.items():
+            for key , value in file.items():
 
                 ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] , marker = markers[lifetime_effects])
 
@@ -595,10 +578,9 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
 
             ax.plot(size , vals,
                      color = cl[sw] , linestyle = ls[mat])
- 
+            
         ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
-
-        # ax.plot(0 , 0 , c = "black" , linestyle = ls[mat] , label = f"{mat.capitalize()}")
+        
         ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] , label = f"{lifetime_effects.capitalize()} effects")
 
         purple_patch = mpatches.Patch(color = "purple" , label = "PR")
@@ -619,7 +601,12 @@ def PR_spu_lifetime_separate(lifetime_effects = "both"):
        
         ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical and numerical" , pad = 20)
         ax.legend(handles = handles , fontsize = 8)
-        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_separate_{lifetime_effects}.png" , dpi = 300 , bbox_inches = 'tight')
+
+        if file == true_lifetime_variableeps:
+            fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_variable_eps.png" , dpi = 300 , bbox_inches = 'tight')
+        
+        else:
+            fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_cst_eps.png" , dpi = 300 , bbox_inches = 'tight')
 
     plt.show()
     
@@ -790,11 +777,17 @@ def eval_sizes():
     plt.show()
 
 if __name__ == "__main__":
-    
-    file_path = "Files/rk45_t6_C_silicate_slowsw.npz"
-    b_plot(file_path , None , None , False , "silicate")
-    rhat_comps(file_path , "silicate" , None , None)
-    omegahat_comps(file_path , None , "silicate")
+    par = dust_properties("carbon" , "slow" , 1.0 , "A")
+    file_path = "Files/rk45_t6_A_carbon_slowsw.npz"
+    res = np.load(file_path)
+    x , y , _ , _ , m , b , t , dmdt  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
+
+    # PR_spu_lifetime_separate(file = true_lifetime , lifetime_effects = "both")
+    rad , omega0 , beta0 , time = perturbed_functions(par.epsilon * t , par.B , par.K)
+
+    # rhat_comps(file_path , "silicate" , None , rad)
+    # omegahat_comps(file_path , omega0 , "silicate")
+    b_plot(file_path , beta0 , material = "carbon")
 
 
 

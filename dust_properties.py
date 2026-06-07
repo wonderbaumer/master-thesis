@@ -171,10 +171,10 @@ class dust_properties():
     
 if __name__ == "__main__":
     
-    par = dust_properties("silicate" , "CME" , 5 , "A")
+    par = dust_properties("carbon" , "slow" , 1 , "A")
     # par = dust_properties("silicate" , "CME" , size = "large")
     
-    print(par.K)
+    print(par.epsilon)
     
     
     
