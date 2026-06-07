@@ -45,8 +45,9 @@ def eps_init_betareal():
     
     
     for mat , sw in combs.items():
-
+        plt.figure(figsize = (5 , 4))
         for sw_cond , styles in sw.items():
+            
             size_ranges = (sil_size , sil_betaval) if mat == "silicate" else (car_size_bound , car_betaval_bound)
             par = dust_properties(mat , sw_cond , size = None , size_range = size_ranges)
             init_beta = par.B
@@ -66,7 +67,7 @@ def eps_init_betareal():
         handles, labels = plt.gca().get_legend_handles_labels()
         handles.extend([purple_patch , blue_patch , red_patch , green_patch])    
         plt.loglog()        
-        plt.title(fr"${{\epsilon_0}}$ and ${{\delta}}$ vs B for {mat}")
+        plt.title(fr"{mat.capitalize()}, ${{\epsilon_0}}$ and ${{\delta}}$ vs B")
         plt.xlabel("B")
         plt.ylabel("Value")
         plt.ylim(10**(-9) , 1)
@@ -156,7 +157,7 @@ def rhat_comps(file_path , material , file_path_comp = None , pert = None):
     save_path = f"Plots/{base_name}_r.png"
 
     if pert is not None and file_path_comp is None: #comparing RK4(5) with perturbed rhat
-        plt.figure(figsize = (5 , 4))
+        # plt.figure(figsize = (5 , 4))
         r_per = pert
         t = t[:len(r_per)]
         r = r[:len(r_per)]
@@ -440,6 +441,8 @@ def beta_curves(interp = False , material = "silicate" , comp = False , scaled =
         plt.ylabel(r"$\beta$")
         plt.title(fr"{material.capitalize()} $\beta$ versus particle size")
         plt.legend()
+        rel_fw_err = np.abs(beta - interp(size)) / np.abs(beta)
+        print(rel_fw_err)
         # plt.savefig(f"Plots/{material}_beta_interpolation_curve.png" , dpi = 300 , bbox_inches = 'tight')
         
     
@@ -453,7 +456,7 @@ def beta_curves(interp = False , material = "silicate" , comp = False , scaled =
         plt.ylabel(r"$\beta$")
         plt.title(r"Silicate and carbon, $\beta$ versus particle size")
         plt.legend()
-        # plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
+        plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
     
     """example scaled curve silicate"""
     if scaled:
@@ -502,7 +505,7 @@ def PR_spu_lifetime():
         tsp_vals["carbon"][sw] = t_sp_car
 
     for mat in material: 
-        fig , ax = plt.subplots()
+        fig , ax = plt.subplots(figsize = (5 , 4))
         size = sil_size if mat == "silicate" else car_size
         pr = tau_sil if mat == "silicate" else tau_car
 
@@ -777,19 +780,21 @@ def eval_sizes():
     plt.show()
 
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "slow" , 1.0 , "A")
-    file_path = "Files/rk45_t6_A_carbon_slowsw.npz"
+    par = dust_properties("silicate" , "CME" , 1.0 , "A")
+    file_path = "Files/rk45_t6_A_silicate_CMEsw.npz"
     res = np.load(file_path)
     x , y , _ , _ , m , b , t , dmdt  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
-
     # PR_spu_lifetime_separate(file = true_lifetime , lifetime_effects = "both")
-    rad , omega0 , beta0 , time = perturbed_functions(par.epsilon * t , par.B , par.K)
+    rad , omega0 , beta0 , time , dbeta0_dt1 = perturbed_functions(par.epsilon * t , par.B , par.K)
 
-    # rhat_comps(file_path , "silicate" , None , rad)
+    rhat_comps(file_path , "silicate" , None , rad)
     # omegahat_comps(file_path , omega0 , "silicate")
-    b_plot(file_path , beta0 , material = "carbon")
-
-
+    # b_plot(file_path , beta0 , material = "carbon")
+    # ecc_math(file_path)
+    # ecc_sc(file_path , par.B)
+    # beta_curves(True , "silicate")
+    # PR_spu_lifetime()
+    # eps_init_betareal()
 
     
 

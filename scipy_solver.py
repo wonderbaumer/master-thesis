@@ -85,7 +85,7 @@ def arr_variables(sol , particle_obj , epsilon , massloss = True):
     b = betahat(m , particle_obj)
 
     if massloss:
-        dmdt = sputtering(m, epsilon, x, y)
+        dmdt = sputtering(m , epsilon , x , y)
     else:
         dmdt = np.zeros_like(m)
 

@@ -1,5 +1,6 @@
 from config import (material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , sil_size ,
-                     sil_betaval , car_betaval_bound , car_size_bound , M_ms , M_mc , mA_S , mA_C , size_to_mass)
+                     sil_betaval , car_betaval_bound , car_size_bound , M_ms , M_mc , mA_S , mA_C 
+                     , size_to_mass , car_betaval , car_size)
 from sputtering_dict import sputter
 from scipy.constants import N_A , G , c
 import numpy as np
@@ -156,25 +157,16 @@ class dust_properties():
         return eps
 
     def K_cst_r(self):
-        Kcst = (1 - self.B)**2 / 6
-
-        tol = 1e-5
-        
-        vals = np.zeros((3 , len(Kcst)))
-
-        for i in range(len(self.K)):
-            
-            if self.K[i] - Kcst[i] < tol:
-                vals[: , i] = [self.K[i] , self.B[i] , self.r[i]]
+        vals = self.r * au**2 / (self.fsw * self.Ytot * self.R**2) #K/(1-B) ratio
 
         return vals
     
 if __name__ == "__main__":
-    
-    par = dust_properties("carbon" , "slow" , 1 , "A")
+    1
+    par = dust_properties("silicate" , "slow" , 1 , "A")
     # par = dust_properties("silicate" , "CME" , size = "large")
-    
-    print(par.epsilon)
+    K = 1 / 3 * (1 - par.B) / (2 * 1 * (1 - par.B * 1))
+    print(par.epsilon )
     
     
     

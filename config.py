@@ -76,7 +76,11 @@ init_vals = {"A":{
             "E" : {
                 "r" : 0.07745 * 10**(-6) ,
                 "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
-            }}
+            } ,
+            "F" : {
+                "r" : 50 * 10**(-6) ,
+                "B" : {"silicate" : 0.0032 , "carbon" : 0.0063}
+            } }
          
 material_files = {"silicate": sil_beta , "carbon": car_beta} #Mapping labels to correct beta values
 

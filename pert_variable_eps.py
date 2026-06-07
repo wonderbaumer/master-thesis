@@ -28,7 +28,7 @@ def perturbed_functions(t , B , K):
 
     y0 = [1.0 , 1.0]
 
-    sol = solve_ivp(rhs , (t[0] , t[-1]), y0, t_eval=t, method="RK45", rtol=1e-9 , atol=1e-12 )
+    sol = solve_ivp(rhs , (t[0] , t[-1]), y0, t_eval=t, method="RK45", rtol=1e-9 , atol=1e-12)
 
     beta0 = sol.y[0]
     C0 = sol.y[1]
@@ -37,18 +37,22 @@ def perturbed_functions(t , B , K):
     r0 = C0**2 * (1 - B) / (1 - B * beta0)
  
     omega0 = C0**(-3) * ((1 - B) / (1 - B * beta0))**(-2)
-    
 
-    return r0 , omega0 , beta0 , sol.t
+    dbeta0_dt1 = beta0**2 / (3 * r0**2)
+
+    return r0 , omega0 , beta0 , sol.t , dbeta0_dt1
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "slow" , "large")
-    res = np.load("Files/rk45_t6_large_silicate_slowsw.npz")
-    x , y , _ , _ , m , b , t  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+    par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+    res = np.load("Files/rk45_t6_A_silicate_slowsw.npz")
+    x , y , _ , _ , m , b , t , dmdt  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t" , "dmdt")]
 
     
-    rad , omega0 , beta0 , time = perturbed_functions(par.epsilon0 * t , par.B , par.K)
-   
+    rad , omega0 , beta0 , time , dbeta0_dt1 = perturbed_functions(par.epsilon * t , par.B , par.K)
+    K = dbeta0_dt1 * (1 - par.B) / (2 * beta0 * (1 - par.B * beta0))
+    # plt.plot(t , K)
+    # plt.show()
     
+    print(beta0)
     
     
