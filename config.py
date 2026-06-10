@@ -155,14 +155,19 @@ t9 = (dt9 , t_tot9)
 
 """Calculating PR lifetime in years from formula in Burns et al., 1979"""
 def pr_lifetime(betaval , init_dist = 1.0):
-        RAU = init_dist
+        """input: betaval (array), beta values corresponding to initial particle sizes considered
+                  init_dist (float) , distance of particle in units of AU
+           
+           returns: tau (array), PR lifetime of the particle in units of years"""
+        
+        RAU = init_dist #distance in AU
 
-        tau = 400 * RAU**2 / betaval
+        tau = 400 * RAU**2 / betaval #PR lifetime
 
         return tau
 
-tau_sil = pr_lifetime(sil_betaval)
-tau_car = pr_lifetime(car_betaval)
+tau_sil = pr_lifetime(sil_betaval) #PR lifetime of all silicate particles
+tau_car = pr_lifetime(car_betaval) #PR lifetime of all carbon particles
 
 if __name__ == "__main__":
     print(len(sil_size) , len(car_size_bound))
