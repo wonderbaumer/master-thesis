@@ -2,7 +2,7 @@ import sympy as sp
 
 """This code has perturbed the particle in one parameter, epsilon_0, and solves it algebraically"""
 
-#Defining the variables
+"""Defining the variables"""
 t = sp.Symbol("t") #time
 dt = sp.Symbol("dt") #time differential
 
@@ -44,38 +44,38 @@ delta = sp.Symbol("delta") #delta, drag term
 epsilon_0 = sp.Symbol("epsilon_0") #epsilon_0
 
 r_exp = r_0 + epsilon_0 * r_1 #r perturbed expression
-vr_exp = dt_r0 + epsilon_0 * dt_r1  #v perturbed expression
-vrdot_exp = dtt_r0 + epsilon_0 * dtt_r1 + epsilon_0 * ?????  #vrdot perturbed expression
+vr_exp = dt_r0 + epsilon_0 * dt_r1  #vr perturbed expression
+vrdot_exp = dtt_r0 + epsilon_0 * dtt_r1  #vrdot perturbed expression
 
-theta_exp = theta_0 + epsilon_0 * E_r * theta_1 #theta perturbed expression
-omega_exp = dt_theta0 - 2 * epsilon_0 * theta_1 / r_0**3 * dt_r0 + epsilon_0 / r_0**2 * dt_theta1  #omega perturbed expression
-omegadot_exp = dtt_theta0 - 2 * epsilon_0 * theta_1 / r_0**3 * dtt_r0  + omegadotterm #omegadot perturbed expression
+theta_exp = theta_0 + epsilon_0 * theta_1 #theta perturbed expression
+omega_exp = dt_theta0 + epsilon_0 * dt_theta1  #omega perturbed expression
+omegadot_exp = dtt_theta0 + epsilon_0 * dtt_theta1 #omegadot perturbed expression
 
-beta_exp = beta_0 + epsilon_0 * E_r * beta_1 #beta perturbed expression
+beta_exp = beta_0 + epsilon_0 * beta_1 #beta perturbed expression
 
-#Radial equation
+"""Radial equation"""
 rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
-               -(1 - beta_exp * B) - 2 * delta * beta_exp * B * vr_exp) #radial eq of motion
+               -(1 - beta_exp * B) - 2 * delta * beta_exp * B * vr_exp) 
 
-#up to second order expressions
+"""Removing terms of higher order than epsilon^1"""
 req_lhs = sp.series(rad_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
-
 req_rhs = sp.series(rad_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) rhs
 
+"""Separating by orders"""
 rad_eq = (req_lhs - req_rhs).expand()
 rad_eq_zeroth_order = rad_eq.coeff(epsilon_0 , 0) #zeroth order total expression
-rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #1 order expression
+rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #first order expression
 
-#angular equation
-ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , -delta * B * beta_exp * omega_exp) #angular eq of motion
+"""Angular equation"""
+ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , 
+               -delta * B * beta_exp * omega_exp) 
 
-#second order sols
+"""Removing terms of higher order than epsilon^1"""
 angeq_lhs = sp.series(ang_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
-
 angeq_rhs = sp.series(ang_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) rhs
 
+"""Separating by orders"""
 angeq = (angeq_lhs - angeq_rhs).expand()
 angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order total expression
-angeq_1 = angeq.coeff(epsilon_0 , 1) #1 expression
+angeq_1 = angeq.coeff(epsilon_0 , 1) #first order expression
 
-print(rad_eq_zeroth_order)

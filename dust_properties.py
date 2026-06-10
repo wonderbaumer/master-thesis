@@ -1,5 +1,5 @@
-from config import (material_files_bound , au , init_vals , rho_s , rho_c , yr , m_s , sil_size ,
-                     sil_betaval , car_betaval_bound , car_size_bound , M_ms , M_mc , mA_S , mA_C 
+from config import (au , init_vals , rho_s , rho_c , yr , m_s , sil_size ,
+                     sil_betaval , car_betaval_bound , car_size_bound , mA_S , mA_C 
                      , size_to_mass , car_betaval , car_size)
 from sputtering_dict import sputter
 from scipy.constants import N_A , G , c
@@ -119,12 +119,12 @@ class dust_properties():
         """Calculates sputtering lifetime from input material and solar wind conditions, 1 AU distance from the Sun"""
 
         if self.material == "silicate":
-            M_m = M_ms
+            #M_m = M_ms
             rho = rho_s
             mA = mA_S
 
         elif self.material == "carbon":
-            M_m = M_mc
+           # M_m = M_mc
             rho = rho_c
             mA = mA_C
 
@@ -143,12 +143,12 @@ class dust_properties():
         returns: eps (float), epsilon parameter"""
     
         if self.material == "silicate":
-            M_m = M_ms
+            #M_m = M_ms
             rho = rho_s
             mA = mA_S
 
         elif self.material == "carbon":
-            M_m = M_mc
+            #M_m = M_mc
             rho = rho_c
             mA = mA_C
         
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , 1 , "A")
     # par = dust_properties("silicate" , "CME" , size = "large")
     K = 1 / 3 * (1 - par.B) / (2 * 1 * (1 - par.B * 1))
-    print(par.epsilon )
+    print(par.r)
     
     
     

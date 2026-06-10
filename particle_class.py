@@ -120,8 +120,8 @@ if __name__ == "__main__":
     
     x , y , vx , vy , m , b , t , dmdt = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] , vals[: , 7]
     
-    np.savez("Files/rk45_t6_E_silicate_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10] , dmdt = dmdt[::10])
-    
+    # np.savez("Files/rk45_t6_E_silicate_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10] , dmdt = dmdt[::10])
+    print(np.sqrt(x**2+y**2))
     
 
     
