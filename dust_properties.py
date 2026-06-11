@@ -28,19 +28,22 @@ class dust_properties():
              sputtering_lifetime(), calculates sputtering lifetime
              eps(), calculates epsilon, mass loss rate, unitless
                 """
+    
+    """Initiating dust properties calculations based on input parameters"""
     def __init__(self , material , sw , init_dist = 1.0 , size = None , size_range = None):
-        """Initiating dust properties calculations based on input parameters"""
 
         self.material = material
         self.sw = sw
         self.init_dist = init_dist
         self.R = init_dist * au
 
+        """Size to beta mapping"""
         if isinstance(size , str):
             self.size = size
             self.r = init_vals[self.size]["r"]
             self.B = init_vals[self.size]["B"][self.material.lower()]
         
+        """Entire arrays of sizes and beta values"""
         if size_range is not None:
             self.r , self.B = size_range
         
@@ -138,11 +141,8 @@ class dust_properties():
         return eps
     
 if __name__ == "__main__":
-    1
     par = dust_properties("silicate" , "slow" , 1 , "A")
-    # par = dust_properties("silicate" , "CME" , size = "large")
-    K = 1 / 3 * (1 - par.B) / (2 * 1 * (1 - par.B * 1))
-    print(par.eps())
+    
     
     
     

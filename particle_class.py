@@ -62,11 +62,11 @@ class particle_solver():
         stopping_events = ["particle outside interpolation range" , "particle impacted Sun"]
         
         if self.solver == "LEAPFROG" and self.massloss == True:
-            pos_and_vel1 = leapfrog_algorithm(self.init_cart_scaled , tot_acc
+            pos_and_vel1 = leapfrog_algorithm(y0 , tot_acc
                      , self.sim_time , self , self.epsilon , sputtering) #leapfroging using initial cond
             
         elif self.solver == "LEAPFROG" and self.massloss == False:
-            pos_and_vel1 = leapfrog_algorithm(self.init_cart_scaled , tot_acc
+            pos_and_vel1 = leapfrog_algorithm(y0 , tot_acc
                      , self.sim_time , self) #leapfroging using initial cond
             
         elif self.solver in ["Radau" , "RK45" , "RK23" , "DOP853"] and self.massloss == True: 

@@ -4,39 +4,35 @@ from tqdm import tqdm
 from config import t5 , t6 , t7
 from forces_scaled import tot_acc , sputtering, betahat
 
-"""simple leapfrog algorithm that usesinitial values and acceleration from considered forces to 
-    calculate position, velocity, mass and beta value of the particle at any given time, in x and y 
-    direction. All parameters are scaled."""
+"""Simple leapfrog algorithm that use acceleration to calculate position, velocity, 
+   mass and beta value of the particle at any given time, in x and y direction. 
+   All parameters are scaled."""
 def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon = None , massloss = None):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
-              
               acc_func (function), function calculating total scaled acceleration in x and y dir
-              
-              dt (float), scaled timestep value
-              
-              t_tot (float), total simulation time in s
-
+              time (tuple), consisting of dt, t_tot, timestep and total simulation time
+              particle_obj, instance containing simulation information
+              epsilon (float), mass loss rate value, default:None 
               massloss (str), default: None, else method of massloss must be defined 
         
-        returns: leapfroged_values (array) , b_vals (array), array containing position, velocity, time 
-        and mass, array containing beta values
+        returns: leapfroged_values (array), containing position, velocity, mass, beta, time
         """
     
-    x , y , vx , vy = initial_vals #unpack values from nested array
+    x , y , vx , vy , mhat = initial_vals #unpack initial values
 
-    dt , t_tot = time #unpack time values
+    _ , t_tot = time #unpack time values
     
-    mhat = 1.0 #initial scaled mass
-    bhat = betahat(mhat , particle_obj) #initial scaled beta
+    bhat = 1.0 #initial scaled beta
 
     N = round(t_tot / dt) + 1 #number of timesteps
-    lf_vals = np.zeros((N, 7)) #array to store leapfrogged values
+    lf_vals = np.zeros((N , 7)) #array to store leapfrogged values
     dt = t_tot / (N - 1)
+
     t = 0.0
 
     pbar = tqdm(total = N)
 
-    lf_vals[0] = [x, y, vx, vy, mhat, bhat , t]
+    lf_vals[0] = [x , y , vx , vy , mhat , bhat , t]
 
     ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj) #unpacking acceleration x and y vals 
 
@@ -59,7 +55,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
         vx_half += dt * ax #updating vx_half
         vy_half += dt * ay #updating vy_half
 
-        lf_vals[i] = [x , y , vx_half , vy_half , mhat , bhat , t] #leapfroged_values 
+        lf_vals[i] = [x , y , vx_half , vy_half , mhat , bhat , t] #leapfrogged values 
 
         pbar.update(1)
 

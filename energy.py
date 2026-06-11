@@ -1,28 +1,25 @@
 import numpy as np
 
-"""function that calculates the scaled total energy of the particle in orbit, cartesian coordinates"""
+"""Calculates the scaled potential and kinetic energies of a particle in orbit, polar coordinates"""
 def tot_energy(x , y , vx , vy ,  m , beta , particle_obj):
-    """input: x (float), scaled x position
-              y (float), scaled y position
-              vx (float), scaled x velocity
-              vy (float), scaled y velocity
-              m (float), scaled mass of particle
-              beta (float), betahat value
+    """input: x (float), x position
+              y (float), y position
+              vx (float), x velocity
+              vy (float), y velocity
+              m (float), mass of particle
+              beta (float), beta value
               
         returns: kinetic_energy, pot_energy (tuple), the scaled energies of the particle
         """
-        
-    v = np.sqrt(vx**2 + vy**2) #speed
+
     theta_num = np.atan2(y , x) #thetahat
     theta_num = np.unwrap(theta_num) #avoiding discontinuities
-    r = np.sqrt(x**2 + y**2)  #position
-    vr = x * np.cos(theta_num) + y * np.sin(theta_num)
-    vtheta = (x * np.sin(theta_num) - y * np.cos(theta_num))
+
+    r = np.sqrt(x**2 + y**2)  #radial position
+    vr = x * np.cos(theta_num) + y * np.sin(theta_num) #radial velocity
+    vtheta = (x * np.sin(theta_num) - y * np.cos(theta_num)) #velocity in theta dir
     
-    kinetic_energy = 1 / 2 * m * (vr**2 + vtheta**2)
-    #kinetic_energy = 1 / 2 * m * v**2 #formula corresponding to scaled kinetic E
-    
-    r = np.sqrt(x**2 + y**2)  #position
+    kinetic_energy = 1 / 2 * m * (vr**2 + vtheta**2) 
     
     pot_energy = -(1 - particle_obj.B * beta) * m / ((1 - particle_obj.B) * r) #scaled potential energy
     
