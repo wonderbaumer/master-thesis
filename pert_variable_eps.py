@@ -10,14 +10,13 @@ from config import t6 , t5
 import scipy.integrate as it
 import matplotlib.pyplot as plt
 
-def perturbed_functions(t , B , K):
 
-    def rhs(t , y):
-        beta0 = y[0]
-        C0 = y[1]
+def rhs(t , y):
+    beta0 = y[0]
+    C0 = y[1]
 
-        m0 = 1.0
-        beta0 = m0**(-1 / 3)
+    m0 = 1.0
+    beta0 = m0**(-1 / 3)
 
         r0 = C0**2 * (1 - B) / (1 - B * beta0)
         dbeta0_dt = beta0**2 / (3 * r0**2)

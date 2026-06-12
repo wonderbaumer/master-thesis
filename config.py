@@ -121,18 +121,9 @@ init_vals = {"A" : {
             "E" : {
             "r" : 0.07745 * 10**(-6) ,
             "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
-            } ,
-
-            "F" : {
-            "r" : 50 * 10**(-6) ,
-            "B" : {"silicate" : 0.0032 , "carbon" : 0.0063}
             }}
 
 """t hat combinations used, dt timestep for stable solver, t_tot total simulation time"""
-dt5 = 3.16e-3 
-t_tot5 = 1000
-t5 = (dt5 , t_tot5)
-
 dt6 = 3.16e-3 
 t_tot6 = 10000
 t6 = (dt6 , t_tot6)

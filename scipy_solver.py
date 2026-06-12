@@ -60,7 +60,7 @@ orbital_radius_event.terminal = True
 orbital_radius_event.direction = -1
     
 """particle motion solved using non-stiff solver in scipys solve_ivp"""
-def particle_motion(fun , t_span , y0 , method , t_eval , state , epsilon , particle_obj , massloss = True):
+def particle_motion(fun , t_span , y0 , method , state , epsilon , particle_obj , massloss = True):
     """input: fun (func), system of ODEs to solve
               t_span (tuple), time start and end of integration
               y0 (array), initial conditions for pos and vel
@@ -84,12 +84,7 @@ def arr_variables(sol , particle_obj , epsilon , massloss = True):
     x , y , vx , vy , m = sol.y #unpacking solution object
     b = betahat(m , particle_obj)
 
-    if massloss:
-        dmdt = sputtering(m , epsilon , x , y)
-    else:
-        dmdt = np.zeros_like(m)
-
-    new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t , dmdt)) #creating new array with all variables
+    new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
 
     return new_arr
 
