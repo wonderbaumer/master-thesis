@@ -1,13 +1,14 @@
 import numpy as np 
 import time
 from tqdm import tqdm
-from config import t5 , t6 , t7
+from config import t6 , t7 , t8 , t9 , t10
 from forces_scaled import tot_acc , sputtering, betahat
 
 """Simple leapfrog algorithm that use acceleration to calculate position, velocity, 
    mass and beta value of the particle at any given time, in x and y direction. 
    All parameters are scaled."""
-def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon = None , massloss = None):
+def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon = None , massloss = None 
+                       , drag = True):
     """input: initial_vals (array), array containing scaled cartesian x, y, vx, vy, m.
               acc_func (function), function calculating total scaled acceleration in x and y dir
               time (tuple), consisting of dt, t_tot, timestep and total simulation time
@@ -20,7 +21,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
     
     x , y , vx , vy , mhat = initial_vals #unpack initial values
 
-    _ , t_tot = time #unpack time values
+    dt , t_tot = time #unpack time values
     
     bhat = 1.0 #initial scaled beta
 
@@ -34,7 +35,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
 
     lf_vals[0] = [x , y , vx , vy , mhat , bhat , t]
 
-    ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj) #unpacking acceleration x and y vals 
+    ax , ay = acc_func(x , y , vx , vy , mhat , particle_obj , drag) #unpacking acceleration x and y vals 
 
     vx_half = vx + 0.5 * dt * ax #half-stepping x velocity
     vy_half = vy + 0.5 * dt * ay #half-stepping y velocity
@@ -50,7 +51,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
 
         bhat = betahat(mhat , particle_obj)
             
-        ax , ay = acc_func(x , y , vx_half , vy_half , mhat , particle_obj) #acceleration calcs
+        ax , ay = acc_func(x , y , vx_half , vy_half , mhat , particle_obj , drag) #acceleration calcs
         
         vx_half += dt * ax #updating vx_half
         vy_half += dt * ay #updating vy_half

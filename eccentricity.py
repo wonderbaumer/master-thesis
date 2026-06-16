@@ -3,7 +3,7 @@ import numpy as np
 """File calculating eccentricity based on scaled formula as well as using elliptical parameters"""
 
 """Scaled eccentricity formula"""
-def ecc_scaled(num , B , pert = None):
+def ecc_scaled(num , particle_obj , pert = None):
     """input: num (tuple), consisting of numerically calculated x, y, vx, vy, b
               B (float), initial beta value
               pert (tuple), default:None, if perturbation evaluated pert contains
@@ -21,11 +21,11 @@ def ecc_scaled(num , B , pert = None):
     angvel_num = (-vx * np.sin(theta_cont) + vy * np.cos(theta_cont)) / r #numerical angular vel
     v_r = vx * np.cos(theta_cont) + vy * np.sin(theta_cont) #cartesian to radial numerical vel
 
-    ecc_x = (-(1 - B) * r**2 * v_r * angvel_num / (1 - b * B) * (-y / r) - (x / r) 
-             + r**3 * angvel_num**2 * (1 - B) / (1 - b * B) * (x / r))
+    ecc_x = (-(1 - particle_obj.B) * r**2 * v_r * angvel_num / (1 - b * particle_obj.B) * (-y / r) - 
+             (x / r) + r**3 * angvel_num**2 * (1 - particle_obj.B) / (1 - b * particle_obj.B) * (x / r))
     
-    ecc_y = (-(1 - B) * r**2 * v_r * angvel_num / (1 - b * B) * (x / r) - (y / r) 
-             + r**3 * angvel_num**2 * (1 - B) / (1 - b * B) * (y / r))    
+    ecc_y = (-(1 - particle_obj.B) * r**2 * v_r * angvel_num / (1 - b * particle_obj.B) * (x / r) 
+             - (y / r) + r**3 * angvel_num**2 * (1 - particle_obj.B) / (1 - b * particle_obj.B) * (y / r))    
     
     ecc_tot = np.sqrt(ecc_x**2 + ecc_y**2)
 
@@ -43,8 +43,8 @@ def ecc_scaled(num , B , pert = None):
     if pert is not None:
         r_per , omega_per , vr_per = pert #perturbed parameters
 
-        ecc_theta = -(1 - B) / (1 - b * B) * r_per**2 * vr_per * omega_per #perturbed ecc theta dir
-        ecc_r = (1 - B) / (1 - b * B) * r_per**3 * omega_per**2 - 1 #perturbed ecc radial dir
+        ecc_theta = -(1 - particle_obj.B) / (1 - b * particle_obj.B) * r_per**2 * vr_per * omega_per #perturbed ecc theta dir
+        ecc_r = (1 - particle_obj.B) / (1 - b * particle_obj.B) * r_per**3 * omega_per**2 - 1 #perturbed ecc radial dir
 
         eccpert_tot = np.sqrt(ecc_theta**2 + ecc_r**2) #total ecc
         ecc_pert = eccpert_tot[change_idx] #one ecc each start of orbit

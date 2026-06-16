@@ -29,18 +29,16 @@ class particle_solver():
        init_cart_scaled (array), initial scaled cartesian coordinates
        file (.dat), r and beta file corresponding to input material
        beta_func (function), interpolated beta(r) from file values
-       
-
                    
     Methods: 
-       
        pos_vel_calcs(), numerical solution for particle parameters based on input of solver type and 
                         if massloss=True or False"""
     
-    def __init__(self , sim_time , par , solver = "RK45" , massloss = True):
+    def __init__(self , sim_time , par , solver = "RK45" , massloss = True , drag = True):
         self.solver = solver
         self.sim_time = sim_time
         self.massloss = massloss
+        self.drag = drag
         self.particle = par
         self.r = par.r
         self.B = par.B
@@ -71,14 +69,15 @@ class particle_solver():
         """Simulations based on solver and mass loss specifications"""
         if self.solver == "LEAPFROG" and self.massloss == True:
             pos_and_vel1 = leapfrog_algorithm(y0 , tot_acc , self.sim_time , self , self.epsilon 
-                                              , sputtering) 
+                                              , sputtering , self.drag) 
             
         elif self.solver == "LEAPFROG" and self.massloss == False:
-            pos_and_vel1 = leapfrog_algorithm(y0 , tot_acc , self.sim_time , self)
+            pos_and_vel1 = leapfrog_algorithm(y0 , tot_acc , self.sim_time , self , massloss = None 
+                                              , drag = self.drag)
             
         elif self.solver in ["Radau" , "RK45" , "RK23" , "DOP853"] and self.massloss == True: 
-            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , state , self.epsilon ,
-                                          self , massloss = True)
+            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , state ,
+                                          self , massloss = True , drag = self.drag)
             
             for i , te in enumerate(pos_and_vel.t_events):
                 if len(te) > 0:
@@ -87,11 +86,11 @@ class particle_solver():
 
             print(stopping_reason)
 
-            pos_and_vel1 = arr_variables(pos_and_vel , self , self.epsilon , True)
+            pos_and_vel1 = arr_variables(pos_and_vel , self , True)
         
         elif self.solver in ["RK45" , "RK23" , "DOP853"] and self.massloss == False: 
-            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , state , self.epsilon ,
-                                          self , massloss = False)
+            pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , state ,
+                                          self , massloss = False , drag = self.drag)
 
             for i , te in enumerate(pos_and_vel.t_events):
                 if len(te) > 0:
@@ -100,16 +99,16 @@ class particle_solver():
 
             print(stopping_reason)
 
-            pos_and_vel1 = arr_variables(pos_and_vel , self , self.epsilon , False)
+            pos_and_vel1 = arr_variables(pos_and_vel , self , False)
 
         return pos_and_vel1
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , init_dist = 1 , size = "E")
-    p = particle_solver(t6 , par , "RK45" , massloss = True)
+    p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
     vals = p.pos_vel_calcs()
     
-    x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] , vals[: , 7]
+    x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
     
     # np.savez("Files/rk45_t6_E_silicate_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     

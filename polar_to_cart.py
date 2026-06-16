@@ -30,8 +30,4 @@ def polar_to_cartesian(polar_coord):
     
     return cartesian_vals
 
-if __name__ == "__main__":
-    au = 149597871e3
-    R = 1 * au #initial radial position
-    init_polar = np.array([R , 0 , 0 , 28587.53054238])
-    print(polar_to_cartesian(init_polar))
+

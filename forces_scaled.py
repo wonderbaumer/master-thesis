@@ -108,7 +108,7 @@ def pr_drag(x , y , vx , vy , m , particle_obj):
     return ax , ay
 
 """Calculates total acceleration based on pressure radiation force, gravity and Poynting-Robertson drag"""
-def tot_acc(x , y , vx , vy , m , particle_obj):
+def tot_acc(x , y , vx , vy , m , particle_obj , drag = True):
     """input: x (float), scaled x position
               y (float), scaled y position
               vx (float), scaled x velocity
@@ -120,7 +120,12 @@ def tot_acc(x , y , vx , vy , m , particle_obj):
     
     px , py = pressure_radial(x , y , m , particle_obj) #decomposing pressure radiation force
     gx , gy = gravity(x , y , particle_obj) #decomposing gravitational force
-    prx , pry = pr_drag(x , y , vx , vy , m , particle_obj) #decomposing Poynting-Robertson force
+    
+    if drag == True:
+        prx , pry = pr_drag(x , y , vx , vy , m , particle_obj) #decomposing Poynting-Robertson force
+    
+    else:
+         prx , pry = 0.0 , 0.0
 
     ax = px + gx + prx  #total acceleration in x dir
     ay = py + gy + pry  #total acceleration in y dir 

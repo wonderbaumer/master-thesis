@@ -1,198 +1,241 @@
 import numpy as np
-from config import t5 , t6 , t7 , eps
-from particle_class import particle
-from plot import eps_init_beta , thetahat_comps , rhat_comps , vhat_comps , omegahat_comps , b_plot , energy_plot
-from pert_functions import thetahat_pert , rhat_pert , betahat_pert , betahat_analytical , vrhat_pert , omegahat_pert
+from config import t6 , t7 , t8 , t9 , t10
+from particle_class import particle_solver
+from plot import (eps_init_betareal , rhat_comps , omegahat_comps , b_plot 
+                  , energy_plot , beta_curves , PR_spu_lifetime , eval_sizes , ecc_sc , ecc_math 
+                  , PR_spu_lifetime_separate)
+from pert_variable_eps import rhs , pert_motion
+from lifetime_calcs import true_lifetime_variableeps , true_lifetime
+from dust_properties import dust_properties
 
-#Fikse input args til main, kan og fikse på selve plottefunksjonene og bare kalle de her,
-#istedenfor hele main
+"""Function plotting all plots displayed in master's thesis"""
+def main(plot_type , particle_obj = None , pert = None , material = "silicate" , lf_path = None 
+         , rk_path = None):
+    """input: plot_type (string), options: 
+              beta_curves, experimental beta curves for silicate and carbon
+              expected_lifetimes, theoretical pr and sputtering lifetimes both materials
+              eps_vs_B, epsilon for all B values, both materials
+              beta_interp, interpolated beta curve for silicate
+              eval_sizes, initial particle sizes on beta curves
+              beta_comp, rk4(5) and pert beta comparison
+              r_comp, rk4(5) and pert r comparison
+              omega_comp, rk4(5) and pert omega comparison
+              lifetimes_cst_eps, rk4(5) vs theoretical lifetimes with constant sputtering
+              lifetimes_varying_eps, rk4(5) vs theoretical lifetime with varying sputtering
+              num_r, rk4(5) r only
+              num_beta, rk4(5) beta only
+              num_omega, rk4(5) omega only
+              ecc_scaled, rk4(5) eccentricity from scaled expression
+              ecc_math, rk4(5) eccentricity from elliptical definitions
 
-"""point of execution for simulations and plotting. 
-all plots compares at least one numerical with perturbed sol,
-some plots can compare two numerical sols, some can plot relative forward error between numerical
-sols or numerical and perturbed sol."""
-def main(comp_type , time , epsilon , solver = None , massloss = True , rk_file = None , lf_file = None 
-         , fw_err = False):
-    """input: comp_type (string), eps_beta, thetahat, rhat , betahat , energy, vhat, omegahat
-              time (tuple), consiting of dt, t_tot
-              solver (string), default: None, can be LEAPFROG or RK45
-              rk_file (.npz), default: None, RK4(5) solver results
-              lf_file (.npz), default: None, Leapfrog solver results"""
+              particle_obj (instance), containing particle properties
+              pert (array), default:None, else relevant perturbed parameter
+              material (string), default: silicate, else carbon
+              lf_path (string), default:None, else path to leapfrog file
+              rk_path (string), default:None, else path to rk4(5) file
+              """
     
-    if solver is not None and massloss == True:
-        p = particle(sim_time = time , epsilon = epsilon , solver = solver , massloss = True) #initializing particle class
-        vals = p.pos_vel_calcs() #running numerical solver
-        x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
+    if plot_type == "exp_beta":
+        beta_curves(comp = True)
     
-    elif solver is not None and massloss == False:
-        p = particle(sim_time = time , epsilon = epsilon , solver = solver , massloss = False) #initializing particle class
-        vals = p.pos_vel_calcs() #running numerical solver
-        x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-
-    """if filename1 is given, open the file, else run the particle class to produce a file"""
-    if rk_file is not None:
-        f1 = np.load(rk_file)
-        x1 , y1 , vx1 , vy1 , m1 , b1 = [f1[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-        rk_vals = (x1 , y1 , vx1 , vy1 , m1 , b1)
-
-    """optional to provide file of solver 2 to compare with solver 1"""   
-    if lf_file is not None:
-        f2 = np.load(lf_file)
-        x2 , y2 , vx2 , vy2 , m2 , b2 = [f2[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b")]
-        lf_vals = (x2 , y2 , vx2 , vy2 , m2, b2)
-
-    dt , t_tot = time #time unpacking
-    t_hat = np.arange(0 , t_tot , dt)  #that
-
-    """running plotting codes based on type of comparison user want to make"""
-    if comp_type == "eps_beta":
-        eps_init_beta() #for epsilon vs B plot for range of masses, only need mandatory inputs to main
+    if plot_type == "expected_lifetimes":
+        PR_spu_lifetime()
     
-    elif comp_type == "thetahat": #input rkfile+lffile, one file or one solver
-        if rk_file is not None and lf_file is not None: #compare thetahat RK4(5) and Leapfrog
-            thetahat_comps(x1 , y1 , time , x2 , y2)
-
-        elif rk_file is not None and lf_file is None: #compare thetahat RK4(5) and perturbed solution
-            thetahat_comps(x1 , y1 , time , theta_per = thetahat_pert(t_hat))
-        
-        elif lf_file is not None and rk_file is None: #compare thetahat Leapfrog and perturbed solution
-            thetahat_comps(x2 , y2 , time , theta_per = thetahat_pert(t_hat))
-        
-        else: #compare thetahat numerical solver and perturbed solution
-            thetahat_comps(x , y , time , theta_per = thetahat_pert(t_hat))
+    if plot_type == "eps_vs_B":
+        eps_init_betareal()
     
-    elif comp_type == "rhat": #input rkfile+lffile, one file or one solver
-        if rk_file is not None and lf_file is not None: #compare rhat RK4(5) and Leapfrog
-            rhat_comps(x1 , y1 , time , x2 = x2 , y2 = y2)
-        
-        elif rk_file is not None and lf_file is None: #compare rhat RK4(5) and perturbed solution
-            rhat_comps(x1 , y1 , time , r_per = rhat_pert(t_hat))
-        
-        elif lf_file is not None and rk_file is None: #compare rhat Leapfrog and perturbed solution
-            rhat_comps(x2 , y2 , time , r_per = rhat_pert(t_hat))
-        
-        else: #compare rhat RK4(5) and one perturbed solution
-            rhat_comps(x , y , time , r_per = rhat_pert(t_hat))
+    if plot_type == "beta_interp":
+        beta_curves(True , "silicate")
     
-    elif comp_type == "betahat": #input rkfile, lffile or specified solver, fw_err True or False 
-        if rk_file is not None and fw_err == False: #compare betahat RK4(5)
-            b_plot(b1 , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = False)
-
-        elif rk_file is not None and fw_err == True: #fw err betahat RK4(5)
-            b_plot(b1 , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = True)
-
-        elif lf_file is not None and fw_err == False: #compare betahat Leapfrog
-            b_plot(b2 , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = False)
-
-        elif lf_file is not None and fw_err == True: #fw err betahat Leapfrog
-            b_plot(b2 , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = True)
-
-        elif solver is not None and fw_err == False: #compare betahat numerical solver
-            b_plot(b , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = False)
-
-        elif solver is not None and fw_err == True: #compare betahat numerical solver
-            b_plot(b , time , betahat_pert(t_hat) , betahat_analytical(t_hat) , fw_err = True)
-
-
-    elif comp_type == "energy": #input rkfile+lffile, file+solver, err True or False
-
-        if rk_file is not None and lf_file is not None and fw_err == False: #compare energy RK4(5) and Leapfrog
-            energy_plot(rk_vals , time , lf_vals)
-
-        elif rk_file is not None and lf_file is not None and fw_err == True: #fw err energy RK4(5) and Leapfrog
-            energy_plot(rk_vals , time , lf_vals , fw_err = True)
-
-        elif rk_file is not None and solver is not None and fw_err == False: #compare energy RK4(5) and specified solver
-            solver_vals = (x , y , vx , vy , m , b)
-            energy_plot(rk_vals , time , solver_vals)
-
-        elif rk_file is not None and solver is not None and fw_err == True: #fw err energy RK4(5) and specified solver
-            solver_vals = (x , y , vx , vy , m , b)
-            energy_plot(rk_vals , time , solver_vals , fw_err = True)
-
-        elif lf_file is not None and solver is not None and fw_err == False: #compare energy Leapfrog and specified solver
-            solver_vals = (x , y , vx , vy , m , b)
-            energy_plot(lf_vals , time , solver_vals)
-
-        elif lf_file is not None and solver is not None and fw_err == True: #fw err energy Leapfrog and specified solver
-            solver_vals = (x , y , vx , vy , m , b)
-            energy_plot(lf_vals , time , solver_vals , fw_err = True)
+    if plot_type == "init_sizes":
+        eval_sizes()
     
-    elif comp_type == "vhat": #input rkfile, lffile or specified solver
-        v_pert = vrhat_pert(t_hat)
-
-        if rk_file is not None: #RK4(5) comp pert
-            vhat_comps(x1 , y1 , vx1 , vy1 , time , v_pert)
-        
-        elif lf_file is not None: #Leapfrog comp pert
-            vhat_comps(x2 , y2 , vx2 , vy2 , time , v_pert)
-        
-        elif solver is not None: #Solver comp pert
-            vhat_comps(x , y , vx , vy , time , v_pert)
+    if plot_type == "energy_comp":
+        energy_plot(rk_path , lf_path , particle_obj , False)
     
-    elif comp_type == "omegahat": #input rkfile, lffile or solver
-        ang_vel = omegahat_pert(t_hat)
+    if plot_type == "beta_comp":
+        b_plot(rk_path , pert , material)
 
-        if rk_file is not None: #RK4(5) comp pert
-            omegahat_comps(x1 , y1 , vx1 , vy1 , time , ang_vel)
-        
-        elif lf_file is not None: #Leapfrog comp pert
-            omegahat_comps(x2 , y2 , vx2 , vy2 , time , ang_vel)
-        
-        elif solver is not None: #Solver comp pert
-            omegahat_comps(x , y , vx , vy , time , ang_vel)
+    if plot_type == "r_comp":
+        rhat_comps(rk_path , pert , material)
+    
+    if plot_type == "omega_comp":
+        omegahat_comps(rk_path , pert , material)
+    
+    if plot_type == "lifetimes_cst_eps":
+        PR_spu_lifetime_separate(file = true_lifetime , lifetime_effects = "both")
+    
+    if plot_type == "lifetimes_varying_eps":
+        PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both")
+    
+    if plot_type == "num_r":
+        rhat_comps(rk_path , None , material)
+    
+    if plot_type == "num_beta":
+        b_plot(rk_path , None , material)
 
-"""If files not provided"""
-epsilon = eps(sw = "slow" , species = "all")
+    if plot_type == "num_omega":
+        omegahat_comps(rk_path , None , material)
+    
+    if plot_type == "ecc_scaled":
+        ecc_sc(rk_path , particle_obj , None)
+    
+    if plot_type == "ecc_math":
+        ecc_math(rk_path , None)
 
-"""LEAPFROG solver 10.000 orbits, without mass loss"""
-# p = particle(t6 , epsilon , "LEAPFROG" , massloss = False)
+"""experimental beta curve"""
+# main("exp_beta")
+
+"""theoretical lifetimes"""
+# main("expected_lifetimes")
+
+"""epsilon_vs_B"""
+# main("eps_vs_B")
+
+"""interpolated beta curve"""
+# main("beta_interp")
+
+"""sampling points"""
+# main("init_sizes")
+
+"""energy comparisons"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = False , drag = False)
 # vals = p.pos_vel_calcs()
-# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-# np.savez("Files/leapfrog_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_silicate_slowsw_nomassloss_nodrag.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10]) 
 
-"""LEAPFROG solver 10.000 orbits, with mass loss"""
-# p = particle(t6 , epsilon , "LEAPFROG" , massloss = True)
+# p = particle_solver(t6 , par , "LEAPFROG" , massloss = False , drag = False)
 # vals = p.pos_vel_calcs()
-# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-# np.savez("Files/leapfrog_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/leapfrog_t6_A_silicate_slowsw_nomassloss_nodrag.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10]) 
 
-"""RK4(5) solver 10.000 orbits, without mass loss"""
-# p = particle(t6 , epsilon , "RK45" , massloss = False)
+# main("energy_comp" , particle_obj = par 
+#      , rk_path = "Files/rk45_t6_A_silicate_slowsw_nomassloss_nodrag.npz" 
+#      , lf_path = "Files/leapfrog_t6_A_silicate_slowsw_nomassloss_nodrag.npz")
+
+"""beta curve rk4(5) silicate size A"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
 # vals = p.pos_vel_calcs()
-# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-# np.savez("Files/rk45_t6_masslossFalse_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-"""RK4(5) solver 10.000 orbits, with mass loss"""
-# p = particle(t6 , epsilon , "RK45" , massloss = True)
+# main("num_beta" , rk_path = "Files/rk45_t6_A_silicate_slowsw.npz" , material = "silicate")
+
+"""beta curve rk4(5) carbon size A"""
+# par = dust_properties("carbon" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
 # vals = p.pos_vel_calcs()
-# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-# np.savez("Files/rk45_t6_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_carbon_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-"""RK4(5) solver 20.000 orbits, with mass loss"""
-# p = particle(t7 , epsilon , "RK45" , massloss = True)
+# main("num_beta" , rk_path = "Files/rk45_t6_A_carbon_slowsw.npz" , material = "carbon")
+
+"""r curve rk4(5) silicate size A"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
 # vals = p.pos_vel_calcs()
-# x , y , vx , vy , m , b = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5]
-# np.savez("Files/rk45_t7_masslossTrue_scaledeqs.npz" , x = x , y = y , vx = vx , vy = vy , m = m , b = b)
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-"""Code providing plots in the paper"""
-#Epsilon vs B values
-#main("eps_beta" , t6 , epsilon)
+# main("num_r" , rk_path = "Files/rk45_t6_A_silicate_slowsw.npz" , material = "silicate")
 
-#Energy without massloss
-#main("energy" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossFalse_scaledeqs.npz" , lf_file = "Files/leapfrog_t6_masslossFalse_scaledeqs.npz" , massloss = False , fw_err = False)
+"""r curve rk4(5) carbon size A"""
+# par = dust_properties("carbon" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+# vals = p.pos_vel_calcs()
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_carbon_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-#Energy with massloss
-#main("energy" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = "Files/leapfrog_t6_masslossTrue_scaledeqs.npz" , massloss = True , fw_err = False)
+# main("num_r" , rk_path = "Files/rk45_t6_A_carbon_slowsw.npz" , material = "carbon")
 
-#Betahat comparisons
-#main("betahat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)
+"""omega curve rk4(5) silicate size A"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+# vals = p.pos_vel_calcs()
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-#Betahat relative forward error
-#main("betahat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = True)
+# main("num_omega" , rk_path = "Files/rk45_t6_A_silicate_slowsw.npz" , material = "silicate")
 
-#Thetahat comparisons
-#main("thetahat" , t7 , epsilon , solver = None , rk_file = "Files/rk45_t7_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)
+"""omega curve rk4(5) carbon size A"""
+# par = dust_properties("carbon" , "slow" , init_dist = 1.0 , size = "A")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+# vals = p.pos_vel_calcs()
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_A_carbon_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
 
-#rhat comparisons
-#main("rhat" , t6 , epsilon , solver = None , rk_file = "Files/rk45_t6_masslossTrue_scaledeqs.npz" , lf_file = None , massloss = True , fw_err = False)
+# main("num_omega" , rk_path = "Files/rk45_t6_A_carbon_slowsw.npz" , material = "carbon")
+
+"""beta curve rk4(5) silicate size C"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "C")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+# vals = p.pos_vel_calcs()
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_C_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+
+# main("num_beta" , rk_path = "Files/rk45_t6_C_silicate_slowsw.npz" , material = "silicate")
+
+"""r curve rk4(5) silicate size C"""
+# par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "C")
+# p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+# vals = p.pos_vel_calcs()
+    
+# x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+# np.savez("Files/rk45_t6_C_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+#          , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+
+# main("num_r" , rk_path = "Files/rk45_t6_C_silicate_slowsw.npz" , material = "silicate")
+
+"""rk4(5) vs theoretical lifetimes, constant sputtering"""
+# main("lifetimes_cst_eps")
+
+"""rk4(5) vs theoretical lifetimes, varying sputtering"""
+# main("lifetimes_varying_eps")
+
+"""rk4(5) vs perturbed r, silicate"""
+par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "A")
+p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+vals = p.pos_vel_calcs()
+    
+x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    
+np.savez("Files/rk45_t6_A_silicate_slowsw.npz" , x = x[::10] , y = y[::10] 
+         , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+
+# res = np.load("Files/rk45_t6_A_silicate_slowsw.npz")
+# x , y , _ , _ , m , b , t  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
+
+func = rhs(t * par.epsilon , [1.0 , 1.0] , par.B , par.K)
+r0 , _ , _ , _ = pert_motion(rhs , t[::10] * par.epsilon , [1.0 , 1.0] , par.B , par.K)
+
+main(plot_type = "r_comp" , rk_path = "Files/rk45_t6_A_silicate_slowsw.npz" , pert = r0 , material = "silicate")
