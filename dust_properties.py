@@ -141,8 +141,10 @@ class dust_properties():
         return eps
     
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , 1 , "A")
-    
+    par = dust_properties("silicate" , "slow" , 1 , size = None , size_range = (sil_size , sil_betaval))
+    print(par.K[:100])
+    # par = dust_properties("carbon" , "slow" , 1 , size = "K")
+    # print(par.K)
     
     
     

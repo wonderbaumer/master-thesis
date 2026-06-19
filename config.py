@@ -88,14 +88,14 @@ def size_to_mass(r , material):
     return m
 
 """Considered initial particle sizes and beta values, silicate and carbon"""
-init_vals = {"D" : {
+init_vals = {"C" : {
             "r" : 1.54079 * 10**(-6) ,
             "B" : {"silicate" : 0.1235 , "carbon" : 0.2646} 
             } ,
 
-            "E" : {
-            "r" : 40.22706 * 10**(-6) ,
-            "B" : {"silicate" : 0.0040 , "carbon" : 0.0078}
+            "D" : {
+            "r" : 5.09598 * 10**(-6) ,
+            "B" : {"silicate" : 0.0343 , "carbon" : 0.0677}
             } ,
 
             # "F" : {
@@ -113,15 +113,65 @@ init_vals = {"D" : {
             # "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
             # } ,
 
-            "C" : {
-            "r" : 0.10165 * 10**(-6) ,
-            "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
-            }  
+            # "C" : {
+            # "r" : 0.10165 * 10**(-6) ,
+            # "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
+            # }  
 
-            # "B" : {
-            # "r" : 0.07745 * 10**(-6) ,
-            # "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
-            # }
+            "K" : {
+            "r" : 0.54840e-6,
+            "B" : {"silicate" : 0.4053 , "carbon" : 0.9640}
+            }
+            }
+
+K_checks = {"K1" : {
+            "r" : 0.54840e-6,
+            "B" : {"silicate" : 0.4053 , "carbon" : 0.9640}
+            },
+            "K2" : {
+            "r" : 0.24261e-6,
+            "B" : {"silicate" : 0.7969 , "carbon" : 0.24261} #K sil 0.015, K carb 0.38, sil turn
+            },
+            "K3" : {
+            "r" : 0.41786e-6,
+            "B" : {"silicate" : 0.41786 , "carbon" : 1.3549} #K sil 0.07, K carb NA, sil turn CME
+            },
+            "K4" : {
+            "r" : 7.1972e-07 ,
+            "B" : {"silicate" : 0.2968 , "carbon" : 0.6809} #K sil 0.16, K carb 0.4 both turn CME
+            }, 
+            "K5" : {
+            "r" : 1.54079 * 10**(-6) ,
+            "B" : {"silicate" : 0.1235 , "carbon" : 0.2646} #K sil 0.43, K carb 2.35 both turn CME
+            } ,
+            "K6" : {
+            "r" : 4.82630e-6,
+            "B" : {"silicate" : 0.0364 , "carbon" : 0.0719} #K sil 1.4 , K carb 9.3, sil turn CME
+            },
+            "K7" : {
+            "r" : 5.09598 * 10**(-6) ,
+            "B" : {"silicate" : 0.0343 , "carbon" : 0.0677} #K sil 1.57 , K carb 9.8, silicate turn CME
+            } ,
+            "K8" : {
+            "r" : 7.456209999999999e-06 ,
+            "B" : {"silicate" : 0.0230 , "carbon" : 0.0449} #K sil 2.32, K carb 14.8 silicate turn CME
+            } ,
+            "K9" : {
+            "r" : 8.77722e-06 ,
+            "B" : {"silicate" : 0.0193 , "carbon" : 0.0378} #K sil 2.75, K carb 17.5 silicate turn CME
+            },
+            "K10" : {
+            "r" : 29.02959e-6,
+            "B" : {"silicate" : 0.0056 , "carbon" : 0.0109} #K sil 9.22, K carb 59.6 silicate turn CME
+            },
+            "K11" : {
+            "r" : 30.65164e-6,
+            "B" : {"silicate" : 0.0053 , "carbon" : 0.0103} #K sil 9.7, K carb 63.0, none turn CME
+            },
+            "K12" : {
+            "r" : 38.09829e-6,
+            "B" : {"silicate" : 0.0042 , "carbon" : 0.0082} #K sil 12.1, K carb 78.4, none turn CME
+            }
             }
 
 """t hat combinations used, dt timestep for stable solver, t_tot total simulation time"""
@@ -144,6 +194,7 @@ t10 = (dt10 , t_tot10)
 dt9 = 3.16e-3
 t_tot9 = 100000
 t9 = (dt9 , t_tot9)
+
 
 """Calculating PR lifetime in years from formula in Burns et al., 1979"""
 def pr_lifetime(betaval , init_dist = 1.0):

@@ -69,3 +69,6 @@ Sputtering yields
 
 Elemental abundances in the solar wind 
 * Killen, R. M., Hurley, D. M., & Farrell, W. M. (2012). The effect on the lunar exosphere of a coronal mass ejection passage [Table] (Vol. 117). *Journal of Geophysical Research*. https://doi.org/10.1029/2011JE004011
+
+Arrow in epsilon and delta vs B plot
+* User Dietrich answer to question "Draw arrow outside plot in Matplotlib" (2014). https://stackoverflow.com/questions/23922804/draw-arrow-outside-plot-in-matplotlib

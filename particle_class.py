@@ -4,7 +4,7 @@ from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc , sputtering , inter_func
 from config import t6 , t7 , t8 , t9 , t10 , material_files , betahat0 , mhat0 , init_cart_scaled , yr
 from dust_properties import dust_properties
-
+import matplotlib.pyplot as plt
 
 class particle_solver():
     """Class solving scaled equations of motion for a particle using user-specified numerical solver
@@ -47,6 +47,7 @@ class particle_solver():
         self.delta = par.delta
         self.epsilon = par.epsilon
         self.K = par.K
+        self.m0 = par.m0
         self.mhat0 = mhat0
         self.betahat0 = betahat0
         self.init_cart_scaled = init_cart_scaled
@@ -104,14 +105,18 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "CME" , init_dist = 1 , size = "E")
+    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "K")
     p = particle_solver(t9 , par , "RK45" , massloss = True , drag = True)
     vals = p.pos_vel_calcs()
     
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
     
     # np.savez("Files/rk45_t8_A_silicate_fastsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
-    print(t * par.T / yr , np.sqrt(x**2+y**2) , m * par.m0)
+    # print(t * par.T / yr , np.sqrt(x**2 + y**2) , m * par.m0)
+    # print(par.epsilon)
+    plt.plot(t , np.sqrt(x**2+y**2))
+    # plt.plot(t , b)
+    plt.show()
     
 
     

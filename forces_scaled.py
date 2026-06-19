@@ -42,7 +42,7 @@ def sputtering(m , epsilon0 , x , y):
 
     r = np.sqrt(x**2 + y**2) #Radial distance
 
-    dmdt = - epsilon0 * m**(2 / 3) #* r**(-2) 
+    dmdt = - epsilon0 * m**(2 / 3) * r**(-2) 
 
     return dmdt
 

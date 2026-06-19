@@ -32,6 +32,32 @@ def rhs(t , y0 , B , K):
 
     return diff_eqs
 
+"""Stopping condition if size outside interpolation range"""
+def r_out_of_range_event(t , y , B , K):
+    beta0 , C0 = y
+
+    m0 = 1.0
+    lower_lim = 1e-23
+
+    mass_denom = 1 - B * beta0
+    
+    return mass_denom - 1e-2
+
+r_out_of_range_event.terminal = True
+r_out_of_range_event.direction = -1
+
+"""Stopping condition if distance <0.1"""
+def orbital_radius_event(t , y , B , K):
+    beta0 , C0 = y
+
+    r0 = C0**2 * (1 - B) / (1 - B * beta0)
+
+    return r0 - 1e-2
+
+orbital_radius_event.terminal = True
+orbital_radius_event.direction = -1
+
+
 """Numerically solving the differential equations"""
 def pert_motion(fun , t , y0 , B , K):
     """Inputs: fun (function), containing the differential equations to solve
@@ -43,53 +69,54 @@ def pert_motion(fun , t , y0 , B , K):
         Returns: r0, omega0, beta0, t (tuple), solved parameters"""
     
     sol = solve_ivp(fun , (t[0] , t[-1]) , y0 , t_eval = t , args = (B , K) ,  method = "RK45" 
-                    , rtol = 1e-9 , atol = 1e-12)
+                    , rtol = 1e-6 , atol = 1e-9 , events = [r_out_of_range_event , orbital_radius_event])
 
-    beta0 = sol.y[0]
-    C0 = sol.y[1]
+    return sol
+
+def arr_variables(sol , B):
+    beta0 , C0 = sol.y
 
     r0 = C0**2 * (1 - B) / (1 - B * beta0)
  
     omega0 = C0**(-3) * ((1 - B) / (1 - B * beta0))**(-2)
     mpert = beta0**(-3)
 
-    return r0 , omega0 , beta0 , sol.t , mpert
+    dbeta0_dt1 = beta0**2 / 3 * r0**(-2)
+
+    K_exp = dbeta0_dt1 * (1 - B) / (2 * beta0 * (1 - beta0 * B))
+
+    return r0 , omega0 , beta0 , sol.t , mpert , K_exp
 
 if __name__== "__main__":
-    material = "silicate"
-    par = dust_properties(material , "fast" , init_dist = 1.0 , size = "D")
-    res = np.load("Files/rk45_t8_A_silicate_fastsw.npz")
+    material = "carbon"
+    par = dust_properties(material , "CME" , init_dist = 1.0 , size = "C")
+    # res = np.load("Files/rk45_t8_A_silicate_fastsw.npz")
     # x , y , _ , _ , m , b , t  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-    dt , t_tot = t10
+    dt , t_tot = t9
     t = np.arange(0 , t_tot , dt)
     
     t1 = par.epsilon * t
-    func = rhs(par.epsilon * t , y0 , par.B , par.K)
-    r0 , omega0 , beta0 , tpert , mpert = pert_motion(rhs , par.epsilon * t , y0 , par.B , par.K)
-
-    # lower_m_mat = lower_m_sil if material == "silicate" else lower_m_car
-    # m_phys = mpert * par.m0
-    # idx = []
-    # for i in range(0 , len(r0)-1):
-    #     if r0[i] > 0.1:
-    #         idx.append(i)
-
-    # idx = idx[-1]
-    # tp1 = tpert[idx] 
-    # idxm = []
-    # for i in range(0 , len(m_phys) - 1):
-    #     if m_phys[i] > lower_m_mat:
-    #         idxm.append(i)
-
-    # idxm = idxm[-1] 
-
-    # tp2 = tpert[idxm]
-    # r = r0[idx]
+    # func = rhs(par.epsilon * t , y0 , par.B , par.K)
+    pert = pert_motion(rhs , par.epsilon * t , y0 , par.B , par.K)
     
-    # m_phys = m_phys[m_phys>lower_m_mat]
-    # print(tp1 / par.epsilon * par.T / yr , tp2 / par.epsilon * par.T / yr , r)
+    stopping_reason = None
+    stopping_events = ["particle outside interpolation range" , "particle impacted Sun"]
+    for i , te in enumerate(pert.t_events):
+                if len(te) > 0:
+                    stopping_reason = stopping_events[i]
+                    break
+
+    print(stopping_reason)
+
+    r0 , omega0 , beta0 , tpert , mpert , Kpert = arr_variables(pert , par.B)
     
-    #  , r , m_phys
+    m_phys = mpert * par.m0
+    # print(tpert[-1] / par.epsilon * par.T / yr , r0[-1] , m_phys[-1] , beta0[-1])
     
+    # plt.plot(tpert / par.epsilon , beta0)
+    # plt.ylim(0 , 2.0)
+    # plt.show()
+    
+    print(Kpert)
     
     

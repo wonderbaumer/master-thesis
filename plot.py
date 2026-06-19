@@ -9,10 +9,12 @@ from config import (car_betaval_bound , car_size_bound , init_vals , sil_beta , 
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 import os
-from lifetime_calcs import true_lifetime , true_lifetime_variableeps
+# from lifetime_calcs import true_lifetime , true_lifetime_variableeps
+from new_num_lifetimes import true_lifetime , true_lifetime_variableeps
 import matplotlib.patches as mpatches
 from eccentricity import ecc_calcs , ecc_scaled
-from lifetime_calcs_pert import true_lifetime_csteps
+from new_pert_lifetimes import pert_lifetime
+import matplotlib
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({"font.size" : 14 ,
@@ -39,7 +41,7 @@ def eps_init_betareal():
         "CME" :  {"linestyle" : "--" , "color" : "blue"}}}
     
     for mat , sw in combs.items():
-        plt.figure(figsize = (5 , 4))
+        fg , ax = plt.subplots(figsize = (5 , 4))
         for sw_cond , styles in sw.items():
             
             size_ranges = (sil_size , sil_betaval) if mat == "silicate" else (car_size_bound , car_betaval_bound)
@@ -48,8 +50,14 @@ def eps_init_betareal():
             epsilon = par.eps()
             delta = par.delta
             
-            plt.plot(init_beta , epsilon , color = styles["color"] , linestyle = styles["linestyle"])
-            plt.plot(init_beta , delta , color = "purple" , linestyle = styles["linestyle"])
+            ax.plot(init_beta , epsilon , color = styles["color"] , linestyle = "-")
+            ax.plot(init_beta , delta , color = "purple" , linestyle = "-")
+            
+            #Arrow code from Dietrich in Stackoverflow
+            ax.annotate('', xy=(1.03 , -0.03), xycoords='axes fraction', xytext=(1.03 , 1), 
+                    arrowprops=dict(arrowstyle="->", color='black'))
+            ax.text(1.05, 0.5,r"${a_0}$",transform=ax.transAxes,va='center')
+            fg.canvas.draw()
             
         purple_patch = mpatches.Patch(color = "purple" , label = r"${\delta}$")
         blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon_0}$ CME")
@@ -64,6 +72,7 @@ def eps_init_betareal():
         plt.ylabel("Value")
         plt.ylim(10**(-9) , 1)
         plt.legend(handles = handles)
+        fg.subplots_adjust(right=0.9)
         plt.savefig(f"Plots/{mat}_epsilonvsbeta.png", dpi = 300 , bbox_inches = 'tight')
         plt.show()
     
@@ -411,93 +420,32 @@ def beta_curves(interp = False , material = "silicate" , comp = False , pert = F
         refB_car = 0.0063
         plt.xscale("log")
         plt.yscale("log")
-        plt.title(r"Silicate, experimental and analytical $\hat{\beta}$")
-        plt.plot(sil_size / ref_size , sil_betaval / refB_sil , color = "blue" , linestyle = "-" , label = r"Experimental $\hat{\beta}$")
-        plt.plot(sil_size / ref_size , bpert_sil , color = "red" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
-        plt.xlabel(r"Particle size")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.legend()
-        plt.savefig(f"Plots/betahat_sil_exp_analytical.png" , dpi = 300 , bbox_inches = 'tight')
-        plt.figure()
-        plt.plot(car_size / ref_size  , car_betaval / refB_car , color = "blue" , linestyle = "-" , label = r"Experimental $\hat{\beta}$")
-        plt.xscale("log")
-        plt.yscale("log")
-        plt.title(r"Carbon, experimental and analytical $\hat{\beta}$")
-        plt.plot(sil_size / ref_size  , bpert_car , color = "red" , linestyle = "--" , label = r"Analytical $\beta$")
-        plt.xlabel(r"Particle size")
-        plt.ylabel(r"$\hat{\beta}$")
-        plt.legend()
-        plt.savefig(f"Plots/betahat_car_exp_analytical.png" , dpi = 300 , bbox_inches = 'tight')
+        plt.title(r"Silicate and carbon, experimental and analytical $\beta$")
+        plt.plot(sil_size , sil_betaval , color = "red" , linestyle = "-")
+        plt.plot(sil_size , bpert_sil * refB_sil , color = "red" , linestyle = "--")
         
-        # print(sil_betaval / refB_sil , bpert_sil)
+        plt.plot(car_size , car_betaval , color = "blue" , linestyle = "-")
+        plt.plot(car_size  , bpert_car * refB_car , color = "blue" , linestyle = "--")
+        plt.xlabel(r"Particle size")
+        plt.ylabel(r"$\beta$")
+        plt.plot(0 , 0 , c = "black" , linestyle = "--" , label = r"Analytical $\beta$")
+        plt.plot(0 , 0 , c = "black" , linestyle = "-" , label = r"Experimental $\beta$")
+        red_patch = mpatches.Patch(color = "red" , label = "Silicate")
+        blue_patch = mpatches.Patch(color = "blue" , label = "Carbon")
+
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([red_patch , blue_patch])
+
+        plt.legend(handles = handles , fontsize = 8)
+        plt.savefig(f"Plots/beta_car_exp_analytical.png" , dpi = 300 , bbox_inches = 'tight')
+        
+        
     plt.show()
 
 """plots theoretical PR and sputtering lifetimes, silicate and carbon, all solar wind conditions"""
-def PR_spu_lifetime():
+def PR_spu_lifetime(file = true_lifetime , lifetime_effects = "both"):
     """input: None
-    
-    returns: None"""
-
-    material = ["silicate" , "carbon"]
-    sw_conds = ["slow" , "fast" , "CME"]
-    tsp_vals = {m: {} for m in material}
-
-    ls = {"silicate" : "-" , 
-          "carbon" : "--"}
-    
-    cl = {"slow" : "green" ,
-          "fast" : "red" ,
-          "CME" : "blue"}
-    
-    for sw in sw_conds:
-        par_sil = dust_properties("silicate" , sw , size = None , size_range = (sil_size , sil_betaval))
-        t_sp_sil = par_sil.sputtering_lifetime()
-        tsp_vals["silicate"][sw] = t_sp_sil
-
-        par_carb = dust_properties("carbon" , sw , size = None , size_range = (car_size , car_betaval))
-        t_sp_car = par_carb.sputtering_lifetime()
-        tsp_vals["carbon"][sw] = t_sp_car
-
-    for mat in material: 
-        fig , ax = plt.subplots(figsize = (5 , 4))
-        size = sil_size if mat == "silicate" else car_size
-        pr = tau_sil if mat == "silicate" else tau_car
-
-        for sw, vals in tsp_vals[mat].items():
-            ax.plot(size , vals,
-                     color = cl[sw] , linestyle = ls[mat])
-            
-        ax.plot(0 , 0 , c = cl[sw])
-        ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
-
-        purple_patch = mpatches.Patch(color = "purple" , label = "PR")
-        blue_patch = mpatches.Patch(color = "blue" , label = "CME")
-        red_patch = mpatches.Patch(color = "red" , label = "Fast")
-        green_patch = mpatches.Patch(color = "green" , label = "Slow")
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        handles.extend([purple_patch , blue_patch , red_patch , green_patch])
-
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        ax.set_ylim(0.1 , 10**8)
-
-        ax.set_xlabel(r"Particle size (m)")
-        ax.set_ylabel(r"Lifetime (years)")
-
-        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes")
-        ax.legend(handles = handles)
-        fig.savefig(f"Plots/{mat}_PR_sputtering_lifetime_theoretical.png", dpi = 300 
-                    , bbox_inches = 'tight')
-
-    plt.show()
-
-"""Numerical PR and sputtering lifetimes, both materials, all sw conds, comparing with theoretical 
-values"""    
-def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both" , file_pert = true_lifetime_csteps):
-    """input: file (dictionary), default:true_lifetime_variableeps, other option true_lifetime
-                                 choose if wanting constant or varying epsilon
-              lifetime_effects (string), default: both, options pr, sputtering, which effects to consider
     
     returns: None"""
 
@@ -525,7 +473,7 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
         t_sp_car = par_carb.sputtering_lifetime()
         tsp_vals["carbon"][sw] = t_sp_car
 
-    for mat in material: 
+    for mat in material:  
         fig , ax = plt.subplots()
         size = sil_size if mat == "silicate" else car_size
         
@@ -537,16 +485,6 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
 
         for sw, vals in tsp_vals[mat].items():
             
-            for key , value in file_pert.items():
-
-                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
-                           , marker = 'o')
-                
-            ax.plot(0 , 0 , c = cl[sw])
-
-            ax.plot(size , vals,
-                     color = cl[sw] , linestyle = ls[mat])
-            
             for key , value in file.items():
 
                 ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
@@ -555,9 +493,9 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
             ax.plot(0 , 0 , c = cl[sw])
 
             ax.plot(size , vals,
-                     color = cl[sw] , linestyle = ls[mat])
+                     color = cl[sw] , linestyle = "-")
              
-        ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
+        ax.plot(size , pr , color = "purple" , linestyle = "-")
         
         ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] 
                    , label = f"{lifetime_effects.capitalize()} effects")
@@ -582,13 +520,104 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
                      , pad = 20)
         ax.legend(handles = handles , fontsize = 8)
 
-        if file == true_lifetime_variableeps:
-            fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_variable_eps.png" , dpi = 300 
+        fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_cst_eps.png" , dpi = 300 
                         , bbox_inches = 'tight')
+
+    plt.show()
+
+"""Numerical PR and sputtering lifetimes vs pert"""    
+def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both" , file_pert = pert_lifetime):
+    """input: file (dictionary), default:true_lifetime_variableeps, other option true_lifetime
+                                 choose if wanting constant or varying epsilon
+              lifetime_effects (string), default: both, options pr, sputtering, which effects to consider
+    
+    returns: None"""
+
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    tsp_vals = {m: {} for m in material}
+    
+    cl = {"slow" : "green" ,
+          "fast" : "red" ,
+          "CME" : "blue"}
+    
+    markers = {"pr" : "o" ,
+               "sputtering" : "^" ,
+               "both" : "x"}
+    pert_marker = matplotlib.markers.MarkerStyle('o' , fillstyle = 'none')
+    
+    for sw in sw_conds:
+        par_sil = dust_properties("silicate" , sw , size = None , size_range = (sil_size , sil_betaval))
+        t_sp_sil = par_sil.sputtering_lifetime()
+        tsp_vals["silicate"][sw] = t_sp_sil
+
+        par_carb = dust_properties("carbon" , sw , size = None , size_range = (car_size , car_betaval))
+        t_sp_car = par_carb.sputtering_lifetime()
+        tsp_vals["carbon"][sw] = t_sp_car
+
+    for mat in material: 
+        fig , ax = plt.subplots()
+        size = sil_size if mat == "silicate" else car_size
         
-        else:
-            fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_cst_eps.png" , dpi = 300 
+        pr = tau_sil if mat == "silicate" else tau_car
+
+        if mat == "carbon":
+                ax.axvspan(0.01516 * 10**(-6) , 0.54840 * 10**(-6) , color = "blue" , alpha = 0.1 
+                           , label = "B>1")
+
+        for sw, vals in tsp_vals[mat].items():
+            
+            for key , value in file_pert.items():
+
+                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
+                           , marker = pert_marker)
+                
+            ax.plot(0 , 0 , c = cl[sw])
+
+            ax.plot(size , vals,
+                     color = cl[sw] , linestyle = "-")
+            
+            
+            # for key , value in file.items():
+
+            #     ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
+            #                , marker = markers[lifetime_effects])
+
+            # ax.plot(0 , 0 , c = cl[sw])
+
+            # ax.plot(size , vals,
+            #          color = cl[sw] , linestyle = "-")
+             
+        ax.plot(size , pr , color = "purple" , linestyle = "-")
+        
+        ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] 
+                   , label = f"{lifetime_effects.capitalize()} effects")
+        
+
+        purple_patch = mpatches.Patch(color = "purple" , label = "PR")
+        blue_patch = mpatches.Patch(color = "blue" , label = "CME")
+        red_patch = mpatches.Patch(color = "red" , label = "Fast")
+        green_patch = mpatches.Patch(color = "green" , label = "Slow")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([purple_patch , blue_patch , red_patch , green_patch])
+
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_ylim(0.1 , 10**8)
+
+        ax.set_xlabel(r"Particle size (m)")
+        ax.set_ylabel(r"Lifetime (years)")
+
+       
+        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical and numerical" 
+                     , pad = 20)
+        
+        ax.legend(handles = handles , fontsize = 8)
+
+        fig.savefig(f"Plots/{mat}_{lifetime_effects}_lifetimes_variable_eps_onlypert.png" , dpi = 300 
                         , bbox_inches = 'tight')
+
 
     plt.show()
     
@@ -738,16 +767,20 @@ def mass_plot(file_path , file_path_comp , material):
 
 def eval_sizes():
     
-    plt.plot(sil_size , sil_betaval , linestyle = "-" , color = "red" , label = "Silicate")
-    plt.plot(car_size , car_betaval , linestyle = "--" , color = "blue" , label = "Carbon")
+    plt.plot(sil_size , sil_betaval , linestyle = "-" , color = "blue" , label = "Silicate")
+    plt.plot(car_size , car_betaval , linestyle = "--" , color = "red" , label = "Carbon")
 
     for label , i in init_vals.items():
         sizes = i["r"]
         sil_betas = i["B"]["silicate"]
         car_betas = i["B"]["carbon"]
 
-        plt.scatter(sizes , sil_betas , marker = "o" , color = "C4" , zorder = 4)
-        plt.scatter(sizes , car_betas , marker = "o" , color = "C2" , zorder = 4)
+        plt.scatter(sizes , sil_betas , marker = "o" , color = "C2" , zorder = 4)
+        plt.scatter(sizes , car_betas , marker = "o" , color = "C4" , zorder = 4)
+
+        # plt.annotate(label,(sizes, sil_betas),xytext=(3, 3),textcoords="offset points",fontsize=10)
+
+        plt.annotate(label,(sizes, car_betas),xytext=(3, 3),textcoords="offset points",fontsize=10)
 
     plt.yscale("log")
     plt.xscale("log")
