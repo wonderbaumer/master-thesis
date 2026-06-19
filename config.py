@@ -88,40 +88,41 @@ def size_to_mass(r , material):
     return m
 
 """Considered initial particle sizes and beta values, silicate and carbon"""
-init_vals = {"A" : {
+init_vals = {"D" : {
             "r" : 1.54079 * 10**(-6) ,
             "B" : {"silicate" : 0.1235 , "carbon" : 0.2646} 
             } ,
 
-            "C" : {
-            "r" : 0.17508 * 10**(-6) ,
-            "B" : {"silicate" : 0.8560 , "carbon" : 3.0589}
+            "E" : {
+            "r" : 40.22706 * 10**(-6) ,
+            "B" : {"silicate" : 0.0040 , "carbon" : 0.0078}
             } ,
 
-            "F" : {
-            "r" : 0.04259 * 10**(-6) ,
-            "B" : {"silicate" : 0.2098 , "carbon" : 1.6179}     
-            } ,
+            # "F" : {
+            # "r" : 0.04259 * 10**(-6) ,
+            # "B" : {"silicate" : 0.2098 , "carbon" : 1.6179}     
+            # } ,
 
-            "G" : {
+            "A" : {
             "r" : 0.01220 * 10**(-6) ,
             "B" : {"silicate" : 0.0832 , "carbon" : 0.9758}
             } ,
 
-            "H" : {
-            "r" : 0.00708 * 10**(-6) ,
-            "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
-            } ,
+            # "H" : {
+            # "r" : 0.00708 * 10**(-6) ,
+            # "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
+            # } ,
 
-            "D" : {
+            "C" : {
             "r" : 0.10165 * 10**(-6) ,
             "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
-            } , 
+            }  
 
-            "E" : {
-            "r" : 0.07745 * 10**(-6) ,
-            "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
-            }}
+            # "B" : {
+            # "r" : 0.07745 * 10**(-6) ,
+            # "B" : {"silicate" : 0.5123 , "carbon" : 2.8217}
+            # }
+            }
 
 """t hat combinations used, dt timestep for stable solver, t_tot total simulation time"""
 dt6 = 3.16e-3 
@@ -160,8 +161,11 @@ def pr_lifetime(betaval , init_dist = 1.0):
 tau_sil = pr_lifetime(sil_betaval) #PR lifetime of all silicate particles
 tau_car = pr_lifetime(car_betaval) #PR lifetime of all carbon particles
 
+lower_m_sil = size_to_mass(0.00100 * 10**(-6) , "silicate")
+lower_m_car = size_to_mass(0.00100 * 10**(-6) , "carbon")
+
 if __name__ == "__main__":
-    print(len(sil_size) , len(car_size_bound))
+    print(lower_m_sil)
     
     
 

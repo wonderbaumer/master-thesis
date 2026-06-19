@@ -2,7 +2,7 @@ import numpy as np
 from leapfrog import leapfrog_algorithm
 from scipy_solver import particle_motion , pos_vel , arr_variables
 from forces_scaled import tot_acc , sputtering , inter_func
-from config import t6 , t7 , t8 , t9 , t10 , material_files , betahat0 , mhat0 , init_cart_scaled
+from config import t6 , t7 , t8 , t9 , t10 , material_files , betahat0 , mhat0 , init_cart_scaled , yr
 from dust_properties import dust_properties
 
 
@@ -104,14 +104,14 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "slow" , init_dist = 1 , size = "E")
-    p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True)
+    par = dust_properties("silicate" , "CME" , init_dist = 1 , size = "E")
+    p = particle_solver(t9 , par , "RK45" , massloss = True , drag = True)
     vals = p.pos_vel_calcs()
     
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
     
-    # np.savez("Files/rk45_t6_E_silicate_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
-    
+    # np.savez("Files/rk45_t8_A_silicate_fastsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+    print(t * par.T / yr , np.sqrt(x**2+y**2) , m * par.m0)
     
 
     

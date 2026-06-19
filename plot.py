@@ -5,13 +5,14 @@ from pert_variable_eps import rhs , pert_motion
 from energy import tot_energy
 from config import (car_betaval_bound , car_size_bound , init_vals , sil_beta , car_beta , t6 , t7 ,
                     t8 , t9 , t10 , sil_size , sil_betaval , car_size , car_betaval , sil_PR , car_PR 
-                    , tau_car , tau_sil)
+                    , tau_car , tau_sil , size_to_mass)
 from forces_scaled import betahat
 from scipy.interpolate import PchipInterpolator as pchip
 import os
 from lifetime_calcs import true_lifetime , true_lifetime_variableeps
 import matplotlib.patches as mpatches
 from eccentricity import ecc_calcs , ecc_scaled
+from lifetime_calcs_pert import true_lifetime_csteps
 
 """plotting params to adjust font sizes"""
 plt.rcParams.update({"font.size" : 14 ,
@@ -365,7 +366,7 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
         err_tot = np.abs(tot1 - tot2) / np.abs(tot1)
         
 """plots general beta curves for silicate and carbon"""
-def beta_curves(interp = False , material = "silicate" , comp = False):
+def beta_curves(interp = False , material = "silicate" , comp = False , pert = False):
     """input: interp (bool), default:False, choose if wanting to compare an interpolated function
                             with the experimental curve
               material (string), silicate or carbon material to consider
@@ -402,6 +403,33 @@ def beta_curves(interp = False , material = "silicate" , comp = False):
         plt.legend()
         plt.savefig(f"Plots/beta_interpolation_curve_silicate_carbon.png" , dpi = 300 , bbox_inches = 'tight')
 
+    if pert == True:
+        ref_size = 50 * 10**(-6)
+        bpert_sil = (sil_size / ref_size)**(-1)
+        bpert_car = (car_size / ref_size)**(-1)
+        refB_sil = 0.0032
+        refB_car = 0.0063
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.title(r"Silicate, experimental and analytical $\hat{\beta}$")
+        plt.plot(sil_size / ref_size , sil_betaval / refB_sil , color = "blue" , linestyle = "-" , label = r"Experimental $\hat{\beta}$")
+        plt.plot(sil_size / ref_size , bpert_sil , color = "red" , linestyle = "--" , label = r"Analytical $\hat{\beta}$")
+        plt.xlabel(r"Particle size")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.legend()
+        plt.savefig(f"Plots/betahat_sil_exp_analytical.png" , dpi = 300 , bbox_inches = 'tight')
+        plt.figure()
+        plt.plot(car_size / ref_size  , car_betaval / refB_car , color = "blue" , linestyle = "-" , label = r"Experimental $\hat{\beta}$")
+        plt.xscale("log")
+        plt.yscale("log")
+        plt.title(r"Carbon, experimental and analytical $\hat{\beta}$")
+        plt.plot(sil_size / ref_size  , bpert_car , color = "red" , linestyle = "--" , label = r"Analytical $\beta$")
+        plt.xlabel(r"Particle size")
+        plt.ylabel(r"$\hat{\beta}$")
+        plt.legend()
+        plt.savefig(f"Plots/betahat_car_exp_analytical.png" , dpi = 300 , bbox_inches = 'tight')
+        
+        # print(sil_betaval / refB_sil , bpert_sil)
     plt.show()
 
 """plots theoretical PR and sputtering lifetimes, silicate and carbon, all solar wind conditions"""
@@ -466,7 +494,7 @@ def PR_spu_lifetime():
 
 """Numerical PR and sputtering lifetimes, both materials, all sw conds, comparing with theoretical 
 values"""    
-def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both"):
+def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both" , file_pert = true_lifetime_csteps):
     """input: file (dictionary), default:true_lifetime_variableeps, other option true_lifetime
                                  choose if wanting constant or varying epsilon
               lifetime_effects (string), default: both, options pr, sputtering, which effects to consider
@@ -509,6 +537,16 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
 
         for sw, vals in tsp_vals[mat].items():
             
+            for key , value in file_pert.items():
+
+                ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
+                           , marker = 'o')
+                
+            ax.plot(0 , 0 , c = cl[sw])
+
+            ax.plot(size , vals,
+                     color = cl[sw] , linestyle = ls[mat])
+            
             for key , value in file.items():
 
                 ax.scatter(value["size"] , value[mat][lifetime_effects][sw] , c = cl[sw] 
@@ -518,7 +556,7 @@ def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects
 
             ax.plot(size , vals,
                      color = cl[sw] , linestyle = ls[mat])
-            
+             
         ax.plot(size , pr , color = "purple" , linestyle = ls[mat])
         
         ax.scatter(0 , 0 , c = "black" , marker = markers[lifetime_effects] 
@@ -723,13 +761,7 @@ def eval_sizes():
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , 1.0 , "A")
-    file_path = "Files/rk45_t6_A_silicate_slowsw.npz"
-    res = np.load(file_path)
-    x , y , _ , _ , m , b , t  = [res[k] for k in ("x" , "y" , "vx" , "vy" , "m" , "b", "t")]
-    func = rhs(t * par.epsilon , [1.0 , 1.0] , par.B , par.K)
-    r0 , omega0 , beta0 , tpert = pert_motion(rhs , t * par.epsilon , [1.0 , 1.0] , par.B , par.K)
-
-    rhat_comps(file_path , r0 , "silicate")
+    beta_curves(pert = True)
     
     
 

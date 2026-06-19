@@ -43,8 +43,9 @@ def r_out_of_range_event(t , init , pbar , state , particle_obj , massloss , dra
 
     size = m**(1 / 3)
     r_physical = size * particle_obj.r 
+    lower_lim = 0.00100 * 10**(-6)
     
-    return r_physical - 1e-5
+    return r_physical - lower_lim
 
 r_out_of_range_event.terminal = True
 r_out_of_range_event.direction = -1
@@ -55,7 +56,7 @@ def orbital_radius_event(t , init , pbar , state , particle_obj , massloss , dra
 
     r_orbit = np.sqrt(x**2 + y**2)
 
-    return r_orbit - 1e-3
+    return r_orbit - 1e-2
 
 orbital_radius_event.terminal = True
 orbital_radius_event.direction = -1

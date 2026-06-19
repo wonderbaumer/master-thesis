@@ -42,7 +42,7 @@ def sputtering(m , epsilon0 , x , y):
 
     r = np.sqrt(x**2 + y**2) #Radial distance
 
-    dmdt = - epsilon0 * m**(2 / 3) * r**(-2) 
+    dmdt = - epsilon0 * m**(2 / 3) #* r**(-2) 
 
     return dmdt
 
@@ -131,6 +131,9 @@ def tot_acc(x , y , vx , vy , m , particle_obj , drag = True):
     ay = py + gy + pry  #total acceleration in y dir 
     
     return ax , ay
+
+if __name__ == "__main__":
+     print(4.44396332973424e+03 * 0.16633430454094575)
 
     
 
