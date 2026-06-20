@@ -105,7 +105,7 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "K")
+    par = dust_properties("silicate" , "CME" , init_dist = 10 , size = "C")
     p = particle_solver(t9 , par , "RK45" , massloss = True , drag = True)
     vals = p.pos_vel_calcs()
     

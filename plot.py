@@ -45,7 +45,7 @@ def eps_init_betareal():
         for sw_cond , styles in sw.items():
             
             size_ranges = (sil_size , sil_betaval) if mat == "silicate" else (car_size_bound , car_betaval_bound)
-            par = dust_properties(mat , sw_cond , size = None , size_range = size_ranges)
+            par = dust_properties(mat , sw_cond , init_dist = 0.5 , size = None , size_range = size_ranges)
             init_beta = par.B
             epsilon = par.eps()
             delta = par.delta
@@ -60,20 +60,20 @@ def eps_init_betareal():
             fg.canvas.draw()
             
         purple_patch = mpatches.Patch(color = "purple" , label = r"${\delta}$")
-        blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon_0}$ CME")
-        red_patch = mpatches.Patch(color = "red" , label = r"${\epsilon_0}$ Fast")
-        green_patch = mpatches.Patch(color = "green" , label = r"${\epsilon_0}$ Slow")
+        blue_patch = mpatches.Patch(color = "blue" , label = r"${\epsilon}$ CME")
+        red_patch = mpatches.Patch(color = "red" , label = r"${\epsilon}$ Fast")
+        green_patch = mpatches.Patch(color = "green" , label = r"${\epsilon}$ Slow")
 
         handles, labels = plt.gca().get_legend_handles_labels()
         handles.extend([purple_patch , blue_patch , red_patch , green_patch])    
         plt.loglog()        
-        plt.title(fr"{mat.capitalize()}, ${{\epsilon_0}}$ and ${{\delta}}$ vs B")
+        plt.title(fr"{mat.capitalize()}, ${{\epsilon}}$ and ${{\delta}}$ vs B")
         plt.xlabel("B")
         plt.ylabel("Value")
         plt.ylim(10**(-9) , 1)
         plt.legend(handles = handles)
         fg.subplots_adjust(right=0.9)
-        plt.savefig(f"Plots/{mat}_epsilonvsbeta.png", dpi = 300 , bbox_inches = 'tight')
+        plt.savefig(f"Plots/{mat}_epsilonvsbeta0.5AU.png", dpi = 300 , bbox_inches = 'tight')
         plt.show()
     
 """thetahat RK4(5) only or RK4(5) vs perturbed"""
@@ -426,7 +426,7 @@ def beta_curves(interp = False , material = "silicate" , comp = False , pert = F
         
         plt.plot(car_size , car_betaval , color = "blue" , linestyle = "-")
         plt.plot(car_size  , bpert_car * refB_car , color = "blue" , linestyle = "--")
-        plt.xlabel(r"Particle size")
+        plt.xlabel(r"Particle size (m)")
         plt.ylabel(r"$\beta$")
         plt.plot(0 , 0 , c = "black" , linestyle = "--" , label = r"Analytical $\beta$")
         plt.plot(0 , 0 , c = "black" , linestyle = "-" , label = r"Experimental $\beta$")
@@ -444,7 +444,69 @@ def beta_curves(interp = False , material = "silicate" , comp = False , pert = F
     plt.show()
 
 """plots theoretical PR and sputtering lifetimes, silicate and carbon, all solar wind conditions"""
-def PR_spu_lifetime(file = true_lifetime , lifetime_effects = "both"):
+def PR_spu_lifetime_theo():
+    """input: None
+    
+    returns: None"""
+
+    material = ["silicate" , "carbon"]
+    sw_conds = ["slow" , "fast" , "CME"]
+    tsp_vals = {m: {} for m in material}
+    
+    cl = {"slow" : "green" ,
+          "fast" : "red" ,
+          "CME" : "blue"}
+    
+    for sw in sw_conds:
+        par_sil = dust_properties("silicate" , sw , size = None , size_range = (sil_size , sil_betaval))
+        t_sp_sil = par_sil.sputtering_lifetime()
+        tsp_vals["silicate"][sw] = t_sp_sil
+
+        par_carb = dust_properties("carbon" , sw , size = None , size_range = (car_size , car_betaval))
+        t_sp_car = par_carb.sputtering_lifetime()
+        tsp_vals["carbon"][sw] = t_sp_car
+
+    for mat in material:  
+        fig , ax = plt.subplots()
+        size = sil_size if mat == "silicate" else car_size
+        pr = tau_sil if mat == "silicate" else tau_car
+
+        for sw, vals in tsp_vals[mat].items():
+
+            ax.plot(0 , 0 , c = cl[sw])
+
+            ax.plot(size , vals,
+                     color = cl[sw] , linestyle = "-")
+             
+        ax.plot(size , pr , color = "purple" , linestyle = "-")
+
+        purple_patch = mpatches.Patch(color = "purple" , label = "PR")
+        blue_patch = mpatches.Patch(color = "blue" , label = "CME")
+        red_patch = mpatches.Patch(color = "red" , label = "Fast")
+        green_patch = mpatches.Patch(color = "green" , label = "Slow")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        handles.extend([purple_patch , blue_patch , red_patch , green_patch])
+
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_ylim(0.1 , 10**8)
+
+        ax.set_xlabel(r"Particle size (m)")
+        ax.set_ylabel(r"Lifetime (years)")
+
+       
+        ax.set_title(f"{mat.capitalize()} PR and sputtering lifetimes theoretical and numerical" 
+                     , pad = 20)
+        ax.legend(handles = handles , fontsize = 8)
+
+        fig.savefig(f"Plots/{mat}__lifetimes_theoretical.png" , dpi = 300 
+                        , bbox_inches = 'tight')
+
+    plt.show()
+
+"""plots theoretical PR and sputtering lifetimes, silicate and carbon, all solar wind conditions"""
+def PR_spu_lifetime_num(file = true_lifetime , lifetime_effects = "both"):
     """input: None
     
     returns: None"""
@@ -526,7 +588,7 @@ def PR_spu_lifetime(file = true_lifetime , lifetime_effects = "both"):
     plt.show()
 
 """Numerical PR and sputtering lifetimes vs pert"""    
-def PR_spu_lifetime_separate(file = true_lifetime_variableeps , lifetime_effects = "both" , file_pert = pert_lifetime):
+def PR_spu_lifetime_pert(file = true_lifetime_variableeps , lifetime_effects = "both" , file_pert = pert_lifetime):
     """input: file (dictionary), default:true_lifetime_variableeps, other option true_lifetime
                                  choose if wanting constant or varying epsilon
               lifetime_effects (string), default: both, options pr, sputtering, which effects to consider
@@ -794,8 +856,7 @@ def eval_sizes():
 
 if __name__ == "__main__":
     par = dust_properties("silicate" , "slow" , 1.0 , "A")
-    beta_curves(pert = True)
-    
+    eps_init_betareal()
     
 
     
