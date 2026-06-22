@@ -13,9 +13,9 @@ pert_lifetime = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 3226.745128539582 , #impact Sun
-                         "slow": 3244.6933184534164 , #impact Sun
-                         "fast": 3244.680954479293 , #impact Sun
+                         "CME": 0.0 , #NA
+                         "slow": 3145.917821186803 , #impact Sun
+                         "fast": 3176.327611941479 , #impact Sun
                      }
                  } ,
                  "carbon": {
@@ -30,9 +30,9 @@ pert_lifetime = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 1514.511812171934 , #impact Sun
-                         "slow": 1514.4249549140773 , #impact Sun
-                         "fast": 1514.4249549140773 , #impact Sun
+                         "CME": 1480.7428213965097 , #impact Sun
+                         "slow": 1498.7100260332093 , #impact Sun
+                         "fast": 1499.145602564653 , #impact Sun
                      }
                  }} , 
                  
@@ -50,9 +50,9 @@ pert_lifetime = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 11683.652027583568 , #impact Sun
-                         "slow": 11682.719428376786 , #impact Sun
-                         "fast": 11682.706624982955 , #impact Sun
+                         "CME": 0.0 , #NA
+                         "slow": 11223.097371551781 , #impact Sun
+                         "fast": 11380.308343881634 , #impact Sun
                      }
                  } ,
                  "carbon": {
@@ -67,9 +67,9 @@ pert_lifetime = {"C": {
                          "fast": 0.0 
                      } ,
                      "both": {
-                         "CME": 5919.0915016114695 , #impact Sun
-                         "slow": 5919.0023714937915 , #impact Sun
-                         "fast": 5919.001850265034 , #impact Sun
+                         "CME": 0.0 , #NA
+                         "slow": 5848.868779865848 , #impact Sun
+                         "fast": 5855.879609717284 , #impact Sun
                      }
                  }} , 
 
@@ -87,9 +87,9 @@ pert_lifetime = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 202.310278880682 , #destroyed, singularity
-                         "slow": 4053.3208468522434 , #destroyed, singularities
-                         "fast": 4662.528128132865 , #destroyed, singularity
+                         "CME": 0.0 , #NA
+                         "slow": 0.0 , #NA
+                         "fast": 0.0 , #NA
                      }
                  } ,
                  "carbon": {
@@ -104,8 +104,8 @@ pert_lifetime = {"C": {
                          "fast": 0.0 
                      } ,
                      "both": {
-                         "CME": 3.008717951132692 , #destroyed
-                         "slow": 121.56838112872384 , #destroyed
-                         "fast": 243.2952861064858 , #destroyed
+                         "CME": 0.0 , #NA
+                         "slow": 0.0 , #NA
+                         "fast": 0.0 , #NA
                      }
                  }}}

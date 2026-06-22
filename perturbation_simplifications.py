@@ -1,4 +1,5 @@
 import sympy as sp
+from sympy import integrate
 
 """File only used for algebraically differentiating and integrating expressions"""
 
@@ -29,7 +30,7 @@ dt1_r1exp = sp.diff(r1_expr , t1)
 
 c0 = integrate(m0**(-1 / 3) , t1)
 
-
+print(dt1_r0)
 
 
 

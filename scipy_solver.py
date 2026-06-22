@@ -55,7 +55,7 @@ def orbital_radius_event(t , init , pbar , state , particle_obj , massloss , dra
 
     r_orbit = np.sqrt(x**2 + y**2)
 
-    return r_orbit - 1e-2
+    return r_orbit - 1e-1
 
 orbital_radius_event.terminal = True
 orbital_radius_event.direction = -1
@@ -74,8 +74,8 @@ def particle_motion(fun , t_span , y0 , method , state , particle_obj , massloss
     
     with tqdm(total = 1000) as pbar:
         sol = solve_ivp(fun , t_span , y0 , method = method ,
-                      args = (pbar , state , particle_obj , massloss , drag) , rtol = 1e-6 
-                      , atol = 1e-9 , events = [r_out_of_range_event , orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
+                      args = (pbar , state , particle_obj , massloss , drag) , rtol = 1e-9 
+                      , atol = 1e-12 , events = [r_out_of_range_event , orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
 
     return sol
 

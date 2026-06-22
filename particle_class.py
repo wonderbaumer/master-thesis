@@ -105,19 +105,19 @@ class particle_solver():
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("silicate" , "CME" , init_dist = 10 , size = "C")
-    p = particle_solver(t9 , par , "RK45" , massloss = True , drag = True)
+    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "C")
+    p = particle_solver(t8 , par , "RK45" , massloss = True , drag = True)
     vals = p.pos_vel_calcs()
     
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
     
-    # np.savez("Files/rk45_t8_A_silicate_fastsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+    np.savez("Files/rk45_t8_C_carbon_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     # print(t * par.T / yr , np.sqrt(x**2 + y**2) , m * par.m0)
     # print(par.epsilon)
-    plt.plot(t , np.sqrt(x**2+y**2))
+    # plt.plot(t , np.sqrt(x**2+y**2))
     # plt.plot(t , b)
-    plt.show()
+    # plt.show()
     
-
+    # print(1.10095397e+04 * yr / par.T)
     
     

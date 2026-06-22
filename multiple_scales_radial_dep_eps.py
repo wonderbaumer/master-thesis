@@ -102,7 +102,7 @@ req_rhs = sp.series(rad_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilo
 rad_eq = (req_lhs - req_rhs).expand()
 rad_eq_zeroth_order = rad_eq.coeff(epsilon_0 , 0) #zeroth order in epsilon
 rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #first order in epsilon
-
+print(rad_eq_1)
 """Angular equation"""
 ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , 
                -K * epsilon_0 * B * beta * omega_exp) 

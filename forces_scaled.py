@@ -54,7 +54,7 @@ def betahat(m , particle_obj):
        returns: betahat(float), betahat """
     
     size = m**(1 / 3) #Scaled conversion mass-> size assuming ideal conditions
-
+    # b = m**(- 1 / 3) #analytical beta
     
     r_physical = size * particle_obj.r #Converting to physical mass
     b = particle_obj.beta_func(r_physical) / particle_obj.B #Scaled beta

@@ -142,9 +142,11 @@ class dust_properties():
     
 if __name__ == "__main__":
     # par = dust_properties("silicate" , "slow" , 1 , size = None , size_range = (sil_size , sil_betaval))
-    # print(par.K[:100])
-    par = dust_properties("silicate" , "CME" , 10 , size = "C")
-    print(par.delta , par.epsilon)
+    # lower_int = 1 / par.B - np.sqrt((1 - par.B) / par.B**4)
+    # upper_int = 1 / par.B + np.sqrt((1 - par.B) / par.B**4)
+    # print(lower_int , upper_int)
+    par = dust_properties("silicate" , "CME" , 1 , size = "K4")
+    print(par.K)
     
     
     

@@ -118,11 +118,10 @@ init_vals = {"C" : {
             # "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
             # }  
 
-            "K" : {
-            "r" : 0.54840e-6,
-            "B" : {"silicate" : 0.4053 , "carbon" : 0.9640}
-            }
-            }
+            "K4" : {
+            "r" : 7.1972e-07 ,
+            "B" : {"silicate" : 0.2968 , "carbon" : 0.6809}
+            }}
 
 K_checks = {"K1" : {
             "r" : 0.54840e-6,
@@ -187,13 +186,13 @@ dt8 = 3.16e-3
 t_tot8 = 30000
 t8 = (dt8 , t_tot8) 
 
-dt10 = 3.16e-3
-t_tot10 = 50000
-t10 = (dt10 , t_tot10)
-
 dt9 = 3.16e-3
-t_tot9 = 100000
+t_tot9 = 50000
 t9 = (dt9 , t_tot9)
+
+dt10 = 3.16e-3
+t_tot10 = 100000
+t10 = (dt10 , t_tot10)
 
 
 """Calculating PR lifetime in years from formula in Burns et al., 1979"""
