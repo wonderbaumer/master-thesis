@@ -48,6 +48,10 @@ dt1_theta0 = sp.Symbol("dt1_theta0")
 dt0_theta1 = sp.Symbol("dt0_theta1")
 dt1_theta1 = sp.Symbol("dt1_theta1")
 
+dt0_beta0 = sp.Symbol("dt0_beta0")
+dt0_beta1 = sp.Symbol("dt0_beta1")
+dt1_beta0 = sp.Symbol("dt1_beta0")
+
 dt0t0_theta0 = sp.Symbol("dt0t0_theta0")
 dt0t1_theta0 = sp.Symbol("dt0t1_theta0")
 dt0t0_theta1 = sp.Symbol("dt0t0_theta1")
@@ -70,6 +74,8 @@ r_exp = r_0 + epsilon_0 * r_1 #r perturbed expression
 
 vr_exp = dt0_r0 + epsilon_0 * dt0_r1 + epsilon_0 * dt1_r0 #vr perturbed expression
 
+beta_exp = beta_0 + epsilon_0 * beta_1 
+
 vrdot_exp = (dt0t0_r0 + epsilon_0 * dt0t0_r1 + epsilon_0 * dt1t0_r0 
              + epsilon_0 * dt0t1_r0) #vrdot perturbed expression
 
@@ -80,19 +86,19 @@ omega_exp = dt0_theta0 + epsilon_0 * dt1_theta0 + epsilon_0 * dt0_theta1  #omega
 omegadot_exp = (dt0t0_theta0 + epsilon_0 * dt0t0_theta1 + epsilon_0 * dt1t0_theta0 
                 + epsilon_0 * dt0t1_theta0) #omegadot perturbed expression
 
-beta = beta_0 + epsilon_0 * beta_1 
+betadot_exp = dt0_beta0 + epsilon_0 * dt0_beta1 + epsilon_0 * dt1_beta0
 
 #Use the following only after zeroth order
-r_exp = r_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
-vr_exp = vr_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
-vrdot_exp = vrdot_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
-theta_exp = theta_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
-omega_exp = omega_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
-omegadot_exp = omegadot_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# r_exp = r_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# vr_exp = vr_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# vrdot_exp = vrdot_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# theta_exp = theta_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# omega_exp = omega_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
+# omegadot_exp = omegadot_exp.subs({"dt0_r0" : 0 , "dt0t0_r0" : 0 , "dt0t0_theta0" : 0 , "dt0t1_r0" : 0 , "dt1t0_r0" : 0})
 
 """Radial equation"""
 rad_eq = sp.Eq((1 - B) * r_exp**2 * (vrdot_exp - r_exp * omega_exp**2) , 
-               -(1 - beta * B) - 2 * K * epsilon_0 * beta * B * vr_exp) 
+               -(1 - beta_exp * B) - 2 * K * epsilon_0 * beta_exp * B * vr_exp) 
 
 """Keeping terms only up to epsilon^1 order"""
 req_lhs = sp.series(rad_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
@@ -102,10 +108,25 @@ req_rhs = sp.series(rad_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilo
 rad_eq = (req_lhs - req_rhs).expand()
 rad_eq_zeroth_order = rad_eq.coeff(epsilon_0 , 0) #zeroth order in epsilon
 rad_eq_1 = rad_eq.coeff(epsilon_0 , 1) #first order in epsilon
-print(rad_eq_1)
+
+"""beta equation"""
+bet_eq = sp.Eq(betadot_exp * r_exp**2 , 
+               epsilon_0 / 3 * beta_exp**2) 
+
+"""Keeping terms only up to epsilon^1 order"""
+beteq_lhs = sp.series(bet_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
+beteq_rhs = sp.series(bet_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) rhs
+
+"""Separating solutions by order in epsilon"""
+beteq = (beteq_lhs - beteq_rhs).expand()
+beteq_zeroth_order = beteq.coeff(epsilon_0 , 0) #zeroth order in epsilon
+beteq_1 = beteq.coeff(epsilon_0 , 1) #first order in epsilon
+
+print(beteq_1)
+
 """Angular equation"""
 ang_eq = sp.Eq(r_exp * (1 - B) * (r_exp * omegadot_exp + 2 * vr_exp * omega_exp) , 
-               -K * epsilon_0 * B * beta * omega_exp) 
+               -K * epsilon_0 * B * beta_exp * omega_exp) 
 
 """Keeping terms only up to epsilon^1 order"""
 angeq_lhs = sp.series(ang_eq.lhs , epsilon_0 , 0 , 2).removeO() #removing O(epsilon^2) lhs
@@ -115,6 +136,7 @@ angeq_rhs = sp.series(ang_eq.rhs , epsilon_0 , 0 , 2).removeO() #removing O(epsi
 angeq = (angeq_lhs - angeq_rhs).expand()
 angeq_zeroth_order = angeq.coeff(epsilon_0 , 0) #zeroth order in epsilon
 angeq_1 = angeq.coeff(epsilon_0 , 1) #first order in epsilon
+
 
 """Fetching terms that become secular. Defining variables in two dimensions as functions of t0
 as that is of most importance. Solving only dt0_vr1 and dt0_omega1 for cleaner expressions.

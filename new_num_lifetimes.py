@@ -250,42 +250,6 @@ true_lifetime_variableeps = {"C": {
                      }
                  }} , 
 
-                #  "C": {
-                #      "size": 0.10165 * 10**(-6) ,
-                #  "silicate": {
-                #      "pr": {
-                #          "CME": 0.0 ,
-                #          "slow": 0.0 ,
-                #          "fast": 0.0 ,
-                #      } ,
-                #      "sputtering": {
-                #          "CME": 0.0 ,
-                #          "slow": 0.0 ,
-                #          "fast": 0.0 ,
-                #      } ,
-                #      "both": {
-                #          "CME": 4.49887270e+01 , #destroyed
-                #          "slow": 4.77535600e+02 , #destroyed
-                #          "fast": 5.21872800e+02 , #impact Sun
-                #      }
-                #  } ,
-                #  "carbon": {
-                #      "pr": {
-                #          "CME": 0.0 , 
-                #          "slow": 0.0 , 
-                #          "fast": 0.0 
-                #      } ,
-                #      "sputtering": {
-                #          "CME": 0.0 , 
-                #          "slow": 0.0 ,
-                #          "fast": 0.0 
-                #      } ,
-                #      "both": {
-                #          "CME": 0.0 , 
-                #          "slow": 0.0 , 
-                #          "fast": 0.0 
-                #      }
-                #  }} ,
                  "A": {
                      "size": 0.01220 * 10**(-6) ,
                  "silicate": {

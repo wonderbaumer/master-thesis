@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 from config import t6 , t7 , t8 , t9 , t10
 from forces_scaled import tot_acc, sputtering, betahat 
-
+import time
 #Source for pbar is Lima, 2020
 
 """ode function that is put into particle motion ivp solver, on form
@@ -73,9 +73,13 @@ def particle_motion(fun , t_span , y0 , method , state , particle_obj , massloss
        returns: sol (array_like), x, y, vx and vy, m at time t"""
     
     with tqdm(total = 1000) as pbar:
+        start = time.perf_counter()
         sol = solve_ivp(fun , t_span , y0 , method = method ,
                       args = (pbar , state , particle_obj , massloss , drag) , rtol = 1e-9 
                       , atol = 1e-12 , events = [r_out_of_range_event , orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
+        end = time.perf_counter()
+
+    print(f"Solver runtime: {end - start:.6f} seconds")
 
     return sol
 
