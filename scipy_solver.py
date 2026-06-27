@@ -84,7 +84,7 @@ def particle_motion(fun , t_span , y0 , method , state , particle_obj , massloss
     return sol
 
 """function that creates array of variables from solution object"""
-def arr_variables(sol , particle_obj , massloss = True):
+def arr_variables(sol , particle_obj , massloss = True , analytical = False):
     """input: sol (array_like), solution object from solve_ivp
               particle_obj (instance), containing particle information
               
@@ -92,7 +92,7 @@ def arr_variables(sol , particle_obj , massloss = True):
        returns: new_arr (array), array containing x , y , vx , vy , m , beta values"""
     
     x , y , vx , vy , m = sol.y #unpacking solution object
-    b = betahat(m , particle_obj)
+    b = betahat(m , particle_obj , analytical)
 
     new_arr = np.column_stack((x , y , vx , vy , m , b , sol.t)) #creating new array with all variables
 

@@ -190,7 +190,7 @@ true_lifetime_variableeps = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 3.26075235e+03 , #destroyed
+                         "CME": 0.0 ,#3.26075235e+03 , #destroyed
                          "slow": 3.13064495e+03 , #impact Sun
                          "fast": 3.16541123e+03 , #impact Sun
                      }
@@ -227,7 +227,7 @@ true_lifetime_variableeps = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 5.86119732e+03 , #destroyed
+                         "CME": 0.0 ,#5.86119732e+03 , #destroyed
                          "slow": 1.10095397e+04 , #impact Sun
                          "fast": 1.09967871e+04 , #impact Sun
                      }
@@ -244,7 +244,7 @@ true_lifetime_variableeps = {"C": {
                          "fast": 0.0 
                      } ,
                      "both": {
-                         "CME": 5.25520286e+03 , #impact Sun
+                         "CME": 0.0 ,#5.25520286e+03 , #impact Sun
                          "slow": 5.77881690e+03 , #impact Sun
                          "fast": 5.78656870e+03 , #impact SUn
                      }
@@ -264,9 +264,9 @@ true_lifetime_variableeps = {"C": {
                          "fast": 0.0 ,
                      } ,
                      "both": {
-                         "CME": 1.70754274e+01 , #destroyed
-                         "slow": 6.81124395e+02 , #destroyed
-                         "fast": 1.19395152e+03 , #destroyed
+                         "CME": 0.0 ,#1.70754274e+01 , #destroyed
+                         "slow": 0.0 ,#6.81124395e+02 , #destroyed
+                         "fast": 0.0 ,#1.19395152e+03 , #destroyed
                      }
                  } ,
                  "carbon": {
@@ -281,8 +281,8 @@ true_lifetime_variableeps = {"C": {
                          "fast": 0.0 
                      } ,
                      "both": {
-                         "CME": 3.14274370e+01 , #destroyed
-                         "slow": 2.96560310e+02 , #impact Sun
-                         "fast": 3.51843168e+02 , #impact Sun
+                         "CME": 0.0 ,#3.14274370e+01 , #destroyed
+                         "slow": 0.0 ,#2.96560310e+02 , #impact Sun
+                         "fast": 0.0 ,#3.51843168e+02 , #impact Sun
                      }
                  }}}

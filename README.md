@@ -3,25 +3,25 @@ Particle orbital simulation using numerical solvers and perturbation expressions
 
 ## Purpose
 This project simulates motion of one particle under the influence of gravitational pull from the Sun,
-pressure radiation force (radial component) and mass loss due to sputtering. Simulations are done
-with RK4(5) using scipy.integrate.solve_ivp and Leapfrog as 
-numerical solvers, and by perturbed expressions for radial distance $\hat{r}$, angular position
-$\hat{\theta}$ and $\hat{\beta}$. 
-The code offers the option of comparing solvers in terms of $\hat{r}$, $\hat{theta}$ and total energy calculated, with or without mass loss, as well as comparing a numerical solver with perturbative expressions for $\hat{r}$, 
-$\hat{\theta}$ or $\hat{\beta}$. For $\hat{\beta}$ also an explicit formula can be used for comparison.
-Calculations and plots can also be made for radial and angular velocity, $\hat{v}$ and $\hat{\omega}$.
+ radiation pressure force, Poynting Robertson drag from solar photons, and mass loss due to sputtering. Furthermore, the complete set of values for the radiation pressure-to-gravity ratio, $\beta$, has been provided, denoted numerical $\beta$. Simulations are done with RK4(5) using scipy.integrate.solve_ivp as numerical solver, both for the reference solution as well as the perturbed solutions. The solver validatation is done by considering only the gravitational pull and radiation pressure force, and evaluating time-conservation. The perturbation has been done using a fast timescale (changes over one orbit) and slow timescale (changes over several orbits), and the variables have been perturbed in $\epsilon$, which is the mass loss rate due to sputtering. The Poynting-Robertson contribution to perturbation is handled by writing $\delta$, the drag term, as function of $\epsilon$. An analytical approximation for $\beta$ is used, denoted analytical $\beta$. The perturbed solutions are validated by comparing with the numerical solutions, where both use the analytical $\beta$.
+
+This code has the options of comparing numerical solvers in terms of energy considering conservative effects and comparing numerical to perturbed solutions for $\hat{r}$, $\hat{\omega}$ and $\hat{\beta}$. The numerical solver can evaluate the numerical $\beta$ values and compare with the results using the analytical $\beta$ values, which allow the user to investigate the overestimation the analytical $\beta$ does on the orbit. Furthermore, the calculations can be done both for silicate (MgFeSiO_4) and carbon (C), for various sizes. Using this feature one can also investigate the differences in orbit between silicate and carbon under the same initial conditions.
 
 ## Features
-- Calculate orbital parameters, with or without massloss, using Leapfrog integrator or scipy's non-stiff
-solvers.
-- Calculate orbital parameters $\hat{\beta}$, $\hat{r}$ and $\hat{\theta}$ numerically, and compare with perturbed solutions
+- Calculate orbital parameters using scipy's non-stiff solver RK4(5).
+- Calculate orbital parameters $\hat{\beta}$, $\hat{r}$ and $\hat{\theta}$ numerically, and compare with perturbed solutions.
 - Comparison plots of energies and orbital parameters
+- Complete dictionary of sputtering yields for carbon and silicate, for nine solar wind ions, and for fast and slow solar wind, as well as coronal mass ejection (CME) conditions.
+- Dictionaries of perturbed and numerical lifetimes which can be used as point of comparison of lifetimes between numerical, perturbed solutions, and theoretical values. 
+- $\beta$ calculated from Mie theory
 
 ## Requirements
 - Python 3.10+
 - matplotlib
 - numpy
 - scipy
+- sympy
+- tqdm
 
 ## Installation
 1. From zip file or clone repository:
@@ -45,19 +45,13 @@ solvers.
     python main.py
     ```
 ## Usage
-This specifies how to run the main file. Running it will make a variety of comparison plots based on input. Not all plots have same attributes. This will explain in that in detail. Note that mandatory input arguments for main file are comp_type and time, and plotting a specified solver will not change labels of the plots.
-* "eps_beta": only need mandatory input args to run and provides $\epsilon$ and $\beta$ values corresponding to mass and size range in config file.
-* "thetahat": input can be RK4(5) and Leapfrog file, one of the files or a specified solver. If two files input it will plot the comparison of $\hat{\theta}$ between the files, if file or solver it will plot that against the perturbed expression. No combinations will compare a file to solver solution.
-* "betahat": input RK4(5) or Leapfrog file, or solver input, rel_fw_err can be True or False. Will compare specified file or solver to perturbed and analytical $\hat{\beta}$ if rel_fw_err==False, else it will plot relative forward error between file or solver and perturbed and analytical $\hat{\beta}$.
-* "energy": input RK4(5) and Leapfrog file or solver input, massloss True or False, rel_fw_err True or False. Compares input energies with or without massloss if rel_fw_err ==False, else compares relative forward error in energy between RK4(5) and Leapfrog or solver and file.
-* "vhat": input RK4(5), Leapfrog or solver, will compare with perturbed $\hat{v}$.
-* "omegahat": input RK4(5), Leapfrog or solver, will compare with perturbed $\hat{\omega}$.
+All plots produced for the master thesis are produced through the main file. The main function initiates plotting files depending on user input. This is run for all the plots in the file and is hashed out initially, so depending on which plot the user want to reproduce one has to un-hash the selected lines. Specified for each plot, if applicable, is the file necessary to make the plot. Those are made through the make_file function in the main file, and all necessary files are made and hashed out initially, so to make the desired files one has to un-hash selected lines.
+
+If one want to run simulations outside the main file, the numerical simulations are performed through particle_class file and perturbed simulations in pert_variable_eps file. Into the functions one need to pass arguments of dust properties, which are defined in dust_properties. The simulation results can be plotted in plot file, but please note the plot functions expect a .npz file for the numerical plots.
 
 
 ## Bugs
-* Changing plot input to specified solver in main does not change labels in plots.
-* If choosing file corresponding to mass loss and specifying massloss=False in running main file (or vice versa) where mass loss argument is relevant, the function does not raise error but will run anyways.
-* Can not run two specified solvers, need at least one file where applicable. 
+
 
 ## Code Sources and Acknowledgements
 Progress bar added to scipy.integrate.solve_ivp
@@ -71,4 +65,7 @@ Elemental abundances in the solar wind
 * Killen, R. M., Hurley, D. M., & Farrell, W. M. (2012). The effect on the lunar exosphere of a coronal mass ejection passage [Table] (Vol. 117). *Journal of Geophysical Research*. https://doi.org/10.1029/2011JE004011
 
 Arrow in epsilon and delta vs B plot
-* User Dietrich answer to question "Draw arrow outside plot in Matplotlib" (2014). https://stackoverflow.com/questions/23922804/draw-arrow-outside-plot-in-matplotlib
+* User Dietrich answer to question "Draw arrow outside plot in Matplotlib" (2014) [Code]. https://stackoverflow.com/questions/23922804/draw-arrow-outside-plot-in-matplotlib
+
+Calculated $\beta$ values in files ac_radpr_prdrag_sun1au.dat and sil_radpr_prdrag_sun1au.dat
+* Li, A. (personal communication, March 1, 2026) [Table].

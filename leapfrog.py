@@ -49,7 +49,7 @@ def leapfrog_algorithm(initial_vals , acc_func , time , particle_obj , epsilon =
         if massloss is not None:
             mhat += 0.5 * dt * massloss(mhat , epsilon , x , y) 
 
-        bhat = betahat(mhat , particle_obj)
+        bhat = betahat(mhat , particle_obj , particle_obj.analytical)
             
         ax , ay = acc_func(x , y , vx_half , vy_half , mhat , particle_obj , drag) #acceleration calcs
         

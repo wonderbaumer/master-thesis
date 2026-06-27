@@ -34,10 +34,12 @@ class particle_solver():
        pos_vel_calcs(), numerical solution for particle parameters based on input of solver type and 
                         if massloss=True or False"""
     
-    def __init__(self , sim_time , par , solver = "RK45" , massloss = True , drag = True):
+    def __init__(self , sim_time , par , solver = "RK45" , massloss = True , drag = True 
+                 , analytical = False):
         self.solver = solver
         self.sim_time = sim_time
         self.massloss = massloss
+        self.analytical = analytical
         self.drag = drag
         self.particle = par
         self.r = par.r
@@ -87,7 +89,7 @@ class particle_solver():
 
             print(stopping_reason)
 
-            pos_and_vel1 = arr_variables(pos_and_vel , self , True)
+            pos_and_vel1 = arr_variables(pos_and_vel , self , True , self.analytical)
         
         elif self.solver in ["RK45" , "RK23" , "DOP853"] and self.massloss == False: 
             pos_and_vel = particle_motion(pos_vel , t_span , y0 , self.solver , state ,
@@ -100,16 +102,17 @@ class particle_solver():
 
             print(stopping_reason)
 
-            pos_and_vel1 = arr_variables(pos_and_vel , self , False)
+            pos_and_vel1 = arr_variables(pos_and_vel , self , False , self.analytical)
 
         return pos_and_vel1
 
 if __name__ == "__main__":
-    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "D")
-    p = particle_solver(t8 , par , "RK45" , massloss = True , drag = True)
+    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "C")
+    p = particle_solver(t8 , par , "RK45" , massloss = True , drag = True , analytical = False)
     vals = p.pos_vel_calcs()
     
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
+    np.savez("Files/rk45_t8_C_carbon_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] 
+             , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     
-    
-    
+    # print(b)

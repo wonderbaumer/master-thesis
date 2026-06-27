@@ -22,9 +22,8 @@ def rhs(t , y0 , pbar , state , particle_obj):
     # this we need to take into account that n is a rounded number.
     state[0] = last_t + dt * n
 
-    beta0, C0 = y0
+    beta0, C0 = y0 #beta0 same as E(t1)
         
-
     r0 = C0**2 * (1 - particle_obj.B) / (1 - particle_obj.B * beta0)
         
     dC0_dt = (-particle_obj.B * particle_obj.K * beta0 * (1 - beta0 * particle_obj.B)**2 
@@ -32,12 +31,7 @@ def rhs(t , y0 , pbar , state , particle_obj):
 
     dbeta0_dt = beta0**2 / 3 * r0**(-2)
 
-        
-
     return [dbeta0_dt, dC0_dt]
-
-
-
 
 def orbital_radius_event(t , y0 , pbar , state , particle_obj):
     beta0, C0 = y0
@@ -73,7 +67,7 @@ def arr_variables(sol , particle_obj):
 
 class runner_class():
     def __init__(self , par , sim_time):
-        self.B = par.K
+        self.B = par.B
         self.K = par.K
         self.sim_time = sim_time
     
@@ -104,11 +98,13 @@ class runner_class():
         return tot_variables
 
 if __name__== "__main__":
-    par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "D")
+    par = dust_properties("silicate" , "CME" , init_dist = 1 , size = "D")
     p = runner_class(par , t8)
     vals = p.solver()
     
     r0 , omega0 , beta0 , t , C0 = vals[0] , vals[1] , vals[2] , vals[3] , vals[4]
-    
-    # print(r0 , t)
+    Kcst = beta0 * (1 - par.B) / (6 * 1 - beta0 * par.B)
+    # plt.plot(t / par.epsilon , r0)
+    # plt.show()
+    print(par.K)
     

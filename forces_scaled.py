@@ -47,17 +47,19 @@ def sputtering(m , epsilon0 , x , y):
     return dmdt
 
 """Calculates betahat from current mass, using interpolated function"""
-def betahat(m , particle_obj):
+def betahat(m , particle_obj , analytical = False):
     """input: m (float), scaled mass of particle
               particle_obj, instance containing particle state
 
        returns: betahat(float), betahat """
     
-    # size = m**(1 / 3) #Scaled conversion mass-> size assuming ideal conditions
-    b = m**(- 1 / 3) #analytical beta
+    if analytical == False:
+        size = m**(1 / 3) #Scaled conversion mass-> size assuming ideal conditions
+        r_physical = size * particle_obj.r #Converting to physical mass
+        b = particle_obj.beta_func(r_physical) / particle_obj.B #Scaled beta
     
-    # r_physical = size * particle_obj.r #Converting to physical mass
-    # b = particle_obj.beta_func(r_physical) / particle_obj.B #Scaled beta
+    if analytical == True:
+         b = m**(- 1 / 3) #analytical beta
 
     return b
 
@@ -74,10 +76,10 @@ def pressure_radial(x , y , m , particle_obj):
     
     r = np.sqrt(x**2 + y**2) #Radial distance
 
-    ax = (x * betahat(m , particle_obj) * particle_obj.B 
+    ax = (x * betahat(m , particle_obj , particle_obj.analytical) * particle_obj.B 
           / ((1 - particle_obj.B) * r**3)) #scaled acceleration in x dir
     
-    ay = (y * betahat(m , particle_obj) * particle_obj.B 
+    ay = (y * betahat(m , particle_obj , particle_obj.analytical) * particle_obj.B 
           / ((1 - particle_obj.B) * r**3)) #scaled acceleration in y dir
 
     return ax , ay
@@ -97,7 +99,8 @@ def pr_drag(x , y , vx , vy , m , particle_obj):
 
     theta = np.atan2(y , x) #theta
 
-    A = -betahat(m , particle_obj) * particle_obj.B * particle_obj.delta / ((1 - particle_obj.B) * r**3)
+    A = (-betahat(m , particle_obj , particle_obj.analytical) * particle_obj.B * particle_obj.delta 
+    / ((1 - particle_obj.B) * r**3))
 
     x_dir = 2 * np.cos(theta) * (x * vx + y * vy) - np.sin(theta) * (x * vy - y * vx)
     y_dir = 2 * np.sin(theta) * (x * vx + y * vy) + np.cos(theta) * (x * vy - y * vx)
