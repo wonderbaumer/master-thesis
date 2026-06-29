@@ -15,7 +15,7 @@ Mg_arr = np.array([0.3964 , 0.2142 , 0.1924 , 1.2800 , 0.5636 , 0.3010 , 0.2769 
 Si_arr = np.array([0.4783 , 0.2589 , 0.2393 , 1.5700 , 0.6416 , 0.3502 , 0.3141 , 2.0900 , 0.5772 , 0.3054 , 0.2834 , 1.8700]) 
 S_arr = np.array([0.5407 , 0.2945 , 0.2688 , 1.7500 , 0.7136 , 0.3899 , 0.3431 , 2.3100 , 0.6676 , 0.3534 , 0.3217 , 2.1300]) 
 
-"""Elemental abundances in fast sw, slow sw and CME conditions . All relative to hydrogen"""
+"""Elemental abundances in fast sw, slow sw and CME conditions. All relative to hydrogen"""
 n_tot = 1.0
 
 n_He = np.array([0.02 , 0.04 , 0.3])
