@@ -98,12 +98,12 @@ class runner_class():
         return tot_variables
 
 if __name__== "__main__":
-    par = dust_properties("silicate" , "CME" , init_dist = 1 , size = "D")
-    p = runner_class(par , t8)
+    par = dust_properties("silicate" , "CME" , init_dist = 1 , size = "C")
+    p = runner_class(par , t6)
     vals = p.solver()
     
     r0 , omega0 , beta0 , t , C0 = vals[0] , vals[1] , vals[2] , vals[3] , vals[4]
-    Kcst = beta0 * (1 - par.B) / (6 * 1 - beta0 * par.B)
+    Kcst = beta0 * (1 - par.B)**2 / (6 * (1 - beta0 * par.B))
     # plt.plot(t / par.epsilon , r0)
     # plt.show()
     print(par.K)

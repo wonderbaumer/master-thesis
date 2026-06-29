@@ -27,7 +27,7 @@ This code has the options of comparing numerical solvers in terms of energy cons
 1. From zip file or clone repository:
 
     ```bash 
-    git clone https://github.com/wonderbaumer/Project-paper
+    git clone https://github.com/wonderbaumer/master-thesis
     ```
 
 2. Navigate into the project folder:
