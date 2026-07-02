@@ -24,7 +24,7 @@ This code has the options of comparing numerical solvers in terms of energy cons
 - tqdm
 
 ## Installation
-1. Clone repository:
+1. In terminal: clone repository:
 
     ```bash 
     git clone https://github.com/wonderbaumer/master-thesis
