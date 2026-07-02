@@ -187,7 +187,7 @@ def omegahat_comps(file_path , pert = None , material = None , mat_comp = None):
                  , label = r"Perturbed $\hat{\omega}$")
         plt.xlabel(r"$\hat{t}$")
         plt.ylabel(r"$\hat{\omega}$")
-        plt.title(rf"{material.capitalize()} $\hat{{\omega}}$, Numerical and perturbed solution")
+        plt.title(rf"{material.capitalize()} $\hat{{\omega}}$, numerical and perturbed solution")
 
         plt.legend()
         save_path = f"Plots/{base_name}_omega_vs_perturbed.png"
@@ -356,9 +356,9 @@ def energy_plot(solver1 , solver2 , particle_obj , fw_err = False):
         plt.show()
         
     if fw_err == True: #plots RK4(5) sols and relative forward errors between RK4(5) and Leapfrog
-        kinetic2 = np.interp(t , t2 , kinetic2)
-        potential2 = np.interp(t , t2 , potential2)
-        tot2 = np.interp(t , t2 , tot2)
+        kinetic2 = np.interp(t1 , t2 , kinetic2)
+        potential2 = np.interp(t1 , t2 , potential2)
+        tot2 = np.interp(t1 , t2 , tot2)
 
         err_kin = np.abs(kinetic1 - kinetic2) / np.abs(kinetic1)
         err_pot = np.abs(potential1 - potential2) / np.abs(potential1)

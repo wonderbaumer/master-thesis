@@ -67,7 +67,7 @@ class particle_solver():
         state = [0 , t_tot / 1000] #for progress bar
         
         stopping_reason = None
-        stopping_events = ["particle outside interpolation range" , "particle impacted Sun"]
+        stopping_events = ["particle impacted Sun"]
         
         """Simulations based on solver and mass loss specifications"""
         if self.solver == "LEAPFROG" and self.massloss == True:
@@ -108,11 +108,11 @@ class particle_solver():
 
 if __name__ == "__main__":
     par = dust_properties("carbon" , "slow" , init_dist = 1 , size = "C")
-    p = particle_solver(t8 , par , "RK45" , massloss = True , drag = True , analytical = False)
+    p = particle_solver(t6 , par , "RK45" , massloss = True , drag = True , analytical = False)
     vals = p.pos_vel_calcs()
     
     x , y , vx , vy , m , b , t = vals[: , 0] , vals[: , 1] , vals[: , 2] , vals[: , 3] , vals[: , 4] , vals[: , 5] , vals[: , 6] 
-    np.savez("Files/rk45_t8_C_carbon_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] 
-             , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
+    # np.savez("Files/rk45_t8_C_carbon_slowsw.npz" , x = x[::10] , y = y[::10] , vx = vx[::10] 
+    #          , vy = vy[::10] , m = m[::10] , b = b[::10] , t = t[::10])
     
     # print(b)

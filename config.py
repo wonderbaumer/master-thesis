@@ -98,44 +98,14 @@ init_vals = {"C" : {
             "B" : {"silicate" : 0.0343 , "carbon" : 0.0677}
             } ,
 
-            # "F" : {
-            # "r" : 0.04259 * 10**(-6) ,
-            # "B" : {"silicate" : 0.2098 , "carbon" : 1.6179}     
-            # } ,
-
             "A" : {
             "r" : 0.01220 * 10**(-6) ,
             "B" : {"silicate" : 0.0832 , "carbon" : 0.9758}
-            } ,
-
-            # "H" : {
-            # "r" : 0.00708 * 10**(-6) ,
-            # "B" : {"silicate" : 0.0799 , "carbon" : 0.9505}
-            # } ,
-
-            # "C" : {
-            # "r" : 0.10165 * 10**(-6) ,
-            # "B" : {"silicate" : 0.6811 , "carbon" : 3.2628}
-            # }  
-
-            # "K4" : {
-            # "r" : 7.1972e-07 ,
-            # "B" : {"silicate" : 0.2968 , "carbon" : 0.6809}
-            # }
+            } 
             }
 
-K_checks = {"K1" : {
-            "r" : 0.54840e-6,
-            "B" : {"silicate" : 0.4053 , "carbon" : 0.9640}
-            },
-            "K2" : {
-            "r" : 0.24261e-6,
-            "B" : {"silicate" : 0.7969 , "carbon" : 0.24261} #K sil 0.015, K carb 0.38, sil turn
-            },
-            "K3" : {
-            "r" : 0.41786e-6,
-            "B" : {"silicate" : 0.41786 , "carbon" : 1.3549} #K sil 0.07, K carb NA, sil turn CME
-            },
+"""Dict of K values passing dust ring indicator visual checks, as well as carbon and silicate B vals and size"""
+K_checks = {
             "K4" : {
             "r" : 7.1972e-07 ,
             "B" : {"silicate" : 0.2968 , "carbon" : 0.6809} #K sil 0.16, K carb 0.4 both turn CME

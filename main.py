@@ -2,7 +2,7 @@ import numpy as np
 from config import t6 , t7 , t8 , t9 , t10
 from particle_class import particle_solver
 from plot import (eps_init_betareal , rhat_comps , omegahat_comps , b_plot 
-                  , energy_plot , beta_curves , PR_spu_lifetime_num , eval_sizes , ecc_sc , ecc_math 
+                  , energy_plot , beta_curves , eval_sizes , ecc_sc , ecc_math 
                   , PR_spu_lifetime_pert , PR_spu_lifetime_theo)
 from pert_variable_eps import runner_class
 from new_num_lifetimes import true_lifetime , true_lifetime_variableeps
@@ -68,10 +68,10 @@ def main(plot_type , particle_obj = None , pert = None , material = "silicate" ,
         PR_spu_lifetime_pert()
     
     if plot_type == "ecc_scaled":
-        ecc_sc(rk_path , particle_obj , None)
+        ecc_sc(rk_path , particle_obj)
     
     if plot_type == "ecc_math":
-        ecc_math(rk_path , None)
+        ecc_math(rk_path)
 
 def make_file(mat , swcond , parsize , sim_time , filename , massloss , drag , solver , analytical = False):
     par = dust_properties(material = mat , sw = swcond , size = parsize)
@@ -142,7 +142,7 @@ def make_file(mat , swcond , parsize , sim_time , filename , massloss , drag , s
 
 """multiscale validation, silicate omega, all analytical beta , file 3"""  
 # par = dust_properties("silicate" , "slow" , init_dist = 1.0 , size = "C")
-#        
+       
 # p1 = runner_class(par , t8)
 # vals1 = p1.solver()  
 # r0 , omega0 , beta0 , tpert , C0 = vals1[0] , vals1[1] , vals1[2] , vals1[3] , vals1[4]
@@ -208,7 +208,6 @@ def make_file(mat , swcond , parsize , sim_time , filename , massloss , drag , s
 
 """numerical beta validation, silicate size A, omega, file 7"""
 # main("omega_comp" , rk_path = "Files/rk45_t8_A_silicate_slowsw_numbeta.npz" , material = "silicate")
-
 
 """numerical beta validation, silicate size A, beta, file 7"""      
 # main("beta_comp" , rk_path = "Files/rk45_t8_A_silicate_slowsw_numbeta.npz" , material = "silicate")

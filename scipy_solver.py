@@ -43,28 +43,6 @@ def pos_vel(t , init , pbar , state , particle_obj , massloss = True , drag = Tr
     
     return variable_list
 
-"""Stopping condition if size outside interpolation range"""
-def r_out_of_range_event(t , init , pbar , state , particle_obj , massloss , drag):
-    """input: t (float), time in s
-              init (array), initial conditions x, y, vx, vy, m
-              pbar (tqdm object), progress bar
-              state (tuple), consisting of timestep and time
-              particle_obj (instance), describing particle properties
-              massloss, default: True, specify False if massloss is not considered
-              drag, default: True, else False if drag not considered
-              
-        returns: physical mass- lower_lim (float), difference between current mass and threshold"""
-    
-    _ , _ , _ , _ , m = init #unpacking
-
-    lower_lim = 10**(-23) #lower mass limit
-    m_physical = m * particle_obj.m0 #physical mass
-    
-    return m_physical - lower_lim #triggering when sum reach zero
-
-r_out_of_range_event.terminal = True
-r_out_of_range_event.direction = -1
-
 """Stopping condition if distance <0.1"""
 def orbital_radius_event(t , init , pbar , state , particle_obj , massloss , drag):
     """input: t (float), time in s
@@ -103,7 +81,7 @@ def particle_motion(fun , t_span , y0 , method , state , particle_obj , massloss
         start = time.perf_counter() #start counting simulation time
         sol = solve_ivp(fun , t_span , y0 , method = method ,
                       args = (pbar , state , particle_obj , massloss , drag) , rtol = 1e-9 
-                      , atol = 1e-12 , events = [r_out_of_range_event , orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
+                      , atol = 1e-12 , events = [orbital_radius_event]) #solving diff eq using solve_ivp, tight tolerances
         end = time.perf_counter() #end counting simulation time
 
     print(f"Solver runtime: {end - start:.6f} seconds")
