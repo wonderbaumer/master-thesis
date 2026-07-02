@@ -16,7 +16,6 @@ This code has the options of comparing numerical solvers in terms of energy cons
 - $\beta$ calculated from Mie theory
 
 ## Requirements
-- Python 3.10+
 - matplotlib
 - numpy
 - scipy
