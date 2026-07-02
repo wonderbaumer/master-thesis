@@ -24,7 +24,7 @@ This code has the options of comparing numerical solvers in terms of energy cons
 - tqdm
 
 ## Installation
-1. From zip file or clone repository:
+1. Clone repository:
 
     ```bash 
     git clone https://github.com/wonderbaumer/master-thesis
@@ -32,7 +32,7 @@ This code has the options of comparing numerical solvers in terms of energy cons
 
 2. Navigate into the project folder:
     ```bash
-    cd Project-paper
+    cd master-thesis
     ```
 
 3. Install requirements:
@@ -41,9 +41,8 @@ This code has the options of comparing numerical solvers in terms of energy cons
     ```
 
 4. Run simulations using main.py
-    ```bash
-    python main.py
-    ```
+    Un-hash the hashed lines to make desired files and plots
+   
 ## Usage
 All plots produced for the master thesis are produced through the main file. The main function initiates plotting files depending on user input. This is run for all the plots in the file and is hashed out initially, so depending on which plot the user want to reproduce one has to un-hash the selected lines. Specified for each plot, if applicable, is the file necessary to make the plot. Those are made through the make_file function in the main file, and all necessary files are made and hashed out initially, so to make the desired files one has to un-hash selected lines.
 
