@@ -7,7 +7,8 @@ from tqdm import tqdm
 import time
 
 
-"""This code solves the zeroth order perturbed expressions (multiscale) numerically"""
+"""This code solves the zeroth order perturbed expressions (multiscale) numerically
+Expressions for vr and theta are not written here as they are not used"""
 
 def rhs(t , y0 , pbar , state , particle_obj):
 
